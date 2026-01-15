@@ -54,6 +54,14 @@ firebase_options.dart
 dompetalumni-firebase-adminsdk-*.json
 temp_auth.json
 
+# Firebase admin scripts & seed data (contain service account references)
+create-admin.js
+create-admin.bat
+seed-firestore.js
+seed-firestore.bat
+firestore-import.json
+firestore_seed_data.json
+
 # Environment variables
 .env
 .env.local
@@ -96,5 +104,24 @@ coverage/
 # Test files (if any)
 test_driver/
 
-# Documentation artifacts (optional - comment out if you want to version)
-# doc/
+# Internal planning & brief documents
+brief/
+
+# Documentation files (except README) - contain setup-specific info
+ADMIN_ACCOUNT_SETUP.md
+BACKUP_RECOVERY.md
+CLOUD_FUNCTIONS.md
+FIREBASE_SETUP.md
+FIRESTORE_INDEXES.md
+FLUTTER_INSTALL.md
+INSTALLATION_OPTIONS.md
+LOADING_OPTIMIZATION.md
+PERFORMANCE_FIX.md
+SIMPLE_SETUP.md
+START_STOP_GUIDE.md
+
+# CORS config (if contains specific domains)
+cors.json
+
+# Brain/artifacts directory
+.gemini/
