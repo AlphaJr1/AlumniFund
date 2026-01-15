@@ -1,0 +1,86 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function untuk check admin by email
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'adrianalfajri@gmail.com';
+    }
+    
+    // Graduation Targets collection
+    match /graduation_targets/{targetId} {
+      // Public read access
+      allow read: if true;
+      
+      // Only admin can write
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Transactions collection
+    match /transactions/{transactionId} {
+      // Public read access
+      allow read: if true;
+      
+      // Only admin can write
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // General Fund collection
+    match /general_fund/{fundId} {
+      // Public read access
+      allow read: if true;
+      
+      // Only admin can write
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Settings collection
+    match /settings/{settingId} {
+      // Public read access
+      allow read: if true;
+      
+      // Only admin can write
+      allow create, update, delete: if isAdmin();
+    }
+    
+    // Pending Submissions collection
+    match /pending_submissions/{submissionId} {
+      // Public can create (submit proof)
+      allow create: if true;
+      
+      // Public can read (for realtime count), only admin can update/delete
+      allow read: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    // Analytics collection (created by Cloud Functions)
+    match /analytics/{analyticsId} {
+      // Admin can read analytics
+      allow read: if isAdmin();
+      
+      // Only Cloud Functions can create/update
+      allow create, update: if false;
+      
+      // Admin can delete (for reset functionality)
+      allow delete: if isAdmin();
+    }
+    
+    // Target Analytics collection (created by Cloud Functions)
+    match /target_analytics/{analyticsId} {
+      // Admin can read analytics
+      allow read: if isAdmin();
+      
+      // Only Cloud Functions can create/update  
+      allow create, update: if false;
+      
+      // Admin can delete (for reset functionality)
+      allow delete: if isAdmin();
+    }
+    
+    // Admin users collection (optional, untuk future use)
+    match /admin_users/{userId} {
+      // Only admin can read/write
+      allow read, write: if isAdmin();
+    }
+  }
+}

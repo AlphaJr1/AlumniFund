@@ -1,0 +1,171 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../screens/warmup_screen.dart';
+import '../screens/public_dashboard_screen.dart';
+import '../screens/admin/admin_login_screen.dart';
+import '../screens/admin/admin_layout.dart';
+import '../screens/admin/views/dashboard_overview.dart';
+import '../screens/admin/views/validate_income_view.dart';
+import '../screens/admin/views/input_expense_view.dart';
+import '../screens/admin/views/manage_targets_view.dart';
+import '../screens/admin/views/settings_view.dart';
+import '../utils/admin_config.dart';
+
+/// GoRouter configuration - Public + Admin (Phase 1 + Phase 2A)
+final routerProvider = Provider<GoRouter>((ref) {
+  return GoRouter(
+    initialLocation: '/warmup',
+    routes: [
+      // Warmup screen - preload data
+      GoRoute(
+        path: '/warmup',
+        name: 'warmup',
+        builder: (context, state) => const WarmupScreen(),
+      ),
+
+      // Public dashboard (ROOT PATH)
+      GoRoute(
+        path: '/',
+        name: 'dashboard',
+        builder: (context, state) => const PublicDashboardScreen(),
+      ),
+
+
+      // Admin login route (public)
+      GoRoute(
+        path: '/admin/login',
+        name: 'admin-login',
+        builder: (context, state) => const AdminLoginScreen(),
+        redirect: (context, state) {
+          // If already logged in as admin, redirect to dashboard
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null && AdminConfig.isAdmin(user.email)) {
+            return AdminConfig.dashboardRoute;
+          }
+          return null; // Allow access to login page
+        },
+      ),
+
+      // Admin routes (protected) - Using ShellRoute for persistent layout
+      ShellRoute(
+        builder: (context, state, child) {
+          return AdminLayout(child: child);
+        },
+        routes: [
+          // Dashboard Overview
+          GoRoute(
+            path: '/admin/dashboard',
+            name: 'admin-dashboard',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: DashboardOverview(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Validate Income
+          GoRoute(
+            path: '/admin/validate-income',
+            name: 'admin-validate-income',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ValidateIncomeView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Input Expense
+          GoRoute(
+            path: '/admin/input-expense',
+            name: 'admin-input-expense',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: InputExpenseView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Manage Targets
+          GoRoute(
+            path: '/admin/manage-targets',
+            name: 'admin-manage-targets',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ManageTargetsView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Settings
+          GoRoute(
+            path: '/admin/settings',
+            name: 'admin-settings',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: SettingsView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+        ],
+      ),
+
+      // Redirect /admin to /admin/dashboard
+      GoRoute(
+        path: '/admin',
+        redirect: (context, state) {
+          final user = FirebaseAuth.instance.currentUser;
+          if (user == null || !AdminConfig.isAdmin(user.email)) {
+            return AdminConfig.loginRoute;
+          }
+          return AdminConfig.dashboardRoute;
+        },
+      ),
+    ],
+    
+    errorBuilder: (context, state) => Scaffold(
+      appBar: AppBar(title: const Text('Error')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            Text('Page not found: ${state.matchedLocation}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => context.go('/'),
+              child: const Text('Go to Home'),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+});
