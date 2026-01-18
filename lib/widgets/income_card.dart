@@ -12,7 +12,14 @@ import 'hint_provider.dart';
 
 /// Income summary card dengan tap untuk detail modal
 class IncomeCard extends ConsumerStatefulWidget {
-  const IncomeCard({super.key});
+  final VoidCallback? onModalOpen; // Callback saat modal open
+  final VoidCallback? onModalClose; // Callback saat modal close
+  
+  const IncomeCard({
+    super.key,
+    this.onModalOpen,
+    this.onModalClose,
+  });
 
   @override
   ConsumerState<IncomeCard> createState() => _IncomeCardState();
@@ -30,12 +37,20 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
     return Center(
       child: GestureDetector(
         onTap: () {
+          // Notify onboarding
+          widget.onModalOpen?.call();
+          // debugPrint('[IncomeCard] Card tapped - opening modal');
+          
           // Open detail modal
           showDialog(
             context: context,
             barrierDismissible: true,
             builder: (context) => _IncomeDetailModal(),
-          );
+          ).then((_) {
+            // Modal closed
+            widget.onModalClose?.call();
+            // debugPrint('[IncomeCard] Modal closed');
+          });
         },
         onDoubleTap: () {
           // Consume double-tap to prevent theme change

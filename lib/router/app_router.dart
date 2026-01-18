@@ -11,6 +11,7 @@ import '../screens/admin/views/validate_income_view.dart';
 import '../screens/admin/views/input_expense_view.dart';
 import '../screens/admin/views/manage_targets_view.dart';
 import '../screens/admin/views/settings_view.dart';
+import '../screens/admin/views/feedback_list_screen.dart';
 import '../utils/admin_config.dart';
 
 /// GoRouter configuration - Public + Admin (Phase 1 + Phase 2A)
@@ -124,6 +125,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'admin-settings',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: SettingsView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+          
+          // Feedback list
+          GoRoute(
+            path: '/admin/feedbacks',
+            name: 'admin-feedbacks',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: FeedbackListScreen(),
             ),
             redirect: (context, state) {
               final user = FirebaseAuth.instance.currentUser;

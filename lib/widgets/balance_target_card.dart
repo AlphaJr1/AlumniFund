@@ -11,8 +11,16 @@ import 'distribution_detail_modal.dart';
 class BalanceTargetCard extends ConsumerWidget {
   final bool showHint; // Unused but needed for compatibility
   final VoidCallback? onProofSubmitted; // Callback when proof submitted
+  final VoidCallback? onModalOpen; // NEW: Callback when modal opens
+  final VoidCallback? onModalClose; // NEW: Callback when modal closes
   
-  const BalanceTargetCard({super.key, this.showHint = false, this.onProofSubmitted});
+  const BalanceTargetCard({
+    super.key, 
+    this.showHint = false, 
+    this.onProofSubmitted,
+    this.onModalOpen,
+    this.onModalClose,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -287,13 +295,21 @@ class BalanceTargetCard extends ConsumerWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
+                  // Notify onboarding that modal is opening
+                  onModalOpen?.call();
+                  // debugPrint('[BalanceCard] Drop Your Prop button tapped - modal opening');
+                  
                   showDialog(
                     context: context,
                     barrierDismissible: true,
                     builder: (context) => SimpleDonationModal(
                       onProofSubmitted: onProofSubmitted,
                     ),
-                  );
+                  ).then((_) {
+                    // Modal closed
+                    onModalClose?.call();
+                    // debugPrint('[BalanceCard] SimpleDonationModal closed');
+                  });
                 },
                 icon: Icon(Icons.volunteer_activism, size: isMobile ? 20 : 24),
                 label: Text(

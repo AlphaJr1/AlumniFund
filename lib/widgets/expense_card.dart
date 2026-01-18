@@ -10,7 +10,14 @@ import 'hint_provider.dart';
 
 /// Expense summary card dengan tap untuk detail modal
 class ExpenseCard extends ConsumerStatefulWidget {
-  const ExpenseCard({super.key});
+  final VoidCallback? onModalOpen; // Callback saat modal open
+  final VoidCallback? onModalClose; // Callback saat modal close
+  
+  const ExpenseCard({
+    super.key,
+    this.onModalOpen,
+    this.onModalClose,
+  });
 
   @override
   ConsumerState<ExpenseCard> createState() => _ExpenseCardState();
@@ -28,12 +35,20 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
     return Center(
       child: GestureDetector(
         onTap: () {
+          // Notify onboarding
+          widget.onModalOpen?.call();
+          // debugPrint('[ExpenseCard] Card tapped - opening modal');
+          
           // Open detail modal
           showDialog(
             context: context,
             barrierDismissible: true,
             builder: (context) => _ExpenseDetailModal(),
-          );
+          ).then((_) {
+            // Modal closed
+            widget.onModalClose?.call();
+            // debugPrint('[ExpenseCard] Modal closed');
+          });
         },
         onDoubleTap: () {
           // Consume double-tap to prevent theme change
@@ -69,18 +84,19 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
     final count = transactions.length;
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Padding(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          // Spacer untuk push content ke center
-          const Spacer(flex: 2),
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
           
           const Text(
             '💸',
-            style: TextStyle(fontSize: 56),
+            style: TextStyle(fontSize: 36),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           Text(
             'EXPENSES',
             style: TextStyle(
@@ -100,17 +116,17 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
               color: const Color(0xFF6B7280),
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             CurrencyFormatter.formatCurrency(totalExpense),
             style: const TextStyle(
-              fontSize: 40,
+              fontSize: 28,
               fontWeight: FontWeight.w900,
               color: Color(0xFFEF4444),
             ),
           ),
           
-          const SizedBox(height: 32),
+          const SizedBox(height: 12),
           
           // Transaction Count
           Container(
@@ -133,9 +149,9 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
             ),
           ),
           
-          // Spacer untuk balanced bottom
-          const Spacer(flex: 2),
+
         ],
+        ),
       ),
     );
   }

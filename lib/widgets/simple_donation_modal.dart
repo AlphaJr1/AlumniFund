@@ -1,13 +1,10 @@
 import 'dart:ui';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:go_router/go_router.dart';
-import '../providers/settings_provider.dart';
 import '../models/settings_model.dart';
-import '../utils/constants.dart';
+import '../providers/settings_provider.dart';
 import '../services/submission_service.dart';
 import '../utils/toast_utils.dart';
 
@@ -259,10 +256,43 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                       const SizedBox(height: 16),
                       
                       // Show 1 random method or all methods based on state
-                      ...(_showAllMethods 
+                      // Safety check: only show if paymentMethods is not empty
+                      if (paymentMethods.isNotEmpty) ...(_showAllMethods 
                           ? paymentMethods 
                           : [paymentMethods[(paymentMethods.hashCode % paymentMethods.length).abs()]]
-                      ).map((method) => _buildPaymentMethod(method)),
+                      ).map((method) => _buildPaymentMethod(method))
+                      else 
+                        // Show message when no payment methods available
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: const Color(0xFFF59E0B),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(
+                                Icons.warning_amber_rounded,
+                                color: Color(0xFFD97706),
+                                size: 20,
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'No payment methods configured yet. Please contact admin.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Color(0xFF92400E),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       
                       // Show More / Show Less button
                       if (paymentMethods.length > 1) ...[

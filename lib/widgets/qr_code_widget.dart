@@ -5,7 +5,7 @@ import '../theme/app_theme.dart';
 
 /// QR Code widget dengan payment information
 class QRCodeWidget extends StatelessWidget {
-  final PaymentInfo paymentInfo;
+  final PaymentMethod paymentInfo;
   
   const QRCodeWidget({
     super.key,
@@ -32,8 +32,8 @@ class QRCodeWidget extends StatelessWidget {
             _buildInfoRow(
               context,
               icon: Icons.account_balance,
-              label: 'Bank',
-              value: paymentInfo.bankName,
+              label: paymentInfo.isBank ? 'Bank' : 'E-Wallet',
+              value: paymentInfo.provider,
             ),
             
             const SizedBox(height: AppTheme.spacingS),

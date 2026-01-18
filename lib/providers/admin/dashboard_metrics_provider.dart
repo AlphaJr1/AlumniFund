@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../models/transaction_model.dart';
 import '../transaction_provider.dart';
 import '../graduation_target_provider.dart';
 

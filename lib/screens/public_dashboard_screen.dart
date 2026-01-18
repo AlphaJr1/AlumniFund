@@ -6,8 +6,11 @@ import '../widgets/card_stack_widget.dart';
 import '../widgets/balance_target_card.dart';
 import '../widgets/income_card.dart';
 import '../widgets/expense_card.dart';
+import '../widgets/onboarding_overlay.dart';
 import '../providers/theme_provider.dart';
+import '../providers/onboarding_provider.dart';
 import '../models/theme_colors.dart';
+import '../models/onboarding_step.dart'; // For OnboardingActionType
 
 /// Main public dashboard screen - Redesigned dengan card stack
 /// Clean, simple interface tanpa header/footer
@@ -26,6 +29,12 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
   
   // Callback reference to navigate cards
   void Function(int)? _navigateToCardCallback;
+  
+  // GlobalKey for CardStack to get position/bounds
+  final GlobalKey _cardStackKey = GlobalKey();
+  
+  // Modal tracking for onboarding
+  bool _wasModalOpen = false;
   
   // Theme reveal animation state
   AnimationController? _revealController;
@@ -57,6 +66,18 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
   
   // Method to trigger reveal animation - called from CardStackWidget
   void triggerThemeReveal(Offset tapPosition) {
+    // Check if onboarding is active and on double tap step
+    final onboardingState = ref.read(onboardingProvider);
+    if (onboardingState.isActive && 
+        onboardingState.currentStep.actionRequired == OnboardingActionType.doubleTap) {
+      // Delay completion untuk lihat theme animation dulu (1.5 detik)
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted) {
+          ref.read(onboardingProvider.notifier).completeCurrentStep();
+        }
+      });
+    }
+    
     // Get current theme before changing
     final currentTheme = ref.read(themeProvider);
     final oldPrimaryColor = currentTheme.colors.primary;
@@ -140,9 +161,63 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       _navigateToCardCallback?.call(1);
     });
   }
+  
+  // Handle scroll detected from CardStackWidget (for onboarding step 1)
+  void _handleScrollDetected() {
+    final onboardingState = ref.read(onboardingProvider);
+    if (onboardingState.isActive && 
+        onboardingState.currentStep.actionRequired == OnboardingActionType.scroll) {
+      ref.read(onboardingProvider.notifier).completeCurrentStep();
+    }
+  }
+  
+  // Check modal state for onboarding steps 3-5
+  void _checkModalStateForOnboarding(BuildContext context) {
+    final onboardingState = ref.read(onboardingProvider);
+    
+    // Only check if onboarding is active and on steps that require modal
+    if (!onboardingState.isActive) {
+      _wasModalOpen = false;
+      return;
+    }
+    
+    final currentAction = onboardingState.currentStep.actionRequired;
+    if (currentAction != OnboardingActionType.tapButton &&
+        currentAction != OnboardingActionType.tapCard) {
+      _wasModalOpen = false;
+      return;
+    }
+    
+    // Simple check: if Navigator can pop, there's likely a dialog/modal above
+    // This works because PublicDashboardScreen is the root, so canPop means modal
+    final isModalOpen = Navigator.of(context).canPop();
+    
+    // Debug print
+    // if (_wasModalOpen != isModalOpen) {
+    //   debugPrint('[Onboarding] Modal state changed: wasOpen=$_wasModalOpen, isNowOpen=$isModalOpen');
+    // }
+    
+    // Detect state change: modal opened
+    if (isModalOpen && !_wasModalOpen) {
+      _wasModalOpen = true;
+      ref.read(onboardingProvider.notifier).setModalOpen(true);
+      // debugPrint('[Onboarding] Modal opened - set state to true');
+    }
+    // Detect state change: modal closed
+    else if (!isModalOpen && _wasModalOpen) {
+      _wasModalOpen = false;
+      ref.read(onboardingProvider.notifier).setModalOpen(false);
+      // debugPrint('[Onboarding] Modal closed - completing step');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Check modal state for onboarding (steps 3-5)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkModalStateForOnboarding(context);
+    });
+    
     // Get dynamic theme colors (NEW theme if animation is running)
     final primaryColor = Theme.of(context).colorScheme.primary;
     
@@ -197,13 +272,54 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
           
           // CONTENT LAYER: Cards (always on top)
           CardStackWidget(
+            key: _cardStackKey,
             cards: [
               BalanceTargetCard(
                 key: const ValueKey(0),
-                onProofSubmitted: triggerConfetti, // Re-add confetti callback!
+                onProofSubmitted: triggerConfetti,
+                onModalOpen: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapButton) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(true);
+                  }
+                },
+                onModalClose: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapButton) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(false);
+                  }
+                },
               ),
-              const IncomeCard(key: ValueKey(1)),
-              const ExpenseCard(key: ValueKey(2)),
+              IncomeCard(
+                key: const ValueKey(1),
+                onModalOpen: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(true);
+                  }
+                },
+                onModalClose: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(false);
+                  }
+                },
+              ),
+              ExpenseCard(
+                key: const ValueKey(2),
+                onModalOpen: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(true);
+                  }
+                },
+                onModalClose: () {
+                  final state = ref.read(onboardingProvider);
+                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                    ref.read(onboardingProvider.notifier).setModalOpen(false);
+                  }
+                },
+              ),
             ],
             onCardChange: (index) {
               // Expose navigate method via callback
@@ -211,6 +327,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
             onNavigateReady: (navigateCallback) {
               _navigateToCardCallback = navigateCallback;
             },
+            onScrollDetected: _handleScrollDetected, // For onboarding step 1
           ),
           
           // Confetti from LEFT (shoots to SOUTHEAST - diagonal down-right)
@@ -255,8 +372,57 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
               ],
             ),
           ),
+          
+          // ONBOARDING OVERLAY (above confetti)
+          OnboardingOverlay(
+            onThemeChangeRequest: () {
+              triggerThemeReveal(Offset(
+                MediaQuery.of(context).size.width / 2,
+                MediaQuery.of(context).size.height / 2,
+              ));
+            },
+            onNavigateToCard: (index) {
+              _navigateToCardCallback?.call(index);
+            },
+            cardStackKey: _cardStackKey,
+          ),
         ],
       ),
+      // FLOATING ACTION BUTTON for starting onboarding
+      floatingActionButton: Consumer(
+        builder: (context, ref, child) {
+          final onboardingState = ref.watch(onboardingProvider);
+          
+          // Hide FAB when onboarding is active
+          if (onboardingState.isActive) {
+            return const SizedBox.shrink();
+          }
+          
+          return _buildOnboardingFAB(context);
+        },
+      ),
+    );
+  }
+  
+  Widget _buildOnboardingFAB(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 1500),
+      curve: Curves.easeInOut,
+      builder: (context, value, child) {
+        final scale = 1.0 + (0.1 * (0.5 - (value - 0.5).abs()));
+        
+        return Transform.scale(
+          scale: scale,
+          child: FloatingActionButton(
+            onPressed: () {
+              ref.read(onboardingProvider.notifier).startOnboarding();
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            child: const Icon(Icons.lightbulb_outline, color: Colors.white),
+          ),
+        );
+      },
     );
   }
 }

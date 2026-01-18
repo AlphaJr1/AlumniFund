@@ -26,9 +26,13 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
     // Small delay to ensure smooth transition from HTML splash
     await Future.delayed(const Duration(milliseconds: 300));
     
-    // Wait for all providers to have data
-    // This happens automatically as we watch them
-    // Once all are loaded, navigate to dashboard
+    // Add timeout fallback - if data doesn't load within 5 seconds, proceed anyway
+    Future.delayed(const Duration(seconds: 5), () {
+      if (mounted) {
+        debugPrint('[Warmup] Timeout reached - proceeding to dashboard');
+        context.go('/');
+      }
+    });
   }
 
   @override
@@ -39,14 +43,15 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
     final recentIncomeAsync = ref.watch(recentIncomeProvider);
     final recentExpenseAsync = ref.watch(recentExpenseProvider);
 
-    // Check if ALL data is loaded
-    final allLoaded = generalFundAsync.hasValue &&
-        graduationTargetsAsync.hasValue &&
-        recentIncomeAsync.hasValue &&
-        recentExpenseAsync.hasValue;
+    // Check if ALL data is loaded OR has error (proceed either way)
+    final allLoaded = (generalFundAsync.hasValue || generalFundAsync.hasError) &&
+        (graduationTargetsAsync.hasValue || graduationTargetsAsync.hasError) &&
+        (recentIncomeAsync.hasValue || recentIncomeAsync.hasError) &&
+        (recentExpenseAsync.hasValue || recentExpenseAsync.hasError);
 
-    // Navigate to dashboard when all data is ready
+    // Navigate to dashboard when all data is ready (or errored)
     if (allLoaded) {
+      debugPrint('[Warmup] All providers ready - navigating to dashboard');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.go('/');

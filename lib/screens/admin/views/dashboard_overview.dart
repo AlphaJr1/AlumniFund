@@ -16,6 +16,7 @@ import '../../../providers/admin/admin_actions_provider.dart';
 import '../../../providers/transaction_provider.dart';
 import '../../../utils/admin_config.dart';
 import '../../../utils/currency_formatter.dart';
+import '../../../widgets/admin/feedback_stat_card.dart';
 
 class DashboardOverview extends ConsumerStatefulWidget {
   const DashboardOverview({super.key});
@@ -186,6 +187,9 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
       _buildActiveTargetCard(ref),
       _buildDeadlineCard(ref),
       _buildPendingCard(context, ref),
+      FeedbackStatCard(
+        onTap: () => context.go('/admin/feedbacks'),
+      ),
     ];
 
     return GridView.builder(
@@ -210,7 +214,7 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
     return fundAsync.when(
       data: (fund) {
         final reservedAmount = activeTarget?.allocatedFromFund ?? 0.0;
-        final balanceStr = CurrencyFormatter.formatCurrency(fund?.balance ?? 0);
+        final balanceStr = CurrencyFormatter.formatCurrency(fund.balance);
         final changeStr = monthlyChange >= 0
             ? '+${CurrencyFormatter.formatCurrency(monthlyChange)}'
             : CurrencyFormatter.formatCurrency(monthlyChange);

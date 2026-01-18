@@ -15,12 +15,14 @@ class CardStackWidget extends ConsumerStatefulWidget {
   final List<Widget> cards;
   final Function(int cardIndex)? onCardChange;
   final Function(void Function(int))? onNavigateReady;
+  final VoidCallback? onScrollDetected; // NEW: Callback for scroll detection
   
   const CardStackWidget({
     super.key,
     required this.cards,
     this.onCardChange,
     this.onNavigateReady,
+    this.onScrollDetected,
   });
 
   @override
@@ -104,6 +106,9 @@ class _CardStackWidgetState extends ConsumerState<CardStackWidget>
 
   void _animateTransition({required bool toBack}) {
     setState(() => _isAnimating = true);
+    
+    // Notify parent about scroll/swipe (for onboarding)
+    widget.onScrollDetected?.call();
     
     if (toBack) {
       // Swipe up - single phase: front card exits top

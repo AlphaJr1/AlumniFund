@@ -336,24 +336,6 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
     }
   }
 
-  Widget _buildLoading() {
-    return const Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-        ),
-        SizedBox(height: 16),
-        Text(
-          'Memuat informasi pembayaran...',
-          style: TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildError() {
     return const Column(

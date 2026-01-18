@@ -9,7 +9,6 @@ import '../../../providers/admin/admin_actions_provider.dart';
 import '../../../providers/graduation_target_provider.dart';
 import '../../../widgets/admin/proof_image_modal.dart';
 import '../../../widgets/admin/delete_confirmation_dialog.dart';
-import '../../../utils/currency_formatter.dart';
 
 class ValidateIncomeView extends ConsumerWidget {
   const ValidateIncomeView({super.key});
@@ -181,9 +180,9 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   
+  
   DateTime? _selectedDate;
-  String _selectedTargetId = 'general_fund';
-  String _selectedTargetDisplay = 'General Fund';
+  // Removed: _selectedTargetId and _selectedTargetDisplay (no longer used)
   bool _isLoading = false;
 
   @override

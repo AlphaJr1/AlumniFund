@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/transaction_model.dart';
 import '../../utils/currency_formatter.dart';
-import '../../utils/app_constants.dart';
+import '../../utils/constants.dart';
 
 /// Delete Transaction Confirmation Dialog
 class DeleteTransactionDialog extends StatelessWidget {

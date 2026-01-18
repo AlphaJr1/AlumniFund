@@ -110,7 +110,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
       await _targetService.checkAndActivateTargets();
 
       if (mounted) {
-        final totalTargets = result['totalTargets'] as int;
+        // final totalTargets = result['totalTargets'] as int;
         final targetNames = (result['targetNames'] as List<String>).join(', ');
         final createdCount = (result['created'] as List).length;
         final updatedCount = (result['updated'] as List).length;
