@@ -57,35 +57,28 @@ class _OnboardingFeedbackModalState
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final screenWidth = screenSize.width;
-    final screenHeight = screenSize.height;
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isMobile = screenWidth < 600;
     final remainingChars = _maxCharacters - _feedbackController.text.length;
-
-    // Hitung tinggi yang tersedia (dengan mempertimbangkan keyboard)
-    final availableHeight = screenHeight - keyboardHeight - 100;
-    final modalHeight = isMobile 
-        ? availableHeight.clamp(300.0, 550.0) 
-        : 520.0;
+    final hasKeyboard = keyboardHeight > 0;
 
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.only(
         left: 16,
         right: 16,
-        top: 40,
-        bottom: keyboardHeight + 16, // Tambahkan padding bottom saat keyboard muncul
+        top: hasKeyboard ? 20 : 40,
+        bottom: keyboardHeight > 0 ? keyboardHeight + 8 : 16,
       ),
       child: Container(
         width: screenWidth * 0.9,
         constraints: BoxConstraints(
           maxWidth: isMobile ? 420 : 520,
-          minHeight: 300,
-          maxHeight: modalHeight,
+          minHeight: hasKeyboard ? 280 : 300,
         ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(hasKeyboard ? 16 : 24),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -97,41 +90,42 @@ class _OnboardingFeedbackModalState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header (Simplified)
+            // Header (Compact saat keyboard muncul)
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: isMobile ? 20 : 24,
+                horizontal: 20,
+                vertical: hasKeyboard ? 12 : (isMobile ? 16 : 20),
               ),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(hasKeyboard ? 16 : 24),
+                  topRight: Radius.circular(hasKeyboard ? 16 : 24),
                 ),
               ),
               child: Column(
                 children: [
-                  // Simple title
                   Text(
                     'Tutorial Selesai! ✓',
                     style: TextStyle(
-                      fontSize: isMobile ? 18 : 20,
+                      fontSize: hasKeyboard ? 16 : (isMobile ? 18 : 20),
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Ada saran untuk perbaikan app?',
-                    style: TextStyle(
-                      fontSize: isMobile ? 13 : 14,
-                      color: Colors.white.withOpacity(0.9),
+                  if (!hasKeyboard) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Ada saran untuk perbaikan app?',
+                      style: TextStyle(
+                        fontSize: isMobile ? 13 : 14,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
+                  ],
                 ],
               ),
             ),
@@ -139,28 +133,30 @@ class _OnboardingFeedbackModalState
             // Content Area (Scrollable)
             Flexible(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(hasKeyboard ? 16 : 20),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Simple info
-                    Text(
-                      'Opsional - tulis saran atau feedback kamu',
-                      style: TextStyle(
-                        fontSize: isMobile ? 12 : 13,
-                        color: const Color(0xFF6B7280),
+                    if (!hasKeyboard)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          'Opsional - tulis saran atau feedback kamu',
+                          style: TextStyle(
+                            fontSize: isMobile ? 12 : 13,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
 
-                    // TextField - TANPA Expanded, gunakan minLines/maxLines
+                    // TextField - Compact saat keyboard
                     TextField(
                       controller: _feedbackController,
-                      autofocus: true, // Auto-focus saat modal dibuka
+                      autofocus: true,
                       maxLength: _maxCharacters,
-                      minLines: isMobile ? 4 : 6,
-                      maxLines: isMobile ? 8 : 10,
+                      minLines: hasKeyboard ? 3 : (isMobile ? 4 : 6),
+                      maxLines: hasKeyboard ? 5 : (isMobile ? 8 : 10),
                       textAlignVertical: TextAlignVertical.top,
                       enabled: !_isSubmitting,
                       keyboardType: TextInputType.multiline,
@@ -191,20 +187,20 @@ class _OnboardingFeedbackModalState
                           ),
                         ),
                         counterText: '',
-                        contentPadding: const EdgeInsets.all(16),
+                        contentPadding: EdgeInsets.all(hasKeyboard ? 12 : 16),
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
                       style: TextStyle(
                         fontSize: isMobile ? 14 : 15,
-                        height: 1.5,
+                        height: 1.4,
                       ),
                       onChanged: (value) {
-                        setState(() {}); // Update char counter
+                        setState(() {});
                       },
                     ),
 
-                    const SizedBox(height: 8),
+                    SizedBox(height: hasKeyboard ? 6 : 8),
 
                     // Character counter
                     Text(
@@ -217,9 +213,9 @@ class _OnboardingFeedbackModalState
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: hasKeyboard ? 12 : 16),
 
-                    // Selesai button
+                    // Selesai button - compact saat keyboard
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -229,7 +225,7 @@ class _OnboardingFeedbackModalState
                               Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(
-                            vertical: isMobile ? 14 : 16,
+                            vertical: hasKeyboard ? 12 : (isMobile ? 14 : 16),
                           ),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -249,7 +245,7 @@ class _OnboardingFeedbackModalState
                             : Text(
                                 'Selesai',
                                 style: TextStyle(
-                                  fontSize: isMobile ? 15 : 16,
+                                  fontSize: hasKeyboard ? 14 : (isMobile ? 15 : 16),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
