@@ -45,7 +45,7 @@ app.*.map.json
 /build/web/
 
 # Firebase
-firebase_options.dart
+# firebase_options.dart  # Commented out - needed for CI (contains only public API keys)
 .firebase/
 .firebaserc
 

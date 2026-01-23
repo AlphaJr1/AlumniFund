@@ -112,8 +112,9 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
       {String? name, String? location, DateTime? date}) {
     setState(() {
       if (name != null) _graduates[index].nameController.text = name;
-      if (location != null)
+      if (location != null) {
         _graduates[index].locationController.text = location;
+      }
       if (date != null) _graduates[index].date = date;
     });
     _notifyParent();
