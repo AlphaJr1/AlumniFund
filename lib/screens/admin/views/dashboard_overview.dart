@@ -161,11 +161,11 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
 
   Widget _buildMetricsGrid(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    
+
     // Responsive columns and card heights
     int crossAxisCount = 4;
     double cardHeight = 220; // Increased desktop default
-    
+
     if (screenWidth < 1024) {
       // Tablet
       crossAxisCount = 2;
@@ -218,10 +218,11 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
         final changeStr = monthlyChange >= 0
             ? '+${CurrencyFormatter.formatCurrency(monthlyChange)}'
             : CurrencyFormatter.formatCurrency(monthlyChange);
-        
+
         String subtitleText;
         if (reservedAmount > 0) {
-          subtitleText = 'Reserved: ${CurrencyFormatter.formatCurrency(reservedAmount)}';
+          subtitleText =
+              'Reserved: ${CurrencyFormatter.formatCurrency(reservedAmount)}';
         } else {
           subtitleText = '$changeStr this month';
         }
@@ -262,18 +263,20 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
     }
 
     // Capitalize first letter of month
-    final monthCapitalized = target.month[0].toUpperCase() + target.month.substring(1);
+    final monthCapitalized =
+        target.month[0].toUpperCase() + target.month.substring(1);
     final displayText = '$monthCapitalized ${target.year}';
-    
+
     // Use displayAmount (actual + allocated) for progress
     final progress = target.targetAmount > 0
         ? (target.displayAmount / target.targetAmount * 100).toStringAsFixed(0)
         : '0';
-    
+
     // Show allocation breakdown in subtitle
     String subtitle;
     if (target.allocatedFromFund > 0) {
-      subtitle = '$progress% • From Fund: ${CurrencyFormatter.formatCurrency(target.allocatedFromFund)}';
+      subtitle =
+          '$progress% • From Fund: ${CurrencyFormatter.formatCurrency(target.allocatedFromFund)}';
     } else {
       final graduateNames = target.graduates.map((g) => g.name).join(', ');
       subtitle = '$progress% • $graduateNames';
@@ -308,7 +311,8 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
             ? '1 day left'
             : '$days days left';
 
-    final deadlineStr = DateFormat('dd MMM yyyy', 'id_ID').format(target.deadline);
+    final deadlineStr =
+        DateFormat('dd MMM yyyy', 'id_ID').format(target.deadline);
 
     return MetricCard(
       icon: '⏰',
@@ -334,9 +338,8 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
       value: valueStr,
       valueColor: count > 0 ? const Color(0xFFEF4444) : const Color(0xFF10B981),
       subtitle: count > 0 ? 'Click to validate' : null,
-      onTap: count > 0
-          ? () => context.go(AdminConfig.validateIncomeRoute)
-          : null,
+      onTap:
+          count > 0 ? () => context.go(AdminConfig.validateIncomeRoute) : null,
     );
   }
 
@@ -455,7 +458,8 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
           onEdit: (transaction) async {
             final result = await showDialog<bool>(
               context: ref.context,
-              builder: (context) => EditTransactionModal(transaction: transaction),
+              builder: (context) =>
+                  EditTransactionModal(transaction: transaction),
             );
 
             if (result == true) {
@@ -494,7 +498,8 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
                   children: [
                     const Text(
                       'Are you sure you want to delete this transaction?',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                     ),
                     const SizedBox(height: 16),
                     Container(
@@ -510,7 +515,9 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
                           Text(
                             'Type: ${transaction.isIncome ? "Income" : "Expense"}',
                             style: TextStyle(
-                              color: transaction.isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              color: transaction.isIncome
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFEF4444),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -518,7 +525,9 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
                           Text(
                             'Amount: ${CurrencyFormatter.formatCurrency(transaction.amount)}',
                             style: TextStyle(
-                              color: transaction.isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                              color: transaction.isIncome
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFFEF4444),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -539,14 +548,20 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
                         children: [
                           Text(
                             'This will:',
-                            style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFEF4444)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFEF4444)),
                           ),
-                          Text('• Remove transaction record', style: TextStyle(fontSize: 14)),
-                          Text('• Revert balance changes', style: TextStyle(fontSize: 14)),
+                          Text('• Remove transaction record',
+                              style: TextStyle(fontSize: 14)),
+                          Text('• Revert balance changes',
+                              style: TextStyle(fontSize: 14)),
                           SizedBox(height: 8),
                           Text(
                             '⚠️ This action CANNOT be undone!',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFEF4444)),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFEF4444)),
                           ),
                         ],
                       ),
@@ -574,11 +589,11 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
               try {
                 // Delete transaction with balance reconciliation
                 await ref.read(adminActionsProvider).deleteTransaction(
-                  transactionId: transaction.id,
-                  type: transaction.isIncome ? 'income' : 'expense',
-                  amount: transaction.amount,
-                  targetId: transaction.targetId,
-                );
+                      transactionId: transaction.id,
+                      type: transaction.isIncome ? 'income' : 'expense',
+                      amount: transaction.amount,
+                      targetId: transaction.targetId,
+                    );
 
                 // Show success message
                 if (ref.context.mounted) {
@@ -610,7 +625,6 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
             }
           },
         );
-
       },
       loading: () => Container(
         padding: const EdgeInsets.all(48),

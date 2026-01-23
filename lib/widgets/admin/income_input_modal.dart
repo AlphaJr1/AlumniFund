@@ -132,7 +132,7 @@ class _IncomeInputModalState extends ConsumerState<IncomeInputModal> {
       try {
         final adminActions = ref.read(adminActionsProvider);
         await adminActions.autoAllocateToTarget();
-        
+
         // Invalidate providers to refresh UI
         ref.invalidate(activeTargetProvider);
         ref.invalidate(upcomingTargetsProvider);

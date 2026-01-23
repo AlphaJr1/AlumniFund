@@ -41,14 +41,14 @@ class ValidateIncomeView extends ConsumerWidget {
               ),
             ),
             loading: () => const Text(
-               'Loading...',
+              'Loading...',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFF6B7280),
               ),
             ),
             error: (_, __) => const Text(
-               'Error loading data',
+              'Error loading data',
               style: TextStyle(
                 fontSize: 16,
                 color: Color(0xFFEF4444),
@@ -103,7 +103,7 @@ class ValidateIncomeView extends ConsumerWidget {
             ),
             SizedBox(height: 16),
             Text(
-               'All Validated!',
+              'All Validated!',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -112,7 +112,7 @@ class ValidateIncomeView extends ConsumerWidget {
             ),
             SizedBox(height: 8),
             Text(
-               'No submissions pending validation',
+              'No submissions pending validation',
               style: TextStyle(
                 fontSize: 14,
                 color: Color(0xFF6B7280),
@@ -142,7 +142,7 @@ class ValidateIncomeView extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-               'Failed to Load Data',
+              'Failed to Load Data',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -179,8 +179,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
-  
+
   DateTime? _selectedDate;
   // Removed: _selectedTargetId and _selectedTargetDisplay (no longer used)
   bool _isLoading = false;
@@ -190,7 +189,8 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
     super.initState();
     // Pre-fill amount if available
     if (widget.submission.submittedAmount != null) {
-      _amountController.text = widget.submission.submittedAmount!.toStringAsFixed(0);
+      _amountController.text =
+          widget.submission.submittedAmount!.toStringAsFixed(0);
     }
     // Default date to submission date
     _selectedDate = widget.submission.submittedAt;
@@ -277,7 +277,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
           ProofImageModal.show(
             context,
             imageUrl: widget.submission.proofUrl!,
-                   title: 'Transfer Proof',
+            title: 'Transfer Proof',
           );
         }
       },
@@ -318,7 +318,8 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
                           InkWell(
                             onTap: () {
                               // Open in new tab
-                              html.window.open(widget.submission.proofUrl!, '_blank');
+                              html.window
+                                  .open(widget.submission.proofUrl!, '_blank');
                             },
                             child: const Text(
                               'Open',
@@ -358,7 +359,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
       children: [
         // Submitted info
         Text(
-           'Submitted: ${DateFormat('dd MMM yyyy, HH:mm', 'en_US').format(widget.submission.submittedAt)}',
+          'Submitted: ${DateFormat('dd MMM yyyy, HH:mm', 'en_US').format(widget.submission.submittedAt)}',
           style: const TextStyle(
             fontSize: 12,
             color: Color(0xFF9CA3AF),
@@ -379,7 +380,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
         TextFormField(
           controller: _amountController,
           decoration: InputDecoration(
-             labelText: 'Amount *',
+            labelText: 'Amount *',
             hintText: 'Enter amount',
             prefixText: 'Rp ',
             border: OutlineInputBorder(
@@ -393,11 +394,11 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
           ],
           validator: (value) {
             if (value == null || value.isEmpty) {
-               return 'Amount is required';
+              return 'Amount is required';
             }
             final amount = double.tryParse(value);
             if (amount == null || amount <= 0) {
-               return 'Amount must be greater than 0';
+              return 'Amount must be greater than 0';
             }
             return null;
           },
@@ -421,7 +422,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
           },
           child: InputDecorator(
             decoration: InputDecoration(
-               labelText: 'Transfer Date *',
+              labelText: 'Transfer Date *',
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -431,7 +432,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
             child: Text(
               _selectedDate != null
                   ? DateFormat('dd/MM/yyyy').format(_selectedDate!)
-                   : 'Select date',
+                  : 'Select date',
               style: TextStyle(
                 color: _selectedDate != null
                     ? const Color(0xFF111827)
@@ -453,7 +454,8 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.info_outline, color: Color(0xFF3B82F6), size: 20),
+              const Icon(Icons.info_outline,
+                  color: Color(0xFF3B82F6), size: 20),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -473,7 +475,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
         TextFormField(
           controller: _descriptionController,
           decoration: InputDecoration(
-             labelText: 'Notes (optional)',
+            labelText: 'Notes (optional)',
             hintText: 'Add notes...',
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -504,7 +506,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
                     ),
                   )
                 : const Icon(Icons.check_circle),
-             label: Text(_isLoading ? 'Processing...' : 'Approve'),
+            label: Text(_isLoading ? 'Processing...' : 'Approve'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF10B981),
               foregroundColor: Colors.white,
@@ -522,7 +524,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
           child: OutlinedButton.icon(
             onPressed: _isLoading ? null : _handleReject,
             icon: const Icon(Icons.cancel),
-             label: const Text('Reject'),
+            label: const Text('Reject'),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFFEF4444),
               side: const BorderSide(color: Color(0xFFEF4444)),
@@ -545,7 +547,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
     if (_selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-           content: Text('Select transfer date'),
+          content: Text('Select transfer date'),
           backgroundColor: Color(0xFFEF4444),
         ),
       );
@@ -572,7 +574,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-             content: Text('✅ Submission approved successfully!'),
+            content: Text('✅ Submission approved successfully!'),
             backgroundColor: Color(0xFF10B981),
           ),
         );
@@ -598,12 +600,13 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
   Future<void> _handleReject() async {
     final reason = await DeleteConfirmationDialog.show(
       context,
-       title: 'Reject Submission?',
-      message: 'This submission will be rejected and cannot be processed again.',
+      title: 'Reject Submission?',
+      message:
+          'This submission will be rejected and cannot be processed again.',
       confirmText: 'Yes, Reject',
       cancelText: 'Cancel',
       showReasonInput: true,
-       reasonLabel: 'Rejection reason (optional)',
+      reasonLabel: 'Rejection reason (optional)',
     );
 
     if (reason == null) return; // User cancelled
@@ -623,7 +626,7 @@ class _SubmissionCardState extends ConsumerState<_SubmissionCard> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-             content: Text('Submission rejected'),
+            content: Text('Submission rejected'),
             backgroundColor: Color(0xFFEF4444),
           ),
         );

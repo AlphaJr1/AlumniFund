@@ -122,7 +122,7 @@ class _SystemHealthWidgetState extends State<SystemHealthWidget> {
             ),
             const Divider(),
             const SizedBox(height: 12),
-            
+
             // Status indicator
             Row(
               children: [
@@ -150,9 +150,9 @@ class _SystemHealthWidgetState extends State<SystemHealthWidget> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Metrics
             Row(
               children: [
@@ -177,9 +177,9 @@ class _SystemHealthWidgetState extends State<SystemHealthWidget> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Cloud Functions info
             Container(
               padding: const EdgeInsets.all(12),

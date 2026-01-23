@@ -4,7 +4,7 @@ import '../models/graduate_model.dart';
 /// Admin-specific validators untuk validasi kompleks
 class AdminValidators {
   /// Validate expense amount tidak melebihi general fund balance
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateExpenseBalance({
     required double expenseAmount,
@@ -13,49 +13,49 @@ class AdminValidators {
     if (expenseAmount > generalFundBalance) {
       return 'Pengeluaran (Rp ${expenseAmount.toStringAsFixed(0)}) melebihi saldo dompet bersama (Rp ${generalFundBalance.toStringAsFixed(0)})';
     }
-    
+
     if (expenseAmount <= 0) {
       return 'Jumlah pengeluaran harus lebih dari 0';
     }
-    
+
     return null;
   }
 
   /// Validate transaction date (tidak boleh future date)
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateTransactionDate(DateTime date) {
     final now = DateTime.now();
-    
+
     if (date.isAfter(now)) {
       return 'Tanggal transaksi tidak boleh di masa depan';
     }
-    
+
     // Check if date is too far in the past (more than 1 year)
     final oneYearAgo = now.subtract(const Duration(days: 365));
     if (date.isBefore(oneYearAgo)) {
       return 'Tanggal transaksi terlalu lama (maksimal 1 tahun yang lalu)';
     }
-    
+
     return null;
   }
 
   /// Validate 24h edit window untuk transaction
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validate24HourEditWindow(DateTime createdAt) {
     final now = DateTime.now();
     final difference = now.difference(createdAt);
-    
+
     if (difference.inHours >= 24) {
       return 'Transaksi hanya dapat diedit dalam 24 jam pertama';
     }
-    
+
     return null;
   }
 
   /// Validate graduate list (no duplicates, dates in correct month)
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateGraduateList({
     required List<Graduate> graduates,
@@ -81,7 +81,8 @@ class AdminValidators {
 
     // Validate all graduate dates are in the correct month/year
     for (var graduate in graduates) {
-      if (graduate.date.month != monthNumber || graduate.date.year != targetYear) {
+      if (graduate.date.month != monthNumber ||
+          graduate.date.year != targetYear) {
         return 'Tanggal wisuda ${graduate.name} tidak sesuai dengan bulan/tahun target ($targetMonth $targetYear)';
       }
     }
@@ -90,7 +91,7 @@ class AdminValidators {
   }
 
   /// Validate no duplicate target for month/year
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static Future<String?> validateNoDuplicateTarget({
     required String month,
@@ -102,11 +103,11 @@ class AdminValidators {
           .collection('graduation_targets')
           .where('month', isEqualTo: month)
           .where('year', isEqualTo: year)
-          .where('status', whereIn: ['upcoming', 'active'])
-          .get();
+          .where('status', whereIn: ['upcoming', 'active']).get();
 
       // If editing, exclude current target from check
-      final duplicates = snapshot.docs.where((doc) => doc.id != excludeTargetId).toList();
+      final duplicates =
+          snapshot.docs.where((doc) => doc.id != excludeTargetId).toList();
 
       if (duplicates.isNotEmpty) {
         return 'Target untuk $month $year sudah ada';
@@ -119,28 +120,28 @@ class AdminValidators {
   }
 
   /// Validate graduate date is within reasonable range
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateGraduateDate(DateTime date) {
     final now = DateTime.now();
-    
+
     // Cannot be more than 1 year in the future
     final oneYearFromNow = now.add(const Duration(days: 365));
     if (date.isAfter(oneYearFromNow)) {
       return 'Tanggal wisuda tidak boleh lebih dari 1 tahun ke depan';
     }
-    
+
     // Cannot be more than 2 years in the past
     final twoYearsAgo = now.subtract(const Duration(days: 730));
     if (date.isBefore(twoYearsAgo)) {
       return 'Tanggal wisuda tidak boleh lebih dari 2 tahun yang lalu';
     }
-    
+
     return null;
   }
 
   /// Validate target amount is reasonable
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateTargetAmount(double amount, int graduateCount) {
     if (amount <= 0) {
@@ -175,12 +176,12 @@ class AdminValidators {
       'november': 11,
       'desember': 12,
     };
-    
+
     return monthMap[month.toLowerCase()];
   }
 
   /// Validate QR code image
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateQRCodeImage(int bytes, String filename) {
     // Check file size (max 2MB for QR codes)
@@ -199,7 +200,7 @@ class AdminValidators {
   }
 
   /// Validate system config values
-  /// 
+  ///
   /// Returns error message jika invalid, null jika valid
   static String? validateSystemConfig({
     required double perPersonAllocation,

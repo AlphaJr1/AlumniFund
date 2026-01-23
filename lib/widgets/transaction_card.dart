@@ -11,18 +11,18 @@ class TransactionCard extends StatelessWidget {
   final TransactionModel transaction;
   final VoidCallback? onTap;
   final bool showProofButton;
-  
+
   const TransactionCard({
     super.key,
     required this.transaction,
     this.onTap,
     this.showProofButton = true,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final isIncome = transaction.isIncome;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
@@ -48,13 +48,13 @@ class TransactionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: isIncome 
-                          ? AppConstants.successGreen 
+                      color: isIncome
+                          ? AppConstants.successGreen
                           : AppConstants.errorRed,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Relative time
                   Text(
                     transaction.relativeTime,
@@ -64,11 +64,11 @@ class TransactionCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  
+
                   // Target month or category
                   if (isIncome)
                     Text(
-                      transaction.targetMonth != null 
+                      transaction.targetMonth != null
                           ? 'Target: ${transaction.targetMonth}'
                           : 'Dompet Bersama',
                       style: const TextStyle(
@@ -89,7 +89,7 @@ class TransactionCard extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Right section
             Expanded(
               flex: isIncome ? 3 : 4,
@@ -104,9 +104,11 @@ class TransactionCard extends StatelessWidget {
                       color: AppConstants.gray400,
                     ),
                   ),
-                  
+
                   // Proof button for expense
-                  if (!isIncome && showProofButton && transaction.proofUrl != null) ...[
+                  if (!isIncome &&
+                      showProofButton &&
+                      transaction.proofUrl != null) ...[
                     const SizedBox(height: 8),
                     OutlinedButton(
                       onPressed: () {
@@ -139,7 +141,7 @@ class TransactionCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  
+
                   // Proof thumbnail for income
                   if (isIncome && transaction.proofUrl != null) ...[
                     const SizedBox(height: 8),

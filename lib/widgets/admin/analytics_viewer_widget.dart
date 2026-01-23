@@ -147,7 +147,7 @@ class _AnalyticsViewerWidgetState extends State<AnalyticsViewerWidget> {
             ),
             const Divider(),
             const SizedBox(height: 16),
-            
+
             // Summary metrics
             Wrap(
               spacing: 12,
@@ -197,16 +197,16 @@ class _AnalyticsViewerWidgetState extends State<AnalyticsViewerWidget> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Recent analytics list
             const Text(
               'Recent Targets',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            
+
             StreamBuilder<List<TargetAnalytics>>(
               stream: _analyticsService.getTargetAnalytics(),
               builder: (context, snapshot) {
@@ -221,9 +221,8 @@ class _AnalyticsViewerWidgetState extends State<AnalyticsViewerWidget> {
                 final analytics = snapshot.data!.take(5).toList();
 
                 return Column(
-                  children: analytics
-                      .map((a) => _buildAnalyticsItem(a))
-                      .toList(),
+                  children:
+                      analytics.map((a) => _buildAnalyticsItem(a)).toList(),
                 );
               },
             ),

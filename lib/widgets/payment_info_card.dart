@@ -49,8 +49,8 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
           ],
         ),
         padding: EdgeInsets.all(padding),
-        child: paymentMethods.isEmpty 
-            ? _buildError() 
+        child: paymentMethods.isEmpty
+            ? _buildError()
             : _buildContent(context, paymentMethods),
       ),
     );
@@ -93,15 +93,15 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
             ),
           ],
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Payment Methods - Show 1 random or all based on state
-        ...(_showAllMethods 
-            ? methods 
-            : [methods[(methods.hashCode % methods.length).abs()]]
-        ).map((method) => _buildPaymentMethodRow(context, method)),
-        
+        ...(_showAllMethods
+                ? methods
+                : [methods[(methods.hashCode % methods.length).abs()]])
+            .map((method) => _buildPaymentMethodRow(context, method)),
+
         // Show More / Show Less button
         if (methods.length > 1) ...[
           const SizedBox(height: 12),
@@ -118,8 +118,8 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
                 size: 20,
               ),
               label: Text(
-                _showAllMethods 
-                    ? 'Show less' 
+                _showAllMethods
+                    ? 'Show less'
                     : 'Show ${methods.length - 1} more payment method${methods.length > 2 ? 's' : ''}',
                 style: const TextStyle(
                   fontSize: 14,
@@ -129,22 +129,23 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
               ),
               style: TextButton.styleFrom(
                 backgroundColor: Colors.white.withOpacity(0.2),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               ),
             ),
           ),
         ],
-        
+
         const SizedBox(height: 20),
-        
+
         // Divider
         Container(
           height: 1,
           color: Colors.white24,
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         // Upload Proof Button
         SizedBox(
           width: double.infinity,
@@ -166,14 +167,15 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+                borderRadius:
+                    BorderRadius.circular(AppConstants.borderRadiusSmall),
               ),
             ),
           ),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Info text
         const Row(
           children: [
@@ -239,9 +241,9 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 16),
-          
+
           // Info
           Expanded(
             child: Column(
@@ -276,7 +278,7 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
               ],
             ),
           ),
-          
+
           // Copy button
           IconButton(
             onPressed: () {
@@ -335,7 +337,6 @@ class _PaymentInfoCardState extends ConsumerState<PaymentInfoCard> {
         return '💳';
     }
   }
-
 
   Widget _buildError() {
     return const Column(

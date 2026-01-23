@@ -118,7 +118,8 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
       final amount = double.parse(_amountController.text.replaceAll(',', ''));
 
       // Upload proof
-      final proofUrl = await _submissionService.uploadProofImage(_selectedFileBytes!);
+      final proofUrl =
+          await _submissionService.uploadProofImage(_selectedFileBytes!);
 
       // Get current user
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -140,7 +141,7 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
       try {
         final adminActions = ref.read(adminActionsProvider);
         await adminActions.autoAllocateToTarget();
-        
+
         // Invalidate target providers to fetch fresh allocation data from Firestore
         ref.invalidate(activeTargetProvider);
         ref.invalidate(upcomingTargetsProvider);
@@ -269,7 +270,8 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
                         if (value == null || value.isEmpty) {
                           return 'Amount is required';
                         }
-                        final amount = double.tryParse(value.replaceAll(',', ''));
+                        final amount =
+                            double.tryParse(value.replaceAll(',', ''));
                         if (amount == null || amount <= 0) {
                           return 'Amount must be greater than 0';
                         }
@@ -404,12 +406,14 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline, color: Color(0xFFEF4444)),
+                            const Icon(Icons.error_outline,
+                                color: Color(0xFFEF4444)),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 _errorMessage!,
-                                style: const TextStyle(color: Color(0xFFEF4444)),
+                                style:
+                                    const TextStyle(color: Color(0xFFEF4444)),
                               ),
                             ),
                           ],
@@ -464,7 +468,8 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                     ),
                                   )
                                 : const Text(
@@ -496,10 +501,8 @@ class _InputExpenseViewState extends ConsumerState<InputExpenseView> {
             const SizedBox(height: 16),
             mixedTransactionsAsync.when(
               data: (transactions) {
-                final expenses = transactions
-                    .where((t) => t.isExpense)
-                    .take(10)
-                    .toList();
+                final expenses =
+                    transactions.where((t) => t.isExpense).take(10).toList();
                 return _buildRecentExpenses(expenses);
               },
               loading: () => const Center(child: CircularProgressIndicator()),

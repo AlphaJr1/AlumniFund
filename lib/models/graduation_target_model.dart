@@ -11,9 +11,11 @@ class GraduationTarget {
   final List<Graduate> graduates;
   final double targetAmount;
   final double currentAmount;
-  final double allocatedFromFund; // Virtual allocation from general fund (not yet deducted)
+  final double
+      allocatedFromFund; // Virtual allocation from general fund (not yet deducted)
   final DateTime deadline;
-  final String status; // "upcoming" | "active" | "closing_soon" | "closed" | "archived"
+  final String
+      status; // "upcoming" | "active" | "closing_soon" | "closed" | "archived"
   final DateTime? openDate;
   final DateTime? closedDate;
   final Distribution distribution;
@@ -42,7 +44,7 @@ class GraduationTarget {
   /// Create GraduationTarget from Firestore document
   factory GraduationTarget.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return GraduationTarget(
       id: doc.id,
       month: data['month'] as String,
@@ -52,10 +54,12 @@ class GraduationTarget {
           .toList(),
       targetAmount: (data['target_amount'] as num).toDouble(),
       currentAmount: (data['current_amount'] as num).toDouble(),
-      allocatedFromFund: (data['allocated_from_fund'] as num?)?.toDouble() ?? 0.0,
+      allocatedFromFund:
+          (data['allocated_from_fund'] as num?)?.toDouble() ?? 0.0,
       deadline: data['deadline'] != null
           ? (data['deadline'] as Timestamp).toDate()
-          : DateTime(data['year'] as int, _getMonthNumber(data['month'] as String), 1),
+          : DateTime(
+              data['year'] as int, _getMonthNumber(data['month'] as String), 1),
       status: data['status'] as String,
       openDate: data['open_date'] != null
           ? (data['open_date'] as Timestamp).toDate()
@@ -63,8 +67,8 @@ class GraduationTarget {
       closedDate: data['closed_date'] != null
           ? (data['closed_date'] as Timestamp).toDate()
           : null,
-      distribution: Distribution.fromMap(
-          data['distribution'] as Map<String, dynamic>),
+      distribution:
+          Distribution.fromMap(data['distribution'] as Map<String, dynamic>),
       createdAt: (data['created_at'] as Timestamp).toDate(),
       createdBy: data['created_by'] as String,
       updatedAt: (data['updated_at'] as Timestamp).toDate(),
@@ -94,10 +98,10 @@ class GraduationTarget {
 
   /// Get total display amount (actual + allocated)
   double get displayAmount => currentAmount + allocatedFromFund;
-  
+
   /// Alias for targetAmount (for consistency with old code)
   double get requiredBudget => targetAmount;
-  
+
   /// Calculate progress percentage based on display amount (0-100+)
   double get percentage {
     if (targetAmount == 0) return 0;
@@ -111,9 +115,9 @@ class GraduationTarget {
 
   /// Check if target is in closing soon state (H-7 to H-3)
   bool get isClosingSoon {
-    return daysUntilDeadline <= 7 && 
-           daysUntilDeadline >= 0 && 
-           status == 'active';
+    return daysUntilDeadline <= 7 &&
+        daysUntilDeadline >= 0 &&
+        status == 'active';
   }
 
   /// Check if target is active
@@ -186,14 +190,24 @@ class GraduationTarget {
   }
 
   @override
-  String toString() => 'GraduationTarget(id: $id, month: $month, year: $year, status: $status)';
+  String toString() =>
+      'GraduationTarget(id: $id, month: $month, year: $year, status: $status)';
 
   /// Helper method to convert month name to number
   static int _getMonthNumber(String monthName) {
     const monthMap = {
-      'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4,
-      'Mei': 5, 'Juni': 6, 'Juli': 7, 'Agustus': 8,
-      'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12,
+      'Januari': 1,
+      'Februari': 2,
+      'Maret': 3,
+      'April': 4,
+      'Mei': 5,
+      'Juni': 6,
+      'Juli': 7,
+      'Agustus': 8,
+      'September': 9,
+      'Oktober': 10,
+      'November': 11,
+      'Desember': 12,
     };
     return monthMap[monthName] ?? 1;
   }

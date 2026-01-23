@@ -9,9 +9,9 @@ import '../utils/constants.dart';
 /// Service untuk handle semua Firestore operations
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // ==================== GRADUATION TARGETS ====================
-  
+
   /// Get graduation target by ID
   Future<GraduationTarget?> getGraduationTarget(String targetId) async {
     try {
@@ -19,14 +19,14 @@ class FirestoreService {
           .collection(FirestoreCollections.graduationTargets)
           .doc(targetId)
           .get();
-      
+
       if (!doc.exists) return null;
       return GraduationTarget.fromFirestore(doc);
     } catch (e) {
       throw Exception('Gagal get target: $e');
     }
   }
-  
+
   /// Create graduation target baru
   Future<void> createGraduationTarget(GraduationTarget target) async {
     try {
@@ -38,7 +38,7 @@ class FirestoreService {
       throw Exception('Gagal create target: $e');
     }
   }
-  
+
   /// Update graduation target
   Future<void> updateGraduationTarget(GraduationTarget target) async {
     try {
@@ -50,7 +50,7 @@ class FirestoreService {
       throw Exception('Gagal update target: $e');
     }
   }
-  
+
   /// Delete graduation target
   Future<void> deleteGraduationTarget(String targetId) async {
     try {
@@ -62,9 +62,9 @@ class FirestoreService {
       throw Exception('Gagal delete target: $e');
     }
   }
-  
+
   // ==================== TRANSACTIONS ====================
-  
+
   /// Add transaction baru
   Future<String> addTransaction(TransactionModel transaction) async {
     try {
@@ -76,7 +76,7 @@ class FirestoreService {
       throw Exception('Gagal menambah transaksi: $e');
     }
   }
-  
+
   /// Update transaction
   Future<void> updateTransaction(TransactionModel transaction) async {
     try {
@@ -88,7 +88,7 @@ class FirestoreService {
       throw Exception('Gagal update transaksi: $e');
     }
   }
-  
+
   /// Delete transaction
   Future<void> deleteTransaction(String transactionId) async {
     try {
@@ -100,9 +100,9 @@ class FirestoreService {
       throw Exception('Gagal menghapus transaksi: $e');
     }
   }
-  
+
   // ==================== GENERAL FUND ====================
-  
+
   /// Get general fund
   Future<GeneralFund> getGeneralFund() async {
     try {
@@ -110,13 +110,13 @@ class FirestoreService {
           .collection(FirestoreCollections.generalFund)
           .doc('current')
           .get();
-      
+
       return GeneralFund.fromFirestore(doc);
     } catch (e) {
       throw Exception('Gagal get general fund: $e');
     }
   }
-  
+
   /// Update general fund
   Future<void> updateGeneralFund(GeneralFund fund) async {
     try {
@@ -128,7 +128,7 @@ class FirestoreService {
       throw Exception('Gagal update general fund: $e');
     }
   }
-  
+
   /// Initialize general fund jika belum ada
   Future<void> initializeGeneralFund() async {
     try {
@@ -136,7 +136,7 @@ class FirestoreService {
           .collection(FirestoreCollections.generalFund)
           .doc('current')
           .get();
-      
+
       if (!doc.exists) {
         final emptyFund = GeneralFund.empty();
         await _firestore
@@ -148,9 +148,9 @@ class FirestoreService {
       throw Exception('Gagal initialize general fund: $e');
     }
   }
-  
+
   // ==================== PENDING SUBMISSIONS ====================
-  
+
   /// Create pending submission
   Future<String> createPendingSubmission(PendingSubmission submission) async {
     try {
@@ -162,7 +162,7 @@ class FirestoreService {
       throw Exception('Gagal create submission: $e');
     }
   }
-  
+
   /// Update pending submission (untuk admin approval)
   Future<void> updatePendingSubmission(PendingSubmission submission) async {
     try {
@@ -174,7 +174,7 @@ class FirestoreService {
       throw Exception('Gagal update submission: $e');
     }
   }
-  
+
   /// Delete pending submission
   Future<void> deletePendingSubmission(String submissionId) async {
     try {
@@ -186,9 +186,9 @@ class FirestoreService {
       throw Exception('Gagal delete submission: $e');
     }
   }
-  
+
   // ==================== SETTINGS ====================
-  
+
   /// Get app settings
   Future<AppSettings> getAppSettings() async {
     try {
@@ -196,13 +196,13 @@ class FirestoreService {
           .collection(FirestoreCollections.settings)
           .doc('app_config')
           .get();
-      
+
       return AppSettings.fromFirestore(doc);
     } catch (e) {
       throw Exception('Gagal get settings: $e');
     }
   }
-  
+
   /// Update app settings
   Future<void> updateAppSettings(AppSettings settings) async {
     try {
@@ -214,7 +214,7 @@ class FirestoreService {
       throw Exception('Gagal update settings: $e');
     }
   }
-  
+
   /// Initialize default settings jika belum ada
   Future<void> initializeDefaultSettings() async {
     try {
@@ -222,7 +222,7 @@ class FirestoreService {
           .collection(FirestoreCollections.settings)
           .doc('app_config')
           .get();
-      
+
       if (!doc.exists) {
         final defaultSettings = AppSettings.defaults();
         await _firestore
@@ -230,16 +230,16 @@ class FirestoreService {
             .doc('app_config')
             .set(defaultSettings.toFirestore());
       }
-      
+
       // Also initialize general fund
       await initializeGeneralFund();
     } catch (e) {
       throw Exception('Gagal initialize settings: $e');
     }
   }
-  
+
   // ==================== BATCH OPERATIONS ====================
-  
+
   /// Approve pending submission dan create transaction
   Future<void> approvePendingSubmission({
     required String submissionId,
@@ -251,22 +251,21 @@ class FirestoreService {
   }) async {
     try {
       final batch = _firestore.batch();
-      
+
       // 1. Update submission status
       final submissionRef = _firestore
           .collection(FirestoreCollections.pendingSubmissions)
           .doc(submissionId);
-      
+
       batch.update(submissionRef, {
         'status': 'approved',
         'reviewed_at': FieldValue.serverTimestamp(),
       });
-      
+
       // 2. Create transaction
-      final transactionRef = _firestore
-          .collection(FirestoreCollections.transactions)
-          .doc();
-      
+      final transactionRef =
+          _firestore.collection(FirestoreCollections.transactions).doc();
+
       final transaction = TransactionModel(
         id: transactionRef.id,
         type: TransactionType.income,
@@ -281,19 +280,19 @@ class FirestoreService {
         inputAt: DateTime.now(),
         createdBy: adminEmail,
       );
-      
+
       batch.set(transactionRef, transaction.toFirestore());
-      
+
       // 3. Update target current amount
       final targetRef = _firestore
           .collection(FirestoreCollections.graduationTargets)
           .doc(targetId);
-      
+
       batch.update(targetRef, {
         'current_amount': FieldValue.increment(amount),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      
+
       await batch.commit();
     } catch (e) {
       throw Exception('Gagal approve submission: $e');

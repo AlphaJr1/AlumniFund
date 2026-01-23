@@ -15,7 +15,7 @@ final appSettingsProvider = StreamProvider<AppSettings>((ref) {
 /// Provider untuk payment methods
 final paymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
   final settingsAsync = ref.watch(appSettingsProvider);
-  
+
   return settingsAsync.when(
     data: (settings) => settings.paymentMethods,
     loading: () => [],
@@ -26,7 +26,7 @@ final paymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
 /// Provider untuk bank payment methods only
 final bankPaymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
   final settingsAsync = ref.watch(appSettingsProvider);
-  
+
   return settingsAsync.when(
     data: (settings) => settings.bankMethods,
     loading: () => [],
@@ -37,7 +37,7 @@ final bankPaymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
 /// Provider untuk e-wallet payment methods only
 final ewalletPaymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
   final settingsAsync = ref.watch(appSettingsProvider);
-  
+
   return settingsAsync.when(
     data: (settings) => settings.ewalletMethods,
     loading: () => [],
@@ -48,7 +48,7 @@ final ewalletPaymentMethodsProvider = Provider<List<PaymentMethod>>((ref) {
 /// Provider untuk system config
 final systemConfigProvider = Provider<SystemConfig>((ref) {
   final settingsAsync = ref.watch(appSettingsProvider);
-  
+
   return settingsAsync.when(
     data: (settings) => settings.systemConfig,
     loading: () => SystemConfig.defaults(),
@@ -59,7 +59,7 @@ final systemConfigProvider = Provider<SystemConfig>((ref) {
 /// Provider untuk admin config
 final adminConfigProvider = Provider<AdminConfig>((ref) {
   final settingsAsync = ref.watch(appSettingsProvider);
-  
+
   return settingsAsync.when(
     data: (settings) => settings.adminConfig,
     loading: () => const AdminConfig(

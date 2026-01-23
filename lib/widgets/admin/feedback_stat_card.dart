@@ -40,12 +40,14 @@ class FeedbackStatCard extends ConsumerWidget {
                         gradient: LinearGradient(
                           colors: [
                             Theme.of(context).colorScheme.primary,
-                            HSLColor.fromColor(Theme.of(context).colorScheme.primary)
+                            HSLColor.fromColor(
+                                    Theme.of(context).colorScheme.primary)
                                 .withLightness(0.3)
                                 .toColor(),
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(10), // Reduced from 12
+                        borderRadius:
+                            BorderRadius.circular(10), // Reduced from 12
                       ),
                       child: const Icon(
                         Icons.feedback,
@@ -61,9 +63,9 @@ class FeedbackStatCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                
+
                 SizedBox(height: isMobile ? 12 : 14), // Reduced spacing
-                
+
                 // Title
                 Text(
                   'Onboarding Feedback',
@@ -75,9 +77,9 @@ class FeedbackStatCard extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 SizedBox(height: isMobile ? 10 : 12), // Reduced spacing
-                
+
                 // Stats
                 unreadCount.when(
                   data: (unread) => Column(
@@ -109,9 +111,9 @@ class FeedbackStatCard extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: 4), // Reduced from 6
-                      
+
                       // Unread count
                       Row(
                         children: [
@@ -131,7 +133,8 @@ class FeedbackStatCard extends ConsumerWidget {
                               ),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(8), // Reduced from 10
+                                borderRadius:
+                                    BorderRadius.circular(8), // Reduced from 10
                               ),
                               child: Text(
                                 '$unread',
@@ -170,9 +173,9 @@ class FeedbackStatCard extends ConsumerWidget {
                     ),
                   ),
                 ),
-                
+
                 SizedBox(height: isMobile ? 10 : 12), // Reduced spacing
-                
+
                 // View all button
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -180,7 +183,8 @@ class FeedbackStatCard extends ConsumerWidget {
                     vertical: 6, // Reduced from 8
                   ),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6), // Reduced from 8
                   ),
                   child: Row(

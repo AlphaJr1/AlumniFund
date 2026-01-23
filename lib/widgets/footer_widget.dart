@@ -30,7 +30,7 @@ class FooterWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          
+
           // Copyright
           const Text(
             '© 2026 Dompet Alumni Comm',
@@ -41,7 +41,7 @@ class FooterWidget extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
-          
+
           // Contact info
           Wrap(
             alignment: WrapAlignment.center,

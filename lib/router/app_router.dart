@@ -33,7 +33,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PublicDashboardScreen(),
       ),
 
-
       // Admin login route (public)
       GoRoute(
         path: '/admin/login',
@@ -134,7 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               return null;
             },
           ),
-          
+
           // Feedback list
           GoRoute(
             path: '/admin/feedbacks',
@@ -165,7 +164,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
     ],
-    
     errorBuilder: (context, state) => Scaffold(
       appBar: AppBar(title: const Text('Error')),
       body: Center(

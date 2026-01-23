@@ -40,7 +40,7 @@ class FeedbackDetailModal extends StatelessWidget {
           children: [
             // Header
             _buildHeader(context, isMobile),
-            
+
             // Content
             Expanded(
               child: SingleChildScrollView(
@@ -55,21 +55,21 @@ class FeedbackDetailModal extends StatelessWidget {
                       Icons.chat_bubble_outline,
                       isMobile,
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // User info
                     _buildUserInfo(isMobile),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Device info
                     _buildDeviceInfo(isMobile),
                   ],
                 ),
               ),
             ),
-            
+
             // Actions
             _buildActions(context, isMobile),
           ],
@@ -101,7 +101,7 @@ class FeedbackDetailModal extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: feedback.isRead 
+              color: feedback.isRead
                   ? Colors.white.withOpacity(0.2)
                   : Colors.white.withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
@@ -126,9 +126,9 @@ class FeedbackDetailModal extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const Spacer(),
-          
+
           // Timestamp
           Text(
             DateFormat('dd MMM yyyy, HH:mm').format(feedback.submittedAt),
@@ -137,9 +137,9 @@ class FeedbackDetailModal extends StatelessWidget {
               color: Colors.white,
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Close button
           IconButton(
             onPressed: () => Navigator.pop(context),
@@ -204,7 +204,8 @@ class FeedbackDetailModal extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.person_outline, size: 18, color: Color(0xFF6B7280)),
+            const Icon(Icons.person_outline,
+                size: 18, color: Color(0xFF6B7280)),
             const SizedBox(width: 8),
             Text(
               'User Information',
@@ -229,8 +230,8 @@ class FeedbackDetailModal extends StatelessWidget {
   }
 
   Widget _buildDeviceInfo(bool isMobile) {
-    if (feedback.userAgent == null && 
-        feedback.screenResolution == null && 
+    if (feedback.userAgent == null &&
+        feedback.screenResolution == null &&
         feedback.timezone == null) {
       return const SizedBox.shrink();
     }
@@ -254,7 +255,8 @@ class FeedbackDetailModal extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (feedback.userAgent != null)
-          _buildInfoRow('Browser', _parseUserAgent(feedback.userAgent!), isMobile),
+          _buildInfoRow(
+              'Browser', _parseUserAgent(feedback.userAgent!), isMobile),
         if (feedback.screenResolution != null)
           _buildInfoRow('Screen', feedback.screenResolution!, isMobile),
         if (feedback.timezone != null)
@@ -328,9 +330,9 @@ class FeedbackDetailModal extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           const Spacer(),
-          
+
           // Toggle read/unread button
           if (!feedback.isRead && onMarkAsRead != null)
             ElevatedButton.icon(
@@ -368,9 +370,9 @@ class FeedbackDetailModal extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           const SizedBox(width: 12),
-          
+
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Tutup'),

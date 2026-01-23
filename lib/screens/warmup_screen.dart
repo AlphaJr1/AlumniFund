@@ -25,7 +25,7 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
   Future<void> _checkDataAndNavigate() async {
     // Small delay to ensure smooth transition from HTML splash
     await Future.delayed(const Duration(milliseconds: 300));
-    
+
     // Add timeout fallback - if data doesn't load within 5 seconds, proceed anyway
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
@@ -43,7 +43,8 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
     final recentExpenseAsync = ref.watch(recentExpenseProvider);
 
     // Check if ALL data is loaded OR has error (proceed either way)
-    final allLoaded = (generalFundAsync.hasValue || generalFundAsync.hasError) &&
+    final allLoaded = (generalFundAsync.hasValue ||
+            generalFundAsync.hasError) &&
         (graduationTargetsAsync.hasValue || graduationTargetsAsync.hasError) &&
         (recentIncomeAsync.hasValue || recentIncomeAsync.hasError) &&
         (recentExpenseAsync.hasValue || recentExpenseAsync.hasError);

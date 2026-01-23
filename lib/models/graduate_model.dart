@@ -45,7 +45,8 @@ class Graduate {
   }
 
   @override
-  String toString() => 'Graduate(name: $name, date: $date, location: $location)';
+  String toString() =>
+      'Graduate(name: $name, date: $date, location: $location)';
 
   @override
   bool operator ==(Object other) {

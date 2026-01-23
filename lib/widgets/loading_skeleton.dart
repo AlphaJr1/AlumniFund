@@ -7,14 +7,14 @@ class LoadingSkeleton extends StatelessWidget {
   final double? width;
   final double height;
   final BorderRadius? borderRadius;
-  
+
   const LoadingSkeleton({
     super.key,
     this.width,
     this.height = 16,
     this.borderRadius,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
@@ -35,7 +35,7 @@ class LoadingSkeleton extends StatelessWidget {
 /// Skeleton untuk general fund card
 class GeneralFundCardSkeleton extends StatelessWidget {
   const GeneralFundCardSkeleton({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -72,7 +72,7 @@ class GeneralFundCardSkeleton extends StatelessWidget {
 /// Skeleton untuk active target card
 class ActiveTargetCardSkeleton extends StatelessWidget {
   const ActiveTargetCardSkeleton({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -127,7 +127,7 @@ class ActiveTargetCardSkeleton extends StatelessWidget {
 /// Skeleton untuk transaction card
 class TransactionCardSkeleton extends StatelessWidget {
   const TransactionCardSkeleton({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -167,7 +167,7 @@ class TransactionCardSkeleton extends StatelessWidget {
 /// Skeleton untuk history section
 class HistorySectionSkeleton extends StatelessWidget {
   const HistorySectionSkeleton({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(

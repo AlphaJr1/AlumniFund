@@ -20,7 +20,7 @@ class SubmissionService {
 
       // Upload to Storage
       final storageRef = _storage.ref().child('proof_images/$filename');
-      
+
       UploadTask uploadTask;
       if (kIsWeb) {
         // Web: file is Uint8List
@@ -34,7 +34,7 @@ class SubmissionService {
 
       // Wait for upload to complete
       final snapshot = await uploadTask;
-      
+
       // Get download URL
       final downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;

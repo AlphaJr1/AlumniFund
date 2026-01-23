@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 /// Utility class untuk format currency dalam Rupiah Indonesia
 class CurrencyFormatter {
   /// Format amount ke format Rupiah: "Rp 1.000.000"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatCurrency(1000000) // "Rp 1.000.000"
@@ -20,7 +20,7 @@ class CurrencyFormatter {
   }
 
   /// Format amount ke format compact: "Rp 1,2 Jt", "Rp 500 Rb"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatCompact(1200000) // "Rp 1,2 Jt"
@@ -40,7 +40,7 @@ class CurrencyFormatter {
   }
 
   /// Parse currency string kembali ke double
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// parseCurrency("Rp 1.000.000") // 1000000.0
@@ -53,12 +53,12 @@ class CurrencyFormatter {
         .replaceAll(' ', '')
         .replaceAll('.', '')
         .replaceAll(',', '.');
-    
+
     return double.tryParse(cleaned) ?? 0.0;
   }
 
   /// Format amount tanpa symbol (hanya angka dengan separator)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatNumber(1000000) // "1.000.000"

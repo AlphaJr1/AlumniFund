@@ -12,25 +12,28 @@ import '../utils/toast_utils.dart';
 /// Contains: Payment info + Upload + Submit
 class SimpleDonationModal extends ConsumerStatefulWidget {
   final VoidCallback? onProofSubmitted;
-  
+
   const SimpleDonationModal({super.key, this.onProofSubmitted});
 
-  static Future<void> show(BuildContext context, {VoidCallback? onProofSubmitted}) {
+  static Future<void> show(BuildContext context,
+      {VoidCallback? onProofSubmitted}) {
     return showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) => SimpleDonationModal(onProofSubmitted: onProofSubmitted),
+      builder: (context) =>
+          SimpleDonationModal(onProofSubmitted: onProofSubmitted),
     );
   }
 
   @override
-  ConsumerState<SimpleDonationModal> createState() => _SimpleDonationModalState();
+  ConsumerState<SimpleDonationModal> createState() =>
+      _SimpleDonationModalState();
 }
 
 class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
   final _submissionService = SubmissionService();
   final _usernameController = TextEditingController();
-  
+
   String? _selectedFileName;
   Uint8List? _selectedFileBytes;
   bool _isSubmitting = false;
@@ -129,25 +132,28 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
     try {
       // 1. Upload image to Firebase Storage with progress tracking
       setState(() => _uploadProgress = 0.3); // Start upload
-      final proofUrl = await _submissionService.uploadProofImage(_selectedFileBytes!);
+      final proofUrl =
+          await _submissionService.uploadProofImage(_selectedFileBytes!);
       setState(() => _uploadProgress = 0.7); // Upload complete
-      
+
       // 2. Create pending submission in Firestore
       await _submissionService.createSubmission(
         proofUrl: proofUrl,
         amount: null, // User will input amount in admin validation
-        username: _usernameController.text.isNotEmpty ? _usernameController.text : null,
+        username: _usernameController.text.isNotEmpty
+            ? _usernameController.text
+            : null,
       );
       setState(() => _uploadProgress = 1.0); // Complete
-      
+
       if (!mounted) return;
-      
+
       // Close modal IMMEDIATELY
       Navigator.pop(context);
-      
+
       // Trigger confetti from parent (dashboard)
       widget.onProofSubmitted?.call();
-      
+
       // Show success toast message (above confetti)
       ToastUtils.showSuccess(
         _rootContext,
@@ -155,7 +161,7 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
       );
     } catch (e) {
       if (!mounted) return;
-      
+
       ToastUtils.showError(
         _rootContext,
         'Gagal mengirim: $e',
@@ -174,7 +180,7 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
   Widget build(BuildContext context) {
     // Save root context for showing toasts above modal
     _rootContext = context;
-    
+
     final paymentMethods = ref.watch(paymentMethodsProvider);
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -254,14 +260,19 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Show 1 random method or all methods based on state
                       // Safety check: only show if paymentMethods is not empty
-                      if (paymentMethods.isNotEmpty) ...(_showAllMethods 
-                          ? paymentMethods 
-                          : [paymentMethods[(paymentMethods.hashCode % paymentMethods.length).abs()]]
-                      ).map((method) => _buildPaymentMethod(method))
-                      else 
+                      if (paymentMethods.isNotEmpty)
+                        ...(_showAllMethods
+                                ? paymentMethods
+                                : [
+                                    paymentMethods[(paymentMethods.hashCode %
+                                            paymentMethods.length)
+                                        .abs()]
+                                  ])
+                            .map((method) => _buildPaymentMethod(method))
+                      else
                         // Show message when no payment methods available
                         Container(
                           padding: const EdgeInsets.all(16),
@@ -293,7 +304,7 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                             ],
                           ),
                         ),
-                      
+
                       // Show More / Show Less button
                       if (paymentMethods.length > 1) ...[
                         const SizedBox(height: 12),
@@ -305,12 +316,14 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                               });
                             },
                             icon: Icon(
-                              _showAllMethods ? Icons.expand_less : Icons.expand_more,
+                              _showAllMethods
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
                               size: 20,
                             ),
                             label: Text(
-                              _showAllMethods 
-                                  ? 'Show less' 
+                              _showAllMethods
+                                  ? 'Show less'
                                   : 'Show ${paymentMethods.length - 1} more payment method${paymentMethods.length > 2 ? 's' : ''}',
                               style: const TextStyle(
                                 fontSize: 14,
@@ -318,16 +331,17 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                               ),
                             ),
                             style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
                       ],
-                      
+
                       const SizedBox(height: 24),
                       const Divider(),
                       const SizedBox(height: 24),
-                      
+
                       // Section 2: Upload Proof
                       const Text(
                         '📸 Upload Transfer Proof',
@@ -338,7 +352,7 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      
+
                       // Image Preview or File Picker
                       if (_selectedFileBytes != null) ...[
                         // Preview with delete button
@@ -381,7 +395,8 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: Colors.black54,
-                                            borderRadius: BorderRadius.circular(4),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
                                           ),
                                           child: const Row(
                                             mainAxisSize: MainAxisSize.min,
@@ -414,7 +429,8 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                                   children: [
                                     Icon(
                                       Icons.check_circle,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 8),
@@ -486,9 +502,9 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                           ),
                         ),
                       ],
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Section 2.5: Username Input (Optional)
                       TextField(
                         controller: _usernameController,
@@ -508,9 +524,9 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                         maxLength: 50,
                         style: const TextStyle(fontSize: 14),
                       ),
-                      
+
                       const SizedBox(height: 16),
-                      
+
                       // Progress indicator (shown when submitting)
                       if (_isSubmitting) ...[
                         Column(
@@ -536,7 +552,7 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                           ],
                         ),
                       ],
-                      
+
                       // Section 3: Submit Button
                       SizedBox(
                         width: double.infinity,
@@ -548,7 +564,8 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : const Icon(Icons.check_circle, size: 20),
@@ -560,7 +577,8 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.primary,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             elevation: 0,
@@ -570,9 +588,9 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
                           ),
                         ),
                       ),
-                      
+
                       const SizedBox(height: 12),
-                      
+
                       // Info
                       Container(
                         padding: const EdgeInsets.all(12),
@@ -656,9 +674,9 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Info
           Expanded(
             child: Column(
@@ -691,13 +709,13 @@ class _SimpleDonationModalState extends ConsumerState<SimpleDonationModal> {
               ],
             ),
           ),
-          
+
           // Copy button
           IconButton(
             onPressed: () {
               // Copy to clipboard
               Clipboard.setData(ClipboardData(text: method.accountNumber));
-              
+
               // Show toast above modal using Overlay
               ToastUtils.showSuccess(
                 _rootContext,

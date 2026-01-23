@@ -33,15 +33,14 @@ class AdminActionsService {
           .collection(FirestoreCollections.pendingSubmissions)
           .doc(submissionId)
           .get();
-      
+
       final submissionData = submissionDoc.data();
       final proofUrl = submissionData?['proof_url'] as String?;
       final submitterName = submissionData?['submitter_name'] as String?;
 
       // 1. Create transaction document (always goes to general fund)
-      final transactionRef = _firestore
-          .collection(FirestoreCollections.transactions)
-          .doc();
+      final transactionRef =
+          _firestore.collection(FirestoreCollections.transactions).doc();
 
       batch.set(transactionRef, {
         'type': 'income',
@@ -82,7 +81,7 @@ class AdminActionsService {
 
       // 4. Commit batch (atomic operation)
       await batch.commit();
-      
+
       // 5. Trigger auto-allocation to active target
       await autoAllocateToTarget();
     } catch (e) {
@@ -242,14 +241,14 @@ class AdminActionsService {
 
       // 3. Commit batch
       await batch.commit();
-      
+
       // 4. Recalculate allocation (if income was deleted, allocation should decrease)
       await autoAllocateToTarget();
     } catch (e) {
       rethrow;
     }
   }
-  
+
   /// Auto-allocate from general fund to active target (virtual allocation)
   /// This does NOT deduct from general fund, only updates allocated_from_fund
   /// Recalculates allocation from scratch based on current balances
@@ -261,35 +260,39 @@ class AdminActionsService {
           .where('status', whereIn: ['active', 'closing_soon'])
           .limit(1)
           .get();
-      
+
       if (activeTargetSnapshot.docs.isEmpty) {
         return; // No active target, keep in general fund
       }
-      
+
       final activeTargetDoc = activeTargetSnapshot.docs.first;
       final targetData = activeTargetDoc.data();
-      final currentAmount = (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
-      final requiredBudget = (targetData['target_amount'] as num?)?.toDouble() ?? 0.0;
-      
+      final currentAmount =
+          (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
+      final requiredBudget =
+          (targetData['target_amount'] as num?)?.toDouble() ?? 0.0;
+
       // 2. Get general fund
       final fundDoc = await _firestore
           .collection(FirestoreCollections.generalFund)
           .doc('current')
           .get();
-      
-      final fundBalance = (fundDoc.data()?['balance'] as num?)?.toDouble() ?? 0.0;
-      
+
+      final fundBalance =
+          (fundDoc.data()?['balance'] as num?)?.toDouble() ?? 0.0;
+
       // 3. Calculate NEW allocation (recalculate from scratch)
       final stillNeeded = requiredBudget - currentAmount;
-      final newAllocation = fundBalance < stillNeeded ? fundBalance : stillNeeded;
+      final newAllocation =
+          fundBalance < stillNeeded ? fundBalance : stillNeeded;
       final clampedAllocation = newAllocation > 0 ? newAllocation : 0.0;
-      
+
       // 4. Update allocated_from_fund with NEW value (not increment!)
       await activeTargetDoc.reference.update({
         'allocated_from_fund': clampedAllocation, // Set to new value
         'updated_at': FieldValue.serverTimestamp(),
       });
-      
+
       // NOTE: General fund balance is NOT changed here!
       // It's only a virtual allocation/reservation
     } catch (e) {
@@ -297,7 +300,7 @@ class AdminActionsService {
       print('Auto-allocation error: $e');
     }
   }
-  
+
   /// Close graduation target and finalize allocation
   /// This ACTUALLY deducts allocated_from_fund from general fund
   Future<void> closeTarget(String targetId) async {
@@ -307,49 +310,52 @@ class AdminActionsService {
     }
 
     final batch = _firestore.batch();
-    
+
     try {
       // 1. Get target
       final targetDoc = await _firestore
           .collection(FirestoreCollections.graduationTargets)
           .doc(targetId)
           .get();
-      
+
       if (!targetDoc.exists) {
         throw Exception('Target not found');
       }
-      
+
       final targetData = targetDoc.data()!;
-      final allocatedFromFund = (targetData['allocated_from_fund'] as num?)?.toDouble() ?? 0.0;
-      final currentAmount = (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
+      final allocatedFromFund =
+          (targetData['allocated_from_fund'] as num?)?.toDouble() ?? 0.0;
+      final currentAmount =
+          (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
       final month = targetData['month'] as String? ?? 'Unknown';
       final year = (targetData['year'] as num?)?.toInt() ?? 0;
-      
+
       // Get graduate names
       final graduates = (targetData['graduates'] as List<dynamic>?)
-          ?.map((g) => (g as Map<String, dynamic>)['name'] as String?)
-          .where((name) => name != null)
-          .cast<String>()
-          .toList() ?? [];
-      
+              ?.map((g) => (g as Map<String, dynamic>)['name'] as String?)
+              .where((name) => name != null)
+              .cast<String>()
+              .toList() ??
+          [];
+
       // Capitalize first letter of month
-      final monthCapitalized = month.isNotEmpty 
-          ? month[0].toUpperCase() + month.substring(1) 
+      final monthCapitalized = month.isNotEmpty
+          ? month[0].toUpperCase() + month.substring(1)
           : month;
-      
+
       // Create description with recipient names
-      String description = 'Allocation to graduation target: $monthCapitalized $year';
+      String description =
+          'Allocation to graduation target: $monthCapitalized $year';
       if (graduates.isNotEmpty) {
         final recipientNames = graduates.join(', ');
         description += ' - Recipients: $recipientNames';
       }
-      
+
       // 2. Create EXPENSE transaction for the allocation (CRITICAL FIX!)
       if (allocatedFromFund > 0) {
-        final expenseRef = _firestore
-            .collection(FirestoreCollections.transactions)
-            .doc();
-        
+        final expenseRef =
+            _firestore.collection(FirestoreCollections.transactions).doc();
+
         batch.set(expenseRef, {
           'type': 'expense',
           'amount': allocatedFromFund,
@@ -364,19 +370,19 @@ class AdminActionsService {
           'created_by': currentUser.email,
         });
       }
-      
+
       // 3. Deduct allocated amount from general fund (NOW - actual deduction)
       if (allocatedFromFund > 0) {
         final fundRef = _firestore
             .collection(FirestoreCollections.generalFund)
             .doc('current');
-        
+
         batch.update(fundRef, {
           'balance': FieldValue.increment(-allocatedFromFund),
           'updated_at': FieldValue.serverTimestamp(),
         });
       }
-      
+
       // 4. Finalize target amount and close
       batch.update(targetDoc.reference, {
         'current_amount': currentAmount + allocatedFromFund, // Finalize total
@@ -385,7 +391,7 @@ class AdminActionsService {
         'closed_date': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      
+
       // 5. Commit batch
       await batch.commit();
     } catch (e) {

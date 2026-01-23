@@ -9,7 +9,7 @@ class OnboardingOverlay extends ConsumerStatefulWidget {
   final VoidCallback? onThemeChangeRequest;
   final Function(int)? onNavigateToCard;
   final GlobalKey? cardStackKey;
-  
+
   const OnboardingOverlay({
     super.key,
     this.onThemeChangeRequest,
@@ -25,11 +25,11 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late Animation<Offset> _slideAnimation;
-  
+
   @override
   void initState() {
     super.initState();
-    
+
     // Slide down animation for hint (slower for smoother)
     _slideController = AnimationController(
       vsync: this,
@@ -42,28 +42,28 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
       parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     // Start animation
     _slideController.forward();
   }
-  
+
   @override
   void dispose() {
     _slideController.dispose();
     super.dispose();
   }
-  
+
   void _closeOnboarding() async {
     await _slideController.reverse();
     if (mounted) {
       ref.read(onboardingProvider.notifier).stopOnboarding();
     }
   }
-  
+
   void _showFeedbackModal() {
     // Reset flag first
     ref.read(onboardingProvider.notifier).resetFeedbackModalFlag();
-    
+
     // Show modal
     showDialog(
       context: context,
@@ -76,12 +76,12 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
       ),
     );
   }
-  
+
   @override
   void didUpdateWidget(OnboardingOverlay oldWidget) {
     super.didUpdateWidget(oldWidget);
   }
-  
+
   @override
   Widget build(BuildContext context) {
     // Listen to onboarding state changes
@@ -93,28 +93,29 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
       } else if (!next.isActive && previous != null && previous.isActive) {
         // Just became inactive - no need to reverse, widget will hide
       }
-      
+
       // Show feedback modal when triggered
-      if (next.shouldShowFeedbackModal && (previous == null || !previous.shouldShowFeedbackModal)) {
+      if (next.shouldShowFeedbackModal &&
+          (previous == null || !previous.shouldShowFeedbackModal)) {
         _showFeedbackModal();
       }
     });
-    
+
     final state = ref.watch(onboardingProvider);
-    
+
     if (!state.isActive) {
       return const SizedBox.shrink();
     }
-    
+
     final currentStep = state.currentStep;
-    
+
     // Navigate to target card if specified
     if (currentStep.targetCardIndex != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onNavigateToCard?.call(currentStep.targetCardIndex!);
       });
     }
-    
+
     return Stack(
       children: [
         // Minimal hint at top
@@ -130,11 +131,12 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
       ],
     );
   }
-  
+
   Widget _buildHintPanel(OnboardingState state, OnboardingStep step) {
     final isMobile = MediaQuery.of(context).size.width < 600;
-    final isLastStep = step.actionRequired == OnboardingActionType.tapToComplete;
-    
+    final isLastStep =
+        step.actionRequired == OnboardingActionType.tapToComplete;
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: isMobile ? 12 : 16,
@@ -173,7 +175,7 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
             ),
           ),
           const SizedBox(width: 10),
-          
+
           // Compact description
           Expanded(
             child: Column(
@@ -202,16 +204,16 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
               ],
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Progress dots (mini)
           Row(
             mainAxisSize: MainAxisSize.min,
             children: List.generate(state.steps.length, (index) {
               final isActive = index == state.currentStepIndex;
               final isCompleted = index < state.currentStepIndex;
-              
+
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 2),
                 width: isActive ? 6 : 4,
@@ -225,18 +227,15 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
               );
             }),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Action buttons
           if (!isLastStep)
             TextButton(
               onPressed: () {
                 // Lewati → langsung trigger feedback modal
-                ref.read(onboardingProvider.notifier).state = 
-                  ref.read(onboardingProvider).copyWith(
-                    shouldShowFeedbackModal: true,
-                  );
+                ref.read(onboardingProvider.notifier).triggerFeedbackModal();
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -261,7 +260,8 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: Theme.of(context).colorScheme.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 elevation: 0,

@@ -32,7 +32,7 @@ class PendingSubmission {
   /// Create PendingSubmission from Firestore document
   factory PendingSubmission.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return PendingSubmission(
       id: doc.id,
       proofUrl: data['proof_url'] as String,

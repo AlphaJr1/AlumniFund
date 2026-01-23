@@ -23,7 +23,7 @@ class TargetDetailModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final isUpcoming = target.status == 'upcoming';
     final isActive = target.status == 'active';
-    
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
@@ -64,7 +64,8 @@ class TargetDetailModal extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
                           color: _getStatusColor().withOpacity(0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -93,12 +94,17 @@ class TargetDetailModal extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Target Info
-            _buildInfoRow('Target Amount', 'Rp ${CurrencyFormatter.formatNumber(target.targetAmount)}'),
-            _buildInfoRow('Current Amount', 'Rp ${CurrencyFormatter.formatNumber(target.currentAmount)}'),
-            _buildInfoRow('Progress', '${((target.currentAmount / target.targetAmount) * 100).toStringAsFixed(1)}%'),
-            _buildInfoRow('Deadline', DateFormat('dd MMM yyyy').format(target.deadline)),
-            _buildInfoRow('Total Wisudawan', '${target.graduates.length} orang'),
-            
+            _buildInfoRow('Target Amount',
+                'Rp ${CurrencyFormatter.formatNumber(target.targetAmount)}'),
+            _buildInfoRow('Current Amount',
+                'Rp ${CurrencyFormatter.formatNumber(target.currentAmount)}'),
+            _buildInfoRow('Progress',
+                '${((target.currentAmount / target.targetAmount) * 100).toStringAsFixed(1)}%'),
+            _buildInfoRow(
+                'Deadline', DateFormat('dd MMM yyyy').format(target.deadline)),
+            _buildInfoRow(
+                'Total Wisudawan', '${target.graduates.length} orang'),
+
             const SizedBox(height: 24),
             const Divider(height: 1),
             const SizedBox(height: 16),
@@ -113,7 +119,7 @@ class TargetDetailModal extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -124,13 +130,15 @@ class TargetDetailModal extends StatelessWidget {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: target.graduates.length,
-                  separatorBuilder: (context, index) => const Divider(height: 1),
+                  separatorBuilder: (context, index) =>
+                      const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final grad = target.graduates[index];
                     return ListTile(
                       dense: true,
                       leading: CircleAvatar(
-                        backgroundColor: const Color(0xFF3B82F6).withOpacity(0.1),
+                        backgroundColor:
+                            const Color(0xFF3B82F6).withOpacity(0.1),
                         child: Text(
                           '${index + 1}',
                           style: const TextStyle(
@@ -177,9 +185,9 @@ class TargetDetailModal extends StatelessWidget {
                     child: const Text('Close'),
                   ),
                 ),
-                
+
                 const SizedBox(width: 12),
-                
+
                 // Edit button (for upcoming and active targets)
                 if (isUpcoming || isActive) ...[
                   Expanded(
@@ -208,7 +216,7 @@ class TargetDetailModal extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                 ],
-                
+
                 // Delete button (only for upcoming)
                 if (isUpcoming && onDelete != null)
                   Expanded(
@@ -291,11 +299,21 @@ class TargetDetailModal extends StatelessWidget {
 
   int _getMonthNumber(String month) {
     // Capitalize first letter to handle lowercase month names from Firestore
-    final capitalizedMonth = month[0].toUpperCase() + month.substring(1).toLowerCase();
+    final capitalizedMonth =
+        month[0].toUpperCase() + month.substring(1).toLowerCase();
     const monthMap = {
-      'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4,
-      'Mei': 5, 'Juni': 6, 'Juli': 7, 'Agustus': 8,
-      'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12,
+      'Januari': 1,
+      'Februari': 2,
+      'Maret': 3,
+      'April': 4,
+      'Mei': 5,
+      'Juni': 6,
+      'Juli': 7,
+      'Agustus': 8,
+      'September': 9,
+      'Oktober': 10,
+      'November': 11,
+      'Desember': 12,
     };
     return monthMap[capitalizedMonth] ?? 1;
   }

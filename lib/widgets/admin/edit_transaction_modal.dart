@@ -31,7 +31,8 @@ class EditTransactionModal extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<EditTransactionModal> createState() => _EditTransactionModalState();
+  ConsumerState<EditTransactionModal> createState() =>
+      _EditTransactionModalState();
 }
 
 class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
@@ -39,7 +40,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
   late TextEditingController _amountController;
   late TextEditingController _descriptionController;
   late DateTime _transferDate;
-  
+
   Uint8List? _newProofBytes;
   String? _newProofFileName;
   bool _isLoading = false;
@@ -75,7 +76,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         // Validate file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           setState(() {
@@ -121,9 +122,10 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
     });
 
     try {
-      final newAmount = double.parse(_amountController.text.replaceAll('.', '').replaceAll(',', ''));
+      final newAmount = double.parse(
+          _amountController.text.replaceAll('.', '').replaceAll(',', ''));
       final newDescription = _descriptionController.text.trim();
-      
+
       // Upload new proof if selected
       String? newProofUrl = widget.transaction.proofUrl;
       if (_newProofBytes != null && _newProofFileName != null) {
@@ -144,9 +146,9 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
 
       // Call edit transaction with balance reconciliation
       await ref.read(adminActionsProvider).editTransaction(
-        original: widget.transaction,
-        updated: updatedTransaction,
-      );
+            original: widget.transaction,
+            updated: updatedTransaction,
+          );
 
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -163,8 +165,9 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
   Widget build(BuildContext context) {
     final isIncome = widget.transaction.isIncome;
     final typeLabel = isIncome ? 'Income' : 'Expense';
-    final typeColor = isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444);
-    
+    final typeColor =
+        isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+
     final fundAsync = ref.watch(generalFundProvider);
     final availableBalance = fundAsync.maybeWhen(
       data: (fund) => fund.balance,
@@ -190,7 +193,8 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: typeColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(6),
@@ -206,7 +210,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     ),
                   ],
                 ),
-                
+
                 if (widget.transaction.targetMonth != null) ...[
                   const SizedBox(height: 8),
                   Text(
@@ -217,7 +221,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     ),
                   ),
                 ],
-                
+
                 const SizedBox(height: 16),
 
                 // Amount
@@ -235,10 +239,12 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     TextInputFormatter.withFunction((oldValue, newValue) {
                       if (newValue.text.isEmpty) return newValue;
                       final number = int.parse(newValue.text);
-                      final formatted = NumberFormat('#,###', 'id_ID').format(number);
+                      final formatted =
+                          NumberFormat('#,###', 'id_ID').format(number);
                       return TextEditingValue(
                         text: formatted,
-                        selection: TextSelection.collapsed(offset: formatted.length),
+                        selection:
+                            TextSelection.collapsed(offset: formatted.length),
                       );
                     }),
                   ],
@@ -246,11 +252,12 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     if (value == null || value.isEmpty) {
                       return 'Amount cannot be empty';
                     }
-                    final amount = double.tryParse(value.replaceAll('.', '').replaceAll(',', ''));
+                    final amount = double.tryParse(
+                        value.replaceAll('.', '').replaceAll(',', ''));
                     if (amount == null || amount <= 0) {
                       return 'Enter valid amount';
                     }
-                    
+
                     // For expenses, check if new amount exceeds available balance
                     if (!isIncome) {
                       final previousAmount = widget.transaction.amount;
@@ -259,11 +266,11 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                         return 'Insufficient balance (available: Rp ${CurrencyFormatter.formatCurrency(availableBalance)})';
                       }
                     }
-                    
+
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
 
                 // Description
@@ -286,7 +293,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     return null;
                   },
                 ),
-                
+
                 const SizedBox(height: 16),
 
                 // Transfer Date
@@ -303,7 +310,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
 
                 // Proof Image
@@ -315,7 +322,7 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 Row(
                   children: [
                     if (widget.transaction.proofUrl != null) ...[
@@ -331,11 +338,12 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     ElevatedButton.icon(
                       onPressed: _pickProofImage,
                       icon: const Icon(Icons.upload_file),
-                      label: Text(_newProofFileName != null ? 'Change' : 'Upload New'),
+                      label: Text(
+                          _newProofFileName != null ? 'Change' : 'Upload New'),
                     ),
                   ],
                 ),
-                
+
                 if (_newProofFileName != null) ...[
                   const SizedBox(height: 8),
                   Text(
@@ -358,12 +366,14 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline, color: AppConstants.errorRed),
+                        const Icon(Icons.error_outline,
+                            color: AppConstants.errorRed),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _errorMessage!,
-                            style: const TextStyle(color: AppConstants.errorRed),
+                            style:
+                                const TextStyle(color: AppConstants.errorRed),
                           ),
                         ),
                       ],
@@ -390,7 +400,8 @@ class _EditTransactionModalState extends ConsumerState<EditTransactionModal> {
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.white),
                 )
               : const Text('Save Changes'),
         ),

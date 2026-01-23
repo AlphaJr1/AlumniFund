@@ -13,7 +13,7 @@ class AchievementBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final badge = _getBadgeInfo();
-    
+
     if (badge == null) return const SizedBox.shrink();
 
     return Container(

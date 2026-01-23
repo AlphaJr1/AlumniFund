@@ -1,7 +1,7 @@
 /// Utility class untuk generate URLs
 class UrlService {
   /// Generate WhatsApp URL dengan pre-filled message
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final url = UrlService.generateWhatsAppUrl(
@@ -15,11 +15,11 @@ class UrlService {
   }) {
     // Remove any spaces or special characters from phone number
     final cleanedPhone = phoneNumber.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-    
+
     // Get current date
     final now = DateTime.now();
     final dateStr = '${now.day}/${now.month}/${now.year}';
-    
+
     // Create pre-filled message
     final message = '''
 Halo Admin! 🎓
@@ -32,16 +32,16 @@ Saya baru saja transfer untuk Target Wisuda $targetMonth:
 
 Mohon divalidasi ya! Terima kasih 😊
 ''';
-    
+
     // URL encode the message
     final encodedMessage = Uri.encodeComponent(message);
-    
+
     // Generate WhatsApp URL
     return 'https://wa.me/$cleanedPhone?text=$encodedMessage';
   }
 
   /// Generate WhatsApp URL untuk custom message
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// final url = UrlService.generateWhatsAppUrlCustom(

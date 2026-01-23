@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Enum untuk tipe payment method
 enum PaymentMethodType {
-  bank,    // Bank transfer
+  bank, // Bank transfer
   ewallet, // E-wallet
 }
 
@@ -25,8 +25,8 @@ class PaymentMethod {
   /// Convert dari Map ke PaymentMethod
   factory PaymentMethod.fromMap(Map<String, dynamic> map) {
     return PaymentMethod(
-      type: map['type'] == 'bank' 
-          ? PaymentMethodType.bank 
+      type: map['type'] == 'bank'
+          ? PaymentMethodType.bank
           : PaymentMethodType.ewallet,
       provider: map['provider'] as String,
       accountNumber: map['account_number'] as String,
@@ -78,9 +78,11 @@ class SystemConfig {
 
   factory SystemConfig.fromMap(Map<String, dynamic> map) {
     return SystemConfig(
-      perPersonAllocation: (map['per_person_allocation'] as num?)?.toDouble() ?? 250000,
+      perPersonAllocation:
+          (map['per_person_allocation'] as num?)?.toDouble() ?? 250000,
       deadlineOffsetDays: (map['deadline_offset_days'] as num?)?.toInt() ?? 3,
-      minimumContribution: (map['minimum_contribution'] as num?)?.toDouble() ?? 10000,
+      minimumContribution:
+          (map['minimum_contribution'] as num?)?.toDouble() ?? 10000,
       autoOpenNextTarget: (map['auto_open_next_target'] as bool?) ?? true,
     );
   }
@@ -244,6 +246,6 @@ class AppSettings {
   }
 
   @override
-  String toString() => 'AppSettings(id: $id, paymentMethods: ${paymentMethods.length})';
+  String toString() =>
+      'AppSettings(id: $id, paymentMethods: ${paymentMethods.length})';
 }
-

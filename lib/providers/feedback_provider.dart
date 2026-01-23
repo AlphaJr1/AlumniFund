@@ -42,14 +42,15 @@ class FeedbackFilterNotifier extends Notifier<FeedbackFilter> {
   }
 }
 
-final feedbackFilterProvider = NotifierProvider<FeedbackFilterNotifier, FeedbackFilter>(
+final feedbackFilterProvider =
+    NotifierProvider<FeedbackFilterNotifier, FeedbackFilter>(
   FeedbackFilterNotifier.new,
 );
 
 final filteredFeedbacksProvider = Provider<List<OnboardingFeedback>>((ref) {
   final feedbacks = ref.watch(feedbacksStreamProvider);
   final filter = ref.watch(feedbackFilterProvider);
-  
+
   return feedbacks.when(
     data: (list) {
       switch (filter) {

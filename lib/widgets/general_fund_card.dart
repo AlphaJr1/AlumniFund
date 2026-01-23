@@ -56,7 +56,7 @@ class GeneralFundCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        
+
         // Amount
         Text(
           CurrencyFormatter.formatCurrency(balance),
@@ -67,7 +67,7 @@ class GeneralFundCard extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        
+
         // Description
         const Text(
           'Dana tidak teralokasi • Tersedia untuk kebutuhan komunitas',
@@ -77,7 +77,7 @@ class GeneralFundCard extends ConsumerWidget {
           ),
           textAlign: TextAlign.center,
         ),
-        
+
         // Info box (conditional)
         if (balance > 0) ...[
           const SizedBox(height: 12),
@@ -86,7 +86,8 @@ class GeneralFundCard extends ConsumerWidget {
             decoration: BoxDecoration(
               color: AppConstants.infoBg,
               border: Border.all(color: AppConstants.infoBorder),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusSmall),
             ),
             child: Row(
               children: [

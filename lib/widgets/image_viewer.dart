@@ -6,13 +6,13 @@ import '../theme/app_theme.dart';
 class ImageViewer extends StatelessWidget {
   final String imageUrl;
   final String title;
-  
+
   const ImageViewer({
     super.key,
     required this.imageUrl,
     this.title = 'Image',
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,8 +47,8 @@ class ImageViewer extends StatelessWidget {
                   Text(
                     'Gagal memuat gambar',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white54,
-                    ),
+                          color: Colors.white54,
+                        ),
                   ),
                 ],
               ),

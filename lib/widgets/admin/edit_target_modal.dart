@@ -22,7 +22,7 @@ class EditTargetModal extends StatefulWidget {
 class _EditTargetModalState extends State<EditTargetModal> {
   final _targetService = TargetService();
   final _formKey = GlobalKey<FormState>();
-  
+
   List<Graduate> _graduates = [];
   String? _validationError;
   bool _isSubmitting = false;
@@ -124,7 +124,8 @@ class _EditTargetModalState extends State<EditTargetModal> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                  onPressed:
+                      _isSubmitting ? null : () => Navigator.of(context).pop(),
                   color: const Color(0xFF6B7280),
                 ),
               ],
@@ -190,7 +191,9 @@ class _EditTargetModalState extends State<EditTargetModal> {
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -218,7 +221,8 @@ class _EditTargetModalState extends State<EditTargetModal> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
@@ -240,9 +244,18 @@ class _EditTargetModalState extends State<EditTargetModal> {
 
   int _getMonthNumber(String month) {
     const monthMap = {
-      'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4,
-      'Mei': 5, 'Juni': 6, 'Juli': 7, 'Agustus': 8,
-      'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12,
+      'Januari': 1,
+      'Februari': 2,
+      'Maret': 3,
+      'April': 4,
+      'Mei': 5,
+      'Juni': 6,
+      'Juli': 7,
+      'Agustus': 8,
+      'September': 9,
+      'Oktober': 10,
+      'November': 11,
+      'Desember': 12,
     };
     return monthMap[month] ?? 1;
   }

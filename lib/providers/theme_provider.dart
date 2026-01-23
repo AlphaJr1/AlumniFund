@@ -20,13 +20,14 @@ class ThemeNotifier extends Notifier<ThemeColors> {
   /// Randomize theme to a different color
   void randomizeTheme() {
     // Get available colors (exclude current color)
-    final availableColors = ThemeColors.values.where((c) => c != state).toList();
-    
+    final availableColors =
+        ThemeColors.values.where((c) => c != state).toList();
+
     // Pick random color
     final random = Random();
     final randomIndex = random.nextInt(availableColors.length);
     final newTheme = availableColors[randomIndex];
-    
+
     // Update state
     state = newTheme;
   }
@@ -35,23 +36,24 @@ class ThemeNotifier extends Notifier<ThemeColors> {
   void setTheme(ThemeColors theme) {
     state = theme;
   }
-  
+
   /// Randomize theme with animation callback
   /// Returns both old and new theme for animation overlay
   (ThemeColors oldTheme, ThemeColors newTheme) randomizeThemeWithAnimation() {
     final oldTheme = state;
-    
+
     // Get available colors (exclude current color)
-    final availableColors = ThemeColors.values.where((c) => c != state).toList();
-    
+    final availableColors =
+        ThemeColors.values.where((c) => c != state).toList();
+
     // Pick random color
     final random = Random();
     final randomIndex = random.nextInt(availableColors.length);
     final newTheme = availableColors[randomIndex];
-    
+
     // Update state (will trigger rebuild with new theme)
     state = newTheme;
-    
+
     return (oldTheme, newTheme);
   }
 }

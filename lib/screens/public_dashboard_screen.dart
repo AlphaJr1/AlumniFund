@@ -18,7 +18,8 @@ class PublicDashboardScreen extends ConsumerStatefulWidget {
   const PublicDashboardScreen({super.key});
 
   @override
-  ConsumerState<PublicDashboardScreen> createState() => _PublicDashboardScreenState();
+  ConsumerState<PublicDashboardScreen> createState() =>
+      _PublicDashboardScreenState();
 }
 
 class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
@@ -26,16 +27,16 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
   // Confetti controllers
   late ConfettiController _confettiControllerLeft;
   late ConfettiController _confettiControllerRight;
-  
+
   // Callback reference to navigate cards
   void Function(int)? _navigateToCardCallback;
-  
+
   // GlobalKey for CardStack to get position/bounds
   final GlobalKey _cardStackKey = GlobalKey();
-  
+
   // Modal tracking for onboarding
   bool _wasModalOpen = false;
-  
+
   // Theme reveal animation state
   AnimationController? _revealController;
   Animation<double>? _revealAnimation;
@@ -63,13 +64,14 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
     _revealController?.dispose();
     super.dispose();
   }
-  
+
   // Method to trigger reveal animation - called from CardStackWidget
   void triggerThemeReveal(Offset tapPosition) {
     // Check if onboarding is active and on double tap step
     final onboardingState = ref.read(onboardingProvider);
-    if (onboardingState.isActive && 
-        onboardingState.currentStep.actionRequired == OnboardingActionType.doubleTap) {
+    if (onboardingState.isActive &&
+        onboardingState.currentStep.actionRequired ==
+            OnboardingActionType.doubleTap) {
       // Delay completion untuk lihat theme animation dulu (1.5 detik)
       Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) {
@@ -77,17 +79,19 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
         }
       });
     }
-    
+
     // Get current theme before changing
     final currentTheme = ref.read(themeProvider);
     final oldPrimaryColor = currentTheme.colors.primary;
-    
+
     // Create gradient shades for old theme
     final hsl = HSLColor.fromColor(oldPrimaryColor);
     final oldColor1 = oldPrimaryColor;
-    final oldColor2 = hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
-    final oldColor3 = hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
-    
+    final oldColor2 =
+        hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
+    final oldColor3 =
+        hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+
     // Calculate max radius
     final size = MediaQuery.of(context).size;
     final corners = [
@@ -96,7 +100,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       Offset(0, size.height),
       Offset(size.width, size.height),
     ];
-    
+
     double maxDistance = 0;
     for (final corner in corners) {
       final dx = tapPosition.dx - corner.dx;
@@ -106,16 +110,16 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
         maxDistance = distance;
       }
     }
-    
+
     // Dispose old controller if exists
     _revealController?.dispose();
-    
+
     // Create new controller
     _revealController = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
-    
+
     _revealAnimation = Tween<double>(
       begin: 0.0,
       end: maxDistance,
@@ -123,7 +127,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       parent: _revealController!,
       curve: Curves.fastOutSlowIn,
     ));
-    
+
     // Set state with old theme FIRST
     setState(() {
       _tapPosition = tapPosition;
@@ -131,14 +135,14 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       _oldGradientColors = [oldColor1, oldColor2, oldColor3];
       _maxRadius = maxDistance;
     });
-    
+
     // Wait for next frame to ensure old theme is painted
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      
+
       // Trigger theme change after old theme layer is visible
       ref.read(themeProvider.notifier).randomizeThemeWithAnimation();
-      
+
       // Start animation immediately after theme change
       _revealController!.forward().then((_) {
         if (mounted) {
@@ -155,48 +159,49 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
   void triggerConfetti() {
     _confettiControllerLeft.play();
     _confettiControllerRight.play();
-    
+
     // Navigate to IncomeCard (index 1 - Recent Props) after a short delay
     Future.delayed(const Duration(milliseconds: 300), () {
       _navigateToCardCallback?.call(1);
     });
   }
-  
+
   // Handle scroll detected from CardStackWidget (for onboarding step 1)
   void _handleScrollDetected() {
     final onboardingState = ref.read(onboardingProvider);
-    if (onboardingState.isActive && 
-        onboardingState.currentStep.actionRequired == OnboardingActionType.scroll) {
+    if (onboardingState.isActive &&
+        onboardingState.currentStep.actionRequired ==
+            OnboardingActionType.scroll) {
       ref.read(onboardingProvider.notifier).completeCurrentStep();
     }
   }
-  
+
   // Check modal state for onboarding steps 3-5
   void _checkModalStateForOnboarding(BuildContext context) {
     final onboardingState = ref.read(onboardingProvider);
-    
+
     // Only check if onboarding is active and on steps that require modal
     if (!onboardingState.isActive) {
       _wasModalOpen = false;
       return;
     }
-    
+
     final currentAction = onboardingState.currentStep.actionRequired;
     if (currentAction != OnboardingActionType.tapButton &&
         currentAction != OnboardingActionType.tapCard) {
       _wasModalOpen = false;
       return;
     }
-    
+
     // Simple check: if Navigator can pop, there's likely a dialog/modal above
     // This works because PublicDashboardScreen is the root, so canPop means modal
     final isModalOpen = Navigator.of(context).canPop();
-    
+
     // Debug print
     // if (_wasModalOpen != isModalOpen) {
     //   debugPrint('[Onboarding] Modal state changed: wasOpen=$_wasModalOpen, isNowOpen=$isModalOpen');
     // }
-    
+
     // Detect state change: modal opened
     if (isModalOpen && !_wasModalOpen) {
       _wasModalOpen = true;
@@ -217,16 +222,18 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkModalStateForOnboarding(context);
     });
-    
+
     // Get dynamic theme colors (NEW theme if animation is running)
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
+
     // Create gradient shades for NEW theme
     final hsl = HSLColor.fromColor(primaryColor);
     final color1 = primaryColor;
-    final color2 = hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
-    final color3 = hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
-    
+    final color2 =
+        hsl.withLightness((hsl.lightness - 0.05).clamp(0.0, 1.0)).toColor();
+    final color3 =
+        hsl.withLightness((hsl.lightness - 0.15).clamp(0.0, 1.0)).toColor();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -248,16 +255,18 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
               ),
             ),
           ),
-          
+
           // REVEAL ANIMATION LAYER: Old theme gradient with circular hole (only during animation)
-          if (_tapPosition != null && _oldGradientColors != null && _revealController != null)
+          if (_tapPosition != null &&
+              _oldGradientColors != null &&
+              _revealController != null)
             Positioned.fill(
               child: IgnorePointer(
                 child: AnimatedBuilder(
                   animation: _revealController!,
                   builder: (context, child) {
                     final radius = _revealAnimation?.value ?? 0.0;
-                    
+
                     return CustomPaint(
                       painter: _GradientRevealPainter(
                         center: _tapPosition!,
@@ -269,7 +278,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 ),
               ),
             ),
-          
+
           // CONTENT LAYER: Cards (always on top)
           CardStackWidget(
             key: _cardStackKey,
@@ -279,13 +288,17 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 onProofSubmitted: triggerConfetti,
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapButton) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapButton) {
                     ref.read(onboardingProvider.notifier).setModalOpen(true);
                   }
                 },
                 onModalClose: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapButton) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapButton) {
                     ref.read(onboardingProvider.notifier).setModalOpen(false);
                   }
                 },
@@ -294,13 +307,17 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 key: const ValueKey(1),
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapCard) {
                     ref.read(onboardingProvider.notifier).setModalOpen(true);
                   }
                 },
                 onModalClose: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapCard) {
                     ref.read(onboardingProvider.notifier).setModalOpen(false);
                   }
                 },
@@ -309,13 +326,17 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 key: const ValueKey(2),
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapCard) {
                     ref.read(onboardingProvider.notifier).setModalOpen(true);
                   }
                 },
                 onModalClose: () {
                   final state = ref.read(onboardingProvider);
-                  if (state.isActive && state.currentStep.actionRequired == OnboardingActionType.tapCard) {
+                  if (state.isActive &&
+                      state.currentStep.actionRequired ==
+                          OnboardingActionType.tapCard) {
                     ref.read(onboardingProvider.notifier).setModalOpen(false);
                   }
                 },
@@ -329,7 +350,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
             },
             onScrollDetected: _handleScrollDetected, // For onboarding step 1
           ),
-          
+
           // Confetti from LEFT (shoots to SOUTHEAST - diagonal down-right)
           Positioned(
             left: 0,
@@ -372,7 +393,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
               ],
             ),
           ),
-          
+
           // ONBOARDING OVERLAY (above confetti)
           OnboardingOverlay(
             onThemeChangeRequest: () {
@@ -392,18 +413,18 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       floatingActionButton: Consumer(
         builder: (context, ref, child) {
           final onboardingState = ref.watch(onboardingProvider);
-          
+
           // Hide FAB when onboarding is active
           if (onboardingState.isActive) {
             return const SizedBox.shrink();
           }
-          
+
           return _buildOnboardingFAB(context);
         },
       ),
     );
   }
-  
+
   Widget _buildOnboardingFAB(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -411,7 +432,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
       curve: Curves.easeInOut,
       builder: (context, value, child) {
         final scale = 1.0 + (0.1 * (0.5 - (value - 0.5).abs()));
-        
+
         return Transform.scale(
           scale: scale,
           child: FloatingActionButton(
@@ -432,13 +453,13 @@ class _GradientRevealPainter extends CustomPainter {
   final Offset center;
   final double radius;
   final List<Color> gradientColors;
-  
+
   _GradientRevealPainter({
     required this.center,
     required this.radius,
     required this.gradientColors,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     // Create gradient shader
@@ -447,31 +468,32 @@ class _GradientRevealPainter extends CustomPainter {
       end: Alignment.bottomRight,
       colors: gradientColors,
     );
-    
+
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final shader = gradient.createShader(rect);
-    
+
     // Create inverse path: full screen MINUS the circle
     final screenRect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final circlePath = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
-    
+    final circlePath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: radius));
+
     final inversePath = Path()
       ..fillType = PathFillType.evenOdd
       ..addRect(screenRect)
       ..addPath(circlePath, Offset.zero);
-    
+
     // Paint gradient everywhere EXCEPT the circle
     final paint = Paint()
       ..shader = shader
       ..style = PaintingStyle.fill;
-    
+
     canvas.drawPath(inversePath, paint);
   }
-  
+
   @override
   bool shouldRepaint(_GradientRevealPainter oldDelegate) {
-    return oldDelegate.radius != radius || 
-           oldDelegate.center != center ||
-           oldDelegate.gradientColors != gradientColors;
+    return oldDelegate.radius != radius ||
+        oldDelegate.center != center ||
+        oldDelegate.gradientColors != gradientColors;
   }
 }

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 /// Action types yang harus dilakukan user untuk complete step
 enum OnboardingActionType {
-  scroll,        // User harus scroll/swipe
-  doubleTap,     // User harus double tap
-  tapButton,     // User harus tap button tertentu
-  tapCard,       // User harus tap card
-  modalClose,    // User harus close modal
+  scroll, // User harus scroll/swipe
+  doubleTap, // User harus double tap
+  tapButton, // User harus tap button tertentu
+  tapCard, // User harus tap card
+  modalClose, // User harus close modal
   tapToComplete, // User hanya perlu tap untuk selesai
 }
 
@@ -17,11 +17,13 @@ class OnboardingStep {
   final String description;
   final String icon; // Emoji icon
   final OnboardingActionType actionRequired;
-  final int? targetCardIndex; // Index card yang harus ditampilkan (null jika tidak perlu navigate)
-  final Rect? highlightArea; // Area yang harus di-highlight (null untuk full screen atau no highlight)
+  final int?
+      targetCardIndex; // Index card yang harus ditampilkan (null jika tidak perlu navigate)
+  final Rect?
+      highlightArea; // Area yang harus di-highlight (null untuk full screen atau no highlight)
   final String? modalInstruction; // Instruction yang tampil saat modal muncul
   final bool isCompleted;
-  
+
   const OnboardingStep({
     required this.id,
     required this.title,
@@ -33,7 +35,7 @@ class OnboardingStep {
     this.modalInstruction,
     this.isCompleted = false,
   });
-  
+
   OnboardingStep copyWith({
     int? id,
     String? title,

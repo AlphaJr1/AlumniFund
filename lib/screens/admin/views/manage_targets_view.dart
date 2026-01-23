@@ -22,7 +22,7 @@ class ManageTargetsView extends ConsumerStatefulWidget {
 class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
   final _targetService = TargetService();
   final _formKey = GlobalKey<FormState>();
-  
+
   List<Graduate> _graduates = [];
   String? _validationError;
   bool _isSubmitting = false;
@@ -110,14 +110,16 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
         final targetNames = (result['targetNames'] as List<String>).join(', ');
         final createdCount = (result['created'] as List).length;
         final updatedCount = (result['updated'] as List).length;
-        
+
         String message = '✅ ';
         if (createdCount > 0 && updatedCount > 0) {
-          message += '$createdCount new targets created, $updatedCount targets updated (recipients added)';
+          message +=
+              '$createdCount new targets created, $updatedCount targets updated (recipients added)';
         } else if (createdCount > 0) {
           message += '$createdCount targets created successfully';
         } else {
-          message += '$updatedCount targets updated successfully (recipients added)';
+          message +=
+              '$updatedCount targets updated successfully (recipients added)';
         }
         message += '\n$targetNames';
 
@@ -166,7 +168,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-               content: Text('✅ Target deleted successfully'),
+              content: Text('✅ Target deleted successfully'),
               backgroundColor: Color(0xFF10B981),
             ),
           );
@@ -260,7 +262,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                           'Recipients List',
+                          'Recipients List',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -284,7 +286,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Graduate list
               Container(
                 constraints: const BoxConstraints(maxHeight: 400),
@@ -331,7 +333,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -426,7 +428,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
               ),
               SizedBox(height: 16),
               Text(
-                 'No Active Target',
+                'No Active Target',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -435,7 +437,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
               ),
               SizedBox(height: 8),
               Text(
-                 'Create new target below',
+                'Create new target below',
                 style: TextStyle(
                   fontSize: 14,
                   color: Color(0xFF9CA3AF),
@@ -449,8 +451,9 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
 
     // Use displayAmount (currentAmount + allocated_from_fund) for accurate progress
     final progress = activeTarget.displayAmount / activeTarget.targetAmount;
-    final daysRemaining = activeTarget.deadline.difference(DateTime.now()).inDays;
-    
+    final daysRemaining =
+        activeTarget.deadline.difference(DateTime.now()).inDays;
+
     Color deadlineColor;
     if (daysRemaining > 7) {
       deadlineColor = const Color(0xFF10B981);
@@ -490,7 +493,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                       'Active Target',
+                      'Active Target',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white70,
@@ -547,7 +550,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
               ),
               const SizedBox(height: 8),
               Text(
-                 '${(progress * 100).toStringAsFixed(1)}% reached',
+                '${(progress * 100).toStringAsFixed(1)}% reached',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white70,
@@ -572,14 +575,15 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                 child: _buildStatItem(
                   icon: Icons.calendar_today,
                   label: 'Deadline',
-                  value: DateFormat('dd MMM yyyy', 'en_US').format(activeTarget.deadline),
+                  value: DateFormat('dd MMM yyyy', 'en_US')
+                      .format(activeTarget.deadline),
                   valueColor: deadlineColor,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Graduate names
           Container(
             padding: const EdgeInsets.all(12),
@@ -595,7 +599,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                     Icon(Icons.people, color: Colors.white70, size: 16),
                     SizedBox(width: 8),
                     Text(
-                       'Recipients',
+                      'Recipients',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.white70,
@@ -630,7 +634,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                 Icon(Icons.access_time, color: deadlineColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                   '$daysRemaining days left',
+                  '$daysRemaining days left',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -689,19 +693,24 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: valueColor != null ? Colors.white : Colors.white.withOpacity(0.2),
+        color:
+            valueColor != null ? Colors.white : Colors.white.withOpacity(0.2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: valueColor != null ? const Color(0xFF6B7280) : Colors.white70, size: 20),
+          Icon(icon,
+              color:
+                  valueColor != null ? const Color(0xFF6B7280) : Colors.white70,
+              size: 20),
           const SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
-              color: valueColor != null ? const Color(0xFF6B7280) : Colors.white70,
+              color:
+                  valueColor != null ? const Color(0xFF6B7280) : Colors.white70,
             ),
           ),
           const SizedBox(height: 4),
@@ -736,7 +745,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-             'Upcoming Targets',
+            'Upcoming Targets',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -744,13 +753,12 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
             ),
           ),
           const SizedBox(height: 16),
-          
           if (upcomingTargets.isEmpty)
             const Center(
               child: Padding(
                 padding: EdgeInsets.all(32),
                 child: Text(
-                   'No upcoming targets yet',
+                  'No upcoming targets yet',
                   style: TextStyle(
                     fontSize: 14,
                     color: Color(0xFF9CA3AF),
@@ -788,7 +796,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                     ),
                   ),
                   subtitle: Text(
-                     '${target.graduates.length} recipients • Rp ${CurrencyFormatter.formatNumber(target.targetAmount)}',
+                    '${target.graduates.length} recipients • Rp ${CurrencyFormatter.formatNumber(target.targetAmount)}',
                     style: const TextStyle(
                       fontSize: 14,
                       color: Color(0xFF6B7280),
@@ -852,7 +860,6 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
             ),
             const SizedBox(height: 24),
 
-
             // Error message
             if (_validationError != null)
               Container(
@@ -911,7 +918,8 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
                         : const Text(
@@ -972,7 +980,6 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
               ],
             ),
           ),
-          
           if (_showArchivedTargets) ...[
             const SizedBox(height: 16),
             if (archivedTargets.isEmpty)
@@ -996,8 +1003,9 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                 separatorBuilder: (context, index) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final target = archivedTargets[index];
-                  final isComplete = target.currentAmount >= target.targetAmount;
-                  
+                  final isComplete =
+                      target.currentAmount >= target.targetAmount;
+
                   return ListTile(
                     contentPadding: const EdgeInsets.symmetric(vertical: 8),
                     leading: Container(
@@ -1011,7 +1019,9 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                       ),
                       child: Icon(
                         isComplete ? Icons.check_circle : Icons.archive,
-                        color: isComplete ? const Color(0xFF10B981) : const Color(0xFF6B7280),
+                        color: isComplete
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF6B7280),
                       ),
                     ),
                     title: Text(
@@ -1029,7 +1039,8 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                       ),
                     ),
                     trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: isComplete
                             ? const Color(0xFF10B981).withOpacity(0.1)
@@ -1041,7 +1052,9 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: isComplete ? const Color(0xFF10B981) : const Color(0xFF6B7280),
+                          color: isComplete
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF6B7280),
                         ),
                       ),
                     ),

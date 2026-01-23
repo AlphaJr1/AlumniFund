@@ -245,7 +245,8 @@ class _OnboardingFeedbackModalState
                             : Text(
                                 'Selesai',
                                 style: TextStyle(
-                                  fontSize: hasKeyboard ? 14 : (isMobile ? 15 : 16),
+                                  fontSize:
+                                      hasKeyboard ? 14 : (isMobile ? 15 : 16),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),

@@ -163,17 +163,17 @@ class AnalyticsSummary {
     final partiallyFunded =
         analytics.where((a) => a.fundingStatus == 'partially_funded').length;
 
-    final avgPercentage = analytics
-            .map((a) => a.percentage)
-            .reduce((a, b) => a + b) /
-        analytics.length;
+    final avgPercentage =
+        analytics.map((a) => a.percentage).reduce((a, b) => a + b) /
+            analytics.length;
 
     final durations = analytics
         .where((a) => a.durationDays != null)
         .map((a) => a.durationDays!)
         .toList();
-    final avgDuration =
-        durations.isNotEmpty ? durations.reduce((a, b) => a + b) / durations.length : 0;
+    final avgDuration = durations.isNotEmpty
+        ? durations.reduce((a, b) => a + b) / durations.length
+        : 0;
 
     final totalGrads =
         analytics.map((a) => a.graduatesCount).reduce((a, b) => a + b);

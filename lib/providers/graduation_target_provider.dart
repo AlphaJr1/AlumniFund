@@ -10,23 +10,23 @@ final graduationTargetsProvider = StreamProvider<List<GraduationTarget>>((ref) {
       .collection(FirestoreCollections.graduationTargets)
       .snapshots()
       .map((snapshot) {
-        final targets = <GraduationTarget>[];
-        for (var doc in snapshot.docs) {
-          try {
-            targets.add(GraduationTarget.fromFirestore(doc));
-          } catch (e) {
-            // Skip corrupt targets (e.g., null timestamps)
-            print('Skipping corrupt target ${doc.id}: $e');
-          }
-        }
-        return targets;
-      });
+    final targets = <GraduationTarget>[];
+    for (var doc in snapshot.docs) {
+      try {
+        targets.add(GraduationTarget.fromFirestore(doc));
+      } catch (e) {
+        // Skip corrupt targets (e.g., null timestamps)
+        print('Skipping corrupt target ${doc.id}: $e');
+      }
+    }
+    return targets;
+  });
 });
 
 /// Provider untuk active graduation target
 final activeTargetProvider = Provider<GraduationTarget?>((ref) {
   final targetsAsync = ref.watch(graduationTargetsProvider);
-  
+
   return targetsAsync.when(
     data: (targets) {
       try {
@@ -41,9 +41,10 @@ final activeTargetProvider = Provider<GraduationTarget?>((ref) {
 });
 
 /// Provider untuk target by ID
-final targetByIdProvider = Provider.family<GraduationTarget?, String>((ref, id) {
+final targetByIdProvider =
+    Provider.family<GraduationTarget?, String>((ref, id) {
   final targetsAsync = ref.watch(graduationTargetsProvider);
-  
+
   return targetsAsync.when(
     data: (targets) {
       try {
@@ -60,17 +61,17 @@ final targetByIdProvider = Provider.family<GraduationTarget?, String>((ref, id) 
 /// Provider untuk upcoming targets (status = upcoming, sorted)
 final upcomingTargetsProvider = Provider<List<GraduationTarget>>((ref) {
   final targetsAsync = ref.watch(graduationTargetsProvider);
-  
+
   return targetsAsync.when(
     data: (targets) {
       final upcoming = targets.where((t) => t.status == 'upcoming').toList();
-      
+
       // Sort by year, then month
       upcoming.sort((a, b) {
         if (a.year != b.year) return a.year.compareTo(b.year);
         return _getMonthNumber(a.month).compareTo(_getMonthNumber(b.month));
       });
-      
+
       return upcoming;
     },
     loading: () => [],
@@ -81,13 +82,13 @@ final upcomingTargetsProvider = Provider<List<GraduationTarget>>((ref) {
 /// Provider untuk archived targets (status = closed or archived)
 final archivedTargetsProvider = Provider<List<GraduationTarget>>((ref) {
   final targetsAsync = ref.watch(graduationTargetsProvider);
-  
+
   return targetsAsync.when(
     data: (targets) {
       final archived = targets
           .where((t) => t.status == 'closed' || t.status == 'archived')
           .toList();
-      
+
       // Sort by closed date descending (newest first)
       archived.sort((a, b) {
         if (a.closedDate == null && b.closedDate == null) return 0;
@@ -95,7 +96,7 @@ final archivedTargetsProvider = Provider<List<GraduationTarget>>((ref) {
         if (b.closedDate == null) return -1;
         return b.closedDate!.compareTo(a.closedDate!);
       });
-      
+
       return archived;
     },
     loading: () => [],

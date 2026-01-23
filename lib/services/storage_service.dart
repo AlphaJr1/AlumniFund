@@ -5,7 +5,7 @@ import '../utils/constants.dart';
 /// Service untuk handle Firebase Storage operations
 class StorageService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  
+
   /// Upload transaction proof image
   /// Returns download URL dari uploaded image
   Future<String> uploadTransactionProof({
@@ -16,19 +16,17 @@ class StorageService {
       // Generate unique filename dengan timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final uniqueFileName = '${timestamp}_$fileName';
-      
+
       // Reference ke storage path
-      final ref = _storage
-          .ref()
-          .child(StoragePaths.proofImages)
-          .child(uniqueFileName);
-      
+      final ref =
+          _storage.ref().child(StoragePaths.proofImages).child(uniqueFileName);
+
       // Upload file
       final uploadTask = await ref.putData(
         imageBytes,
         SettableMetadata(contentType: 'image/jpeg'),
       );
-      
+
       // Get download URL
       final downloadUrl = await uploadTask.ref.getDownloadURL();
       return downloadUrl;
@@ -36,7 +34,7 @@ class StorageService {
       throw Exception('Gagal upload gambar: $e');
     }
   }
-  
+
   /// Upload QR code image
   /// Returns download URL dari uploaded QR code
   Future<String> uploadQRCode({
@@ -46,24 +44,22 @@ class StorageService {
     try {
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final uniqueFileName = '${timestamp}_$fileName';
-      
-      final ref = _storage
-          .ref()
-          .child(StoragePaths.qrCodes)
-          .child(uniqueFileName);
-      
+
+      final ref =
+          _storage.ref().child(StoragePaths.qrCodes).child(uniqueFileName);
+
       final uploadTask = await ref.putData(
         imageBytes,
         SettableMetadata(contentType: 'image/png'),
       );
-      
+
       final downloadUrl = await uploadTask.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
       throw Exception('Gagal upload QR code: $e');
     }
   }
-  
+
   /// Delete file dari storage
   Future<void> deleteFile(String fileUrl) async {
     try {

@@ -13,10 +13,10 @@ class BalanceTargetCard extends ConsumerWidget {
   final VoidCallback? onProofSubmitted; // Callback when proof submitted
   final VoidCallback? onModalOpen; // NEW: Callback when modal opens
   final VoidCallback? onModalClose; // NEW: Callback when modal closes
-  
+
   const BalanceTargetCard({
-    super.key, 
-    this.showHint = false, 
+    super.key,
+    this.showHint = false,
     this.onProofSubmitted,
     this.onModalOpen,
     this.onModalClose,
@@ -96,7 +96,7 @@ class BalanceTargetCard extends ConsumerWidget {
           children: [
             // Top spacer - responsive
             SizedBox(height: isMobile ? 16 : 24),
-            
+
             // General Fund Balance Section
             const Text(
               '💰',
@@ -120,7 +120,7 @@ class BalanceTargetCard extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.primary,
               ),
             ),
-            
+
             // Show reserved amount if active target exists
             if (activeTarget != null && activeTarget.allocatedFromFund > 0) ...[
               const SizedBox(height: 8),
@@ -133,7 +133,7 @@ class BalanceTargetCard extends ConsumerWidget {
                 ),
               ),
             ],
-            
+
             // Middle spacer - responsive
             SizedBox(height: isMobile ? 24 : 32),
 
@@ -144,7 +144,8 @@ class BalanceTargetCard extends ConsumerWidget {
                   // Show distribution detail modal
                   showDialog(
                     context: context,
-                    builder: (context) => DistributionDetailModal(target: activeTarget),
+                    builder: (context) =>
+                        DistributionDetailModal(target: activeTarget),
                   );
                 },
                 onDoubleTap: () {
@@ -159,7 +160,10 @@ class BalanceTargetCard extends ConsumerWidget {
                     color: const Color(0xFFF0FDFA),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.2),
                       width: 2,
                     ),
                   ),
@@ -195,13 +199,15 @@ class BalanceTargetCard extends ConsumerWidget {
                         tween: Tween<double>(
                           begin: 0.0,
                           end: activeTarget.targetAmount > 0
-                              ? (activeTarget.displayAmount / activeTarget.targetAmount).clamp(0.0, 1.0)
+                              ? (activeTarget.displayAmount /
+                                      activeTarget.targetAmount)
+                                  .clamp(0.0, 1.0)
                               : 0.0,
                         ),
                         builder: (context, value, child) {
                           final percentage = (value * 100);
                           final progressColor = _getProgressColor(percentage);
-                          
+
                           return ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Stack(
@@ -210,7 +216,8 @@ class BalanceTargetCard extends ConsumerWidget {
                                   value: value,
                                   minHeight: 8,
                                   backgroundColor: Colors.grey[200],
-                                  valueColor: AlwaysStoppedAnimation<Color>(progressColor),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      progressColor),
                                 ),
                                 // Pulse glow effect overlay
                                 if (value > 0 && value < 1.0)
@@ -230,19 +237,25 @@ class BalanceTargetCard extends ConsumerWidget {
                         tween: Tween<double>(
                           begin: 0.0,
                           end: activeTarget.targetAmount > 0
-                              ? (activeTarget.displayAmount / activeTarget.targetAmount).clamp(0.0, 1.0) * 100
+                              ? (activeTarget.displayAmount /
+                                          activeTarget.targetAmount)
+                                      .clamp(0.0, 1.0) *
+                                  100
                               : 0.0,
                         ),
                         builder: (context, animatedPercentage, child) {
-                          final progressColor = _getProgressColor(animatedPercentage);
-                          final animatedShortfall = activeTarget.targetAmount - 
-                              (activeTarget.targetAmount * (animatedPercentage / 100));
-                          
+                          final progressColor =
+                              _getProgressColor(animatedPercentage);
+                          final animatedShortfall = activeTarget.targetAmount -
+                              (activeTarget.targetAmount *
+                                  (animatedPercentage / 100));
+
                           return Text.rich(
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: '${animatedPercentage.toStringAsFixed(0)}% reached',
+                                  text:
+                                      '${animatedPercentage.toStringAsFixed(0)}% reached',
                                   style: TextStyle(
                                     fontSize: isMobile ? 13 : 14,
                                     fontWeight: FontWeight.w600,
@@ -259,7 +272,8 @@ class BalanceTargetCard extends ConsumerWidget {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: '${CurrencyFormatter.formatCurrency(animatedShortfall)} more needed',
+                                    text:
+                                        '${CurrencyFormatter.formatCurrency(animatedShortfall)} more needed',
                                     style: TextStyle(
                                       fontSize: isMobile ? 13 : 14,
                                       fontWeight: FontWeight.w600,
@@ -298,7 +312,7 @@ class BalanceTargetCard extends ConsumerWidget {
                   // Notify onboarding that modal is opening
                   onModalOpen?.call();
                   // debugPrint('[BalanceCard] Drop Your Prop button tapped - modal opening');
-                  
+
                   showDialog(
                     context: context,
                     barrierDismissible: true,
@@ -329,7 +343,7 @@ class BalanceTargetCard extends ConsumerWidget {
                 ),
               ),
             ),
-            
+
             // Bottom spacer
             SizedBox(height: isMobile ? 16 : 24),
           ],
@@ -342,7 +356,8 @@ class BalanceTargetCard extends ConsumerWidget {
     return Builder(
       builder: (context) => Center(
         child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+          valueColor: AlwaysStoppedAnimation<Color>(
+              Theme.of(context).colorScheme.primary),
         ),
       ),
     );
@@ -371,17 +386,18 @@ class BalanceTargetCard extends ConsumerWidget {
 // Pulse glow animation widget for progress bar
 class _PulseGlow extends StatefulWidget {
   final Color color;
-  
+
   const _PulseGlow({required this.color});
-  
+
   @override
   State<_PulseGlow> createState() => _PulseGlowState();
 }
 
-class _PulseGlowState extends State<_PulseGlow> with SingleTickerProviderStateMixin {
+class _PulseGlowState extends State<_PulseGlow>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  
+
   @override
   void initState() {
     super.initState();
@@ -389,18 +405,18 @@ class _PulseGlowState extends State<_PulseGlow> with SingleTickerProviderStateMi
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(

@@ -9,13 +9,13 @@ class AppTheme {
   /// Generate light theme dengan custom color pair
   static ThemeData getLightTheme(ColorPair colors) {
     final textTheme = GoogleFonts.interTextTheme();
-    
+
     return ThemeData(
       useMaterial3: true,
-      
+
       // Font family - Inter for better web compatibility
       fontFamily: GoogleFonts.inter().fontFamily,
-      
+
       // Color scheme - menggunakan dynamic colors
       colorScheme: ColorScheme.light(
         primary: colors.primary,
@@ -28,10 +28,10 @@ class AppTheme {
         onBackground: AppConstants.gray900,
         onSurface: AppConstants.gray900,
       ),
-      
+
       // Scaffold
       scaffoldBackgroundColor: AppConstants.gray50,
-      
+
       // AppBar theme
       appBarTheme: AppBarTheme(
         elevation: 0,
@@ -44,7 +44,7 @@ class AppTheme {
           color: Colors.white,
         ),
       ),
-      
+
       // Card theme
       cardTheme: CardThemeData(
         elevation: 2,
@@ -53,7 +53,7 @@ class AppTheme {
         ),
         color: Colors.white,
       ),
-      
+
       // Elevated button theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -70,7 +70,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Outlined button theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -86,7 +86,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Text button theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -98,7 +98,7 @@ class AppTheme {
           ),
         ),
       ),
-      
+
       // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -119,9 +119,10 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
           borderSide: const BorderSide(color: AppConstants.errorRed),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      
+
       // Typography with Noto Sans
       textTheme: textTheme.copyWith(
         displayLarge: textTheme.displayLarge?.copyWith(
@@ -167,37 +168,37 @@ class AppTheme {
           color: AppConstants.gray500,
         ),
       ),
-      
+
       // Divider theme
       dividerTheme: const DividerThemeData(
         color: AppConstants.gray200,
         thickness: 1,
         space: 16,
       ),
-      
+
       // Progress indicator theme
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: colors.primary,
       ),
     );
   }
-  
+
   /// Default light theme dengan teal colors (backward compatibility)
   static ThemeData get lightTheme => getLightTheme(ThemeColors.teal.colors);
-  
+
   // Spacing constants (for backward compatibility)
   static const double spacingXS = 4;
   static const double spacingS = 8;
   static const double spacingM = 16;
   static const double spacingL = 24;
   static const double spacingXL = 32;
-  
+
   // Border radius (for backward compatibility)
   static const double radiusS = 4;
   static const double radiusM = 8;
   static const double radiusL = 12;
   static const double radiusXL = 16;
-  
+
   // Colors (for backward compatibility)
   static const Color primaryColor = AppConstants.primaryTeal;
   static const Color secondaryColor = AppConstants.primaryTeal;

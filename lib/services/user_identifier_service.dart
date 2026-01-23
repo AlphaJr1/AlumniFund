@@ -19,7 +19,7 @@ class UserIdentifierService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final random = DateTime.now().microsecondsSinceEpoch;
     final newId = 'user_${timestamp}_$random';
-    
+
     // Store in localStorage
     html.window.localStorage[_storageKey] = newId;
     return newId;
@@ -30,38 +30,38 @@ class UserIdentifierService {
   String? getBrowserFingerprint() {
     try {
       final components = <String>[];
-      
+
       // User agent
       components.add(html.window.navigator.userAgent ?? '');
-      
+
       // Screen resolution
       final screen = html.window.screen;
       if (screen != null) {
         components.add('${screen.width}x${screen.height}');
       }
-      
+
       // Timezone offset
       final timezoneOffset = DateTime.now().timeZoneOffset.inMinutes;
       components.add(timezoneOffset.toString());
-      
+
       // Language
       components.add(html.window.navigator.language ?? '');
-      
+
       // Platform
       components.add(html.window.navigator.platform ?? '');
-      
+
       // Color depth
       if (screen != null) {
         components.add((screen.colorDepth ?? 24).toString());
       }
-      
+
       // Combine all components
       final combined = components.join('|');
-      
+
       // Generate hash (SHA-256)
       final bytes = utf8.encode(combined);
       final hash = sha256.convert(bytes);
-      
+
       return hash.toString();
     } catch (e) {
       // Fingerprinting failed, return null

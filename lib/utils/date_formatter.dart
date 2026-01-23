@@ -35,7 +35,7 @@ class DateFormatter {
   ];
 
   /// Format date ke format Indonesia: "28 April 2026"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatDate(DateTime(2026, 4, 28)) // "28 April 2026"
@@ -48,7 +48,7 @@ class DateFormatter {
   }
 
   /// Format date dengan hari: "Senin, 28 April 2026"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatDateWithDay(DateTime(2026, 4, 28)) // "Selasa, 28 April 2026"
@@ -68,7 +68,7 @@ class DateFormatter {
   }
 
   /// Format datetime ke format short: "04/01 14:30"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatDateTime(DateTime(2026, 1, 4, 14, 30)) // "04/01 14:30"
@@ -79,7 +79,7 @@ class DateFormatter {
   }
 
   /// Format datetime ke format full: "04 Januari 2026, 14:30"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatDateTimeFull(DateTime(2026, 1, 4, 14, 30)) // "04 Januari 2026, 14:30"
@@ -91,7 +91,7 @@ class DateFormatter {
   }
 
   /// Get relative time dalam Bahasa Indonesia
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// getRelativeTime(DateTime.now().subtract(Duration(minutes: 5))) // "5 menit lalu"
@@ -123,7 +123,7 @@ class DateFormatter {
   }
 
   /// Get month name dari index (1-12)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// getMonthName(5) // "Mei"
@@ -135,7 +135,7 @@ class DateFormatter {
   }
 
   /// Get lowercase month name dari index (1-12)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// getMonthNameLower(5) // "mei"
@@ -146,7 +146,7 @@ class DateFormatter {
   }
 
   /// Format countdown: "5 hari lagi", "2 jam lagi"
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// formatCountdown(DateTime.now().add(Duration(days: 5))) // "5 hari lagi"
@@ -172,7 +172,7 @@ class DateFormatter {
   }
 
   /// Get days until date (bisa negatif jika sudah lewat)
-  /// 
+  ///
   /// Example:
   /// ```dart
   /// getDaysUntil(DateTime.now().add(Duration(days: 5))) // 5

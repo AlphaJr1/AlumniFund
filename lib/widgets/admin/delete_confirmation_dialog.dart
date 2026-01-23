@@ -20,7 +20,8 @@ class DeleteConfirmationDialog extends StatefulWidget {
   });
 
   @override
-  State<DeleteConfirmationDialog> createState() => _DeleteConfirmationDialogState();
+  State<DeleteConfirmationDialog> createState() =>
+      _DeleteConfirmationDialogState();
 
   /// Show dialog helper
   static Future<String?> show(

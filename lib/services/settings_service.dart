@@ -111,8 +111,7 @@ class SettingsService {
       // Get all upcoming and active targets
       final targetsSnapshot = await _firestore
           .collection(FirestoreCollections.graduationTargets)
-          .where('status', whereIn: ['upcoming', 'active'])
-          .get();
+          .where('status', whereIn: ['upcoming', 'active']).get();
 
       final batch = _firestore.batch();
       int updatedCount = 0;
@@ -211,25 +210,22 @@ class SettingsService {
           .toList();
 
       // Export transactions
-      final transactionsSnapshot = await _firestore
-          .collection(FirestoreCollections.transactions)
-          .get();
+      final transactionsSnapshot =
+          await _firestore.collection(FirestoreCollections.transactions).get();
       exportData['transactions'] = transactionsSnapshot.docs
           .map((doc) => convertTimestamp({'id': doc.id, ...doc.data()}))
           .toList();
 
       // Export general fund
-      final fundSnapshot = await _firestore
-          .collection(FirestoreCollections.generalFund)
-          .get();
+      final fundSnapshot =
+          await _firestore.collection(FirestoreCollections.generalFund).get();
       exportData['general_fund'] = fundSnapshot.docs
           .map((doc) => convertTimestamp({'id': doc.id, ...doc.data()}))
           .toList();
 
       // Export settings
-      final settingsSnapshot = await _firestore
-          .collection(FirestoreCollections.settings)
-          .get();
+      final settingsSnapshot =
+          await _firestore.collection(FirestoreCollections.settings).get();
       exportData['settings'] = settingsSnapshot.docs
           .map((doc) => convertTimestamp({'id': doc.id, ...doc.data()}))
           .toList();
@@ -270,17 +266,15 @@ class SettingsService {
       }
 
       // Delete all transactions
-      final transactionsSnapshot = await _firestore
-          .collection(FirestoreCollections.transactions)
-          .get();
+      final transactionsSnapshot =
+          await _firestore.collection(FirestoreCollections.transactions).get();
       for (var doc in transactionsSnapshot.docs) {
         batch.delete(doc.reference);
       }
 
       // Reset general fund to 0
-      final fundSnapshot = await _firestore
-          .collection(FirestoreCollections.generalFund)
-          .get();
+      final fundSnapshot =
+          await _firestore.collection(FirestoreCollections.generalFund).get();
       for (var doc in fundSnapshot.docs) {
         batch.update(doc.reference, {
           'balance': 0,
@@ -297,17 +291,14 @@ class SettingsService {
       }
 
       // Delete all target analytics (Cloud Functions generated data)
-      final analyticsSnapshot = await _firestore
-          .collection('target_analytics')
-          .get();
+      final analyticsSnapshot =
+          await _firestore.collection('target_analytics').get();
       for (var doc in analyticsSnapshot.docs) {
         batch.delete(doc.reference);
       }
 
       // Delete all analytics collection (another Cloud Functions data)
-      final analytics2Snapshot = await _firestore
-          .collection('analytics')
-          .get();
+      final analytics2Snapshot = await _firestore.collection('analytics').get();
       for (var doc in analytics2Snapshot.docs) {
         batch.delete(doc.reference);
       }

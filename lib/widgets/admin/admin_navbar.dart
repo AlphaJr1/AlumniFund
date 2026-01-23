@@ -80,8 +80,8 @@ class AdminNavbar extends ConsumerWidget {
                     const SizedBox(width: 8),
                     ConstrainedBox(
                       constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width > 768 
-                            ? 200 
+                        maxWidth: MediaQuery.of(context).size.width > 768
+                            ? 200
                             : 120, // Shorter on mobile
                       ),
                       child: Text(

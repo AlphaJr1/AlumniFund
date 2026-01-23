@@ -19,7 +19,7 @@ class TargetService {
       'june': 6,
       'july': 7,
       'august': 8,
-      'september': 9, // Same spelling in both English & Indonesian  
+      'september': 9, // Same spelling in both English & Indonesian
       'october': 10,
       'november': 11, // Same spelling in both English & Indonesian
       'december': 12,
@@ -57,20 +57,22 @@ class TargetService {
         .get();
 
     if (snapshot.docs.isEmpty) return null;
-    
+
     // Filter to only upcoming or active targets (exclude closed/archived)
     final targets = snapshot.docs
         .map((doc) => GraduationTarget.fromFirestore(doc))
-        .where((target) => target.status == 'upcoming' || target.status == 'active')
+        .where((target) =>
+            target.status == 'upcoming' || target.status == 'active')
         .toList();
-    
+
     if (targets.isEmpty) return null;
     return targets.first;
   }
 
   /// Get target by ID
   Future<GraduationTarget> _getTarget(String targetId) async {
-    final doc = await _firestore.collection('graduation_targets').doc(targetId).get();
+    final doc =
+        await _firestore.collection('graduation_targets').doc(targetId).get();
     if (!doc.exists) {
       throw Exception('Target tidak ditemukan');
     }
@@ -112,12 +114,15 @@ class TargetService {
   /// Activate next upcoming target
   Future<void> _activateNextTarget() async {
     final upcomingTargets = await _getUpcomingTargets();
-    
+
     if (upcomingTargets.isEmpty) return;
-    
+
     // Activate first upcoming target
     final nextTarget = upcomingTargets.first;
-    await _firestore.collection('graduation_targets').doc(nextTarget.id).update({
+    await _firestore
+        .collection('graduation_targets')
+        .doc(nextTarget.id)
+        .update({
       'status': 'active',
       'open_date': FieldValue.serverTimestamp(),
       'updated_at': FieldValue.serverTimestamp(),
@@ -150,7 +155,7 @@ class TargetService {
       // Find earliest graduation date
       graduates.sort((a, b) => a.date.compareTo(b.date));
       final earliestDate = graduates.first.date;
-      
+
       // Deadline = earliest date - offset days
       final deadline = earliestDate.subtract(Duration(days: deadlineOffset));
 
@@ -158,7 +163,8 @@ class TargetService {
       // If no active target exists, make this target active immediately
       final activeTarget = await _getActiveTarget();
       final status = activeTarget == null ? 'active' : 'upcoming';
-      final openDate = activeTarget == null ? FieldValue.serverTimestamp() : null;
+      final openDate =
+          activeTarget == null ? FieldValue.serverTimestamp() : null;
 
       // 6. Create target document
       final targetRef = _firestore.collection('graduation_targets').doc();
@@ -170,7 +176,8 @@ class TargetService {
         'current_amount': 0.0,
         'allocated_from_fund': 0.0, // Initialize virtual allocation
         'deadline': Timestamp.fromDate(deadline),
-        'status': status, // Dynamic: 'active' if no active target, else 'upcoming'
+        'status':
+            status, // Dynamic: 'active' if no active target, else 'upcoming'
         'open_date': openDate, // Set timestamp if becoming active
         'closed_date': null,
         'distribution': {
@@ -203,12 +210,12 @@ class TargetService {
 
       // 1. Group graduates by month/year
       final Map<String, List<Graduate>> groupedByMonth = {};
-      
+
       for (var graduate in graduates) {
         final month = getMonthName(graduate.date.month).toLowerCase();
         final year = graduate.date.year;
         final monthKey = '${month}_$year';
-        
+
         if (!groupedByMonth.containsKey(monthKey)) {
           groupedByMonth[monthKey] = [];
         }
@@ -219,21 +226,21 @@ class TargetService {
       final List<String> createdTargetIds = [];
       final List<String> updatedTargetIds = [];
       final List<String> targetNames = [];
-      
+
       for (var entry in groupedByMonth.entries) {
         final parts = entry.key.split('_');
         final month = parts[0];
         final year = int.parse(parts[1]);
         final monthGraduates = entry.value;
-        
+
         // Check if target exists
         final existing = await _checkExistingTarget(month, year);
-        
+
         if (existing != null) {
           // Merge with existing target (manually merge then replace)
           final existingGraduates = existing.graduates;
           final allGraduates = [...existingGraduates, ...monthGraduates];
-          
+
           // Remove duplicates by name (case-insensitive)
           final uniqueGraduates = <Graduate>[];
           final seenNames = <String>{};
@@ -244,7 +251,7 @@ class TargetService {
               uniqueGraduates.add(grad);
             }
           }
-          
+
           // Use replaceGraduates to avoid double-append
           await replaceGraduates(
             targetId: existing.id,
@@ -287,13 +294,14 @@ class TargetService {
 
       // 2. Validate can edit (upcoming or active targets only, not closed)
       if (target.status != 'upcoming' && target.status != 'active') {
-        throw Exception('Hanya target upcoming atau aktif yang bisa ditambahkan wisudawan');
+        throw Exception(
+            'Hanya target upcoming atau aktif yang bisa ditambahkan wisudawan');
       }
 
       // 3. APPEND new graduates to existing graduates (not replace)
       final existingGraduates = target.graduates;
       final allGraduates = [...existingGraduates, ...graduates];
-      
+
       // Remove duplicates by name (case-insensitive)
       final uniqueGraduates = <Graduate>[];
       final seenNames = <String>{};
@@ -307,12 +315,14 @@ class TargetService {
 
       // 4. Recalculate target amount and deadline
       final settings = await _getSettings();
-      final targetAmount = uniqueGraduates.length * settings.perPersonAllocation;
-      
+      final targetAmount =
+          uniqueGraduates.length * settings.perPersonAllocation;
+
       // Recalculate deadline (H-3 from earliest graduate)
       uniqueGraduates.sort((a, b) => a.date.compareTo(b.date));
       final earliestDate = uniqueGraduates.first.date;
-      final deadline = earliestDate.subtract(Duration(days: settings.deadlineOffsetDays));
+      final deadline =
+          earliestDate.subtract(Duration(days: settings.deadlineOffsetDays));
 
       // 5. Update target
       await _firestore.collection('graduation_targets').doc(targetId).update({
@@ -358,7 +368,7 @@ class TargetService {
           // Scenario 2: All moved to new month
           // Check if destination month already has a target
           final destTarget = await _checkExistingTarget(month, year);
-          
+
           if (destTarget != null) {
             // Merge to existing target, then delete current
             await _mergeToTargetAndDelete(targetId, destTarget.id, graduates);
@@ -445,21 +455,21 @@ class TargetService {
   ) async {
     // 1. Get destination target
     final destTarget = await _getTarget(destTargetId);
-    
+
     // 2. Merge graduates
     final updatedGrads = [...destTarget.graduates, ...graduatesToMerge];
     updatedGrads.sort((a, b) => a.date.compareTo(b.date));
-    
+
     // 3. Recalculate target amount and deadline
     final settings = await _getSettings();
     final targetAmount = updatedGrads.length * settings.perPersonAllocation;
     final deadline = updatedGrads.first.date.subtract(
       Duration(days: settings.deadlineOffsetDays),
     );
-    
+
     // 4. Use batch for atomic operation
     final batch = _firestore.batch();
-    
+
     // Update destination target with merged graduates
     batch.update(
       _firestore.collection('graduation_targets').doc(destTargetId),
@@ -470,12 +480,12 @@ class TargetService {
         'updated_at': FieldValue.serverTimestamp(),
       },
     );
-    
+
     // Delete source target
     batch.delete(
       _firestore.collection('graduation_targets').doc(sourceTargetId),
     );
-    
+
     await batch.commit();
   }
 
@@ -494,7 +504,8 @@ class TargetService {
       final grads = entry.value;
 
       // Check if this is same as current target month
-      if (month == currentTarget.month.toLowerCase() && year == currentTarget.year) {
+      if (month == currentTarget.month.toLowerCase() &&
+          year == currentTarget.year) {
         // Update current target with these graduates
         await _simpleUpdateGraduates(currentTargetId, grads);
         continue;
@@ -507,13 +518,16 @@ class TargetService {
         // Merge: Add to existing target
         final updatedGrads = [...destTarget.graduates, ...grads];
         updatedGrads.sort((a, b) => a.date.compareTo(b.date));
-        
+
         final targetAmount = updatedGrads.length * settings.perPersonAllocation;
         final deadline = updatedGrads.first.date.subtract(
           Duration(days: settings.deadlineOffsetDays),
         );
 
-        await _firestore.collection('graduation_targets').doc(destTarget.id).update({
+        await _firestore
+            .collection('graduation_targets')
+            .doc(destTarget.id)
+            .update({
           'graduates': updatedGrads.map((g) => g.toMap()).toList(),
           'target_amount': targetAmount,
           'deadline': Timestamp.fromDate(deadline),
@@ -531,9 +545,13 @@ class TargetService {
     }
 
     // Delete original target if it's not in the grouped grads
-    final currentKey = '${currentTarget.month.toLowerCase()} ${currentTarget.year}';
+    final currentKey =
+        '${currentTarget.month.toLowerCase()} ${currentTarget.year}';
     if (!groupedGrads.containsKey(currentKey)) {
-      await _firestore.collection('graduation_targets').doc(currentTargetId).delete();
+      await _firestore
+          .collection('graduation_targets')
+          .doc(currentTargetId)
+          .delete();
     }
   }
 
@@ -586,7 +604,7 @@ class TargetService {
       // 1. Get all targets (skip corrupt ones)
       final snapshot = await _firestore.collection('graduation_targets').get();
       final allTargets = <GraduationTarget>[];
-      
+
       for (var doc in snapshot.docs) {
         try {
           allTargets.add(GraduationTarget.fromFirestore(doc));
@@ -596,7 +614,8 @@ class TargetService {
       }
 
       // 2. Get current active target
-      final currentActive = allTargets.where((t) => t.status == 'active').toList();
+      final currentActive =
+          allTargets.where((t) => t.status == 'active').toList();
 
       // 3. Check if active target deadline passed
       if (currentActive.isNotEmpty) {
@@ -621,7 +640,8 @@ class TargetService {
 
       // 5. Get current active (after potential close)
       final activeAfterClose = allTargets
-          .where((t) => t.status == 'active' && !DateTime.now().isAfter(t.deadline))
+          .where((t) =>
+              t.status == 'active' && !DateTime.now().isAfter(t.deadline))
           .toList();
 
       if (activeAfterClose.isEmpty) {
@@ -671,8 +691,18 @@ class TargetService {
   /// Get Indonesian month name
   static String getMonthName(int month) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return months[month - 1];
   }
@@ -680,8 +710,18 @@ class TargetService {
   /// Get month options for dropdown
   static List<String> getMonthOptions() {
     return [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
   }
 
@@ -713,8 +753,8 @@ class TargetService {
       return {
         'deleted': corruptIds.length,
         'corruptIds': corruptIds,
-        'message': corruptIds.isEmpty 
-            ? 'No corrupt targets found' 
+        'message': corruptIds.isEmpty
+            ? 'No corrupt targets found'
             : '${corruptIds.length} corrupt targets deleted',
       };
     } catch (e) {

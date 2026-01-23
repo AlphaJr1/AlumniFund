@@ -12,7 +12,7 @@ import 'hint_provider.dart';
 class ExpenseCard extends ConsumerStatefulWidget {
   final VoidCallback? onModalOpen; // Callback saat modal open
   final VoidCallback? onModalClose; // Callback saat modal close
-  
+
   const ExpenseCard({
     super.key,
     this.onModalOpen,
@@ -24,7 +24,6 @@ class ExpenseCard extends ConsumerStatefulWidget {
 }
 
 class _ExpenseCardState extends ConsumerState<ExpenseCard> {
-
   @override
   Widget build(BuildContext context) {
     final expenseAsync = ref.watch(recentExpenseProvider);
@@ -38,7 +37,7 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
           // Notify onboarding
           widget.onModalOpen?.call();
           // debugPrint('[ExpenseCard] Card tapped - opening modal');
-          
+
           // Open detail modal
           showDialog(
             context: context,
@@ -91,66 +90,63 @@ class _ExpenseCardState extends ConsumerState<ExpenseCard> {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-          
-          const Text(
-            '💸',
-            style: TextStyle(fontSize: 36),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'EXPENSES',
-            style: TextStyle(
-              fontSize: isMobile ? 17 : 19,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF111827),
+            const Text(
+              '💸',
+              style: TextStyle(fontSize: 36),
             ),
-          ),
-          const SizedBox(height: 12),
-          
-          // Total Expense
-          Text(
-            'Total Spent:',
-            style: TextStyle(
-              fontSize: isMobile ? 15 : 17,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF6B7280),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            CurrencyFormatter.formatCurrency(totalExpense),
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: Color(0xFFEF4444),
-            ),
-          ),
-          
-          const SizedBox(height: 12),
-          
-          // Transaction Count
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF2F2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: const Color(0xFFEF4444).withOpacity(0.2),
-                width: 2,
-              ),
-            ),
-            child: Text(
-              'Total: $count transactions',
+            const SizedBox(height: 8),
+            Text(
+              'EXPENSES',
               style: TextStyle(
-                fontSize: isMobile ? 14 : 16,
-                fontWeight: FontWeight.w600,
-                color: const Color(0xFFEF4444),
+                fontSize: isMobile ? 17 : 19,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
               ),
             ),
-          ),
-          
+            const SizedBox(height: 12),
 
-        ],
+            // Total Expense
+            Text(
+              'Total Spent:',
+              style: TextStyle(
+                fontSize: isMobile ? 15 : 17,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              CurrencyFormatter.formatCurrency(totalExpense),
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFFEF4444),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            // Transaction Count
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF2F2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFFEF4444).withOpacity(0.2),
+                  width: 2,
+                ),
+              ),
+              child: Text(
+                'Total: $count transactions',
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFFEF4444),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -239,7 +235,7 @@ class _ExpenseDetailModal extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               // Scrollable list
               Expanded(
                 child: expenseAsync.when(
@@ -255,11 +251,12 @@ class _ExpenseDetailModal extends ConsumerWidget {
                         ),
                       );
                     }
-                    
+
                     return ListView.separated(
                       padding: const EdgeInsets.all(20),
                       itemCount: transactions.length,
-                      separatorBuilder: (context, index) => const Divider(height: 24),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 24),
                       itemBuilder: (context, index) {
                         final transaction = transactions[index];
                         return _buildTransactionItem(transaction);
@@ -268,7 +265,8 @@ class _ExpenseDetailModal extends ConsumerWidget {
                   },
                   loading: () => const Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFEF4444)),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xFFEF4444)),
                     ),
                   ),
                   error: (error, stack) => const Center(
@@ -288,7 +286,7 @@ class _ExpenseDetailModal extends ConsumerWidget {
 
   Widget _buildTransactionItem(TransactionModel transaction) {
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm', 'en_US');
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -330,7 +328,8 @@ class _ExpenseDetailModal extends ConsumerWidget {
               color: Color(0xFF6B7280),
             ),
           ),
-          if (transaction.category != null && transaction.category!.isNotEmpty) ...[
+          if (transaction.category != null &&
+              transaction.category!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
               'Kategori: ${transaction.category}',

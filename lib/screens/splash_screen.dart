@@ -13,7 +13,8 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
   double _progress = 0.0;
   String _statusMessage = 'Initializing...';
   late AnimationController _animationController;
@@ -21,13 +22,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize gradient animation
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat();
-    
+
     // Start preloading data
     _preloadData();
   }
@@ -82,22 +83,22 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
       if (mounted) {
         setState(() => _statusMessage = 'Ready!');
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         if (mounted) {
           context.go('/');
         }
       }
     } catch (e) {
       // Handle errors - still navigate
-      
+
       if (mounted) {
         setState(() {
           _progress = 1.0;
           _statusMessage = 'Loading complete';
         });
-        
+
         await Future.delayed(const Duration(milliseconds: 500));
-        
+
         if (mounted) {
           context.go('/');
         }
@@ -123,9 +124,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 letterSpacing: -0.5,
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Slogan
             const Text(
               'Together, anyway',
@@ -135,9 +136,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                 fontWeight: FontWeight.w400,
               ),
             ),
-            
+
             const SizedBox(height: 64),
-            
+
             // Progress Bar
             SizedBox(
               width: 320,
@@ -179,13 +180,26 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                                         Color(0xFFF59E0B), // Orange
                                         Color(0xFFEF4444), // Red
                                       ],
-                                      stops: const [0.0, 0.17, 0.33, 0.5, 0.67, 0.83, 1.0],
-                                      begin: Alignment(_animationController.value * 2 - 1, 0),
-                                      end: Alignment(_animationController.value * 2 + 1, 0),
+                                      stops: const [
+                                        0.0,
+                                        0.17,
+                                        0.33,
+                                        0.5,
+                                        0.67,
+                                        0.83,
+                                        1.0
+                                      ],
+                                      begin: Alignment(
+                                          _animationController.value * 2 - 1,
+                                          0),
+                                      end: Alignment(
+                                          _animationController.value * 2 + 1,
+                                          0),
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFFEC4899).withOpacity(0.4),
+                                        color: const Color(0xFFEC4899)
+                                            .withOpacity(0.4),
                                         blurRadius: 8,
                                       ),
                                     ],
@@ -198,9 +212,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Progress Percentage
                   Text(
                     '${(_progress * 100).toInt()}%',
@@ -210,9 +224,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Status Message
                   Text(
                     _statusMessage,

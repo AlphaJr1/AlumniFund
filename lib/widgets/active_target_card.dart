@@ -32,9 +32,10 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
     return _buildActiveTarget(activeTarget, screenWidth, padding);
   }
 
-  Widget _buildActiveTarget(GraduationTarget target, double screenWidth, double padding) {
+  Widget _buildActiveTarget(
+      GraduationTarget target, double screenWidth, double padding) {
     final isMobile = screenWidth < AppConstants.mobileBreakpoint;
-    
+
     return Center(
       child: InkWell(
         onTap: () {
@@ -70,27 +71,27 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
               // Header dengan status badge
               _buildHeader(target),
               const SizedBox(height: 16),
-              
+
               // Target info
               _buildTargetInfo(target),
               const SizedBox(height: 12),
-              
+
               // Deadline info
               _buildDeadlineInfo(target),
               const SizedBox(height: 20),
-              
+
               // Progress section
               _buildProgressSection(target),
               const SizedBox(height: 16),
-              
+
               // Contributor stats
               _buildContributorStats(),
               const SizedBox(height: 20),
-              
+
               // Graduate details (expandable)
               _buildGraduateDetails(target),
               const SizedBox(height: 24),
-              
+
               // Action buttons
               _buildActionButtons(isMobile, target),
             ],
@@ -121,24 +122,27 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
 
   Widget _buildStatusBadge(GraduationTarget target) {
     final isClosingSoon = target.isClosingSoon;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: isClosingSoon ? AppConstants.warningBg : AppConstants.successBg,
         border: Border.all(
-          color: isClosingSoon ? AppConstants.warningBorder : AppConstants.successBorder,
+          color: isClosingSoon
+              ? AppConstants.warningBorder
+              : AppConstants.successBorder,
         ),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        isClosingSoon 
+        isClosingSoon
             ? '⚠️ Deadline ${target.daysUntilDeadline} hari lagi'
             : '🟢 Aktif',
         style: TextStyle(
           fontSize: 12,
           fontWeight: isClosingSoon ? FontWeight.w600 : FontWeight.w500,
-          color: isClosingSoon ? const Color(0xFF92400E) : const Color(0xFF065F46),
+          color:
+              isClosingSoon ? const Color(0xFF92400E) : const Color(0xFF065F46),
         ),
       ),
     );
@@ -202,7 +206,7 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
   Widget _buildProgressSection(GraduationTarget target) {
     final percentage = target.percentage;
     final gradient = AppConstants.getProgressGradient(percentage);
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -216,7 +220,7 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
           ),
         ),
         const SizedBox(height: 8),
-        
+
         // Amount display - Use displayAmount (actual + allocated)
         Text(
           '${CurrencyFormatter.formatCurrency(target.displayAmount)} / ${CurrencyFormatter.formatCurrency(target.targetAmount)} (${percentage.toStringAsFixed(0)}%)',
@@ -227,7 +231,7 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
           ),
         ),
         const SizedBox(height: 12),
-        
+
         // Progress bar
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -238,7 +242,9 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
               children: [
                 AnimatedContainer(
                   duration: AppConstants.progressAnimationDuration,
-                  width: MediaQuery.of(context).size.width * 0.9 * (percentage / 100).clamp(0, 1),
+                  width: MediaQuery.of(context).size.width *
+                      0.9 *
+                      (percentage / 100).clamp(0, 1),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: gradient,
@@ -251,7 +257,7 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
           ),
         ),
         const SizedBox(height: 12),
-        
+
         // Achievement badge
         AchievementBadge(percentage: percentage),
       ],
@@ -303,7 +309,9 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
               ),
               const SizedBox(width: 4),
               Icon(
-                _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                _isExpanded
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
                 color: AppConstants.primaryTeal,
                 size: 20,
               ),
@@ -316,7 +324,8 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppConstants.gray50,
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusSmall),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,7 +365,8 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusRounded),
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusRounded),
             ),
             elevation: 2,
           ),
@@ -369,7 +379,7 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
           ),
         ),
         const SizedBox(width: 12),
-        
+
         // Secondary button: DETAIL
         OutlinedButton(
           onPressed: () {
@@ -382,7 +392,8 @@ class _ActiveTargetCardState extends ConsumerState<ActiveTargetCard> {
             side: const BorderSide(color: AppConstants.gray300),
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusRounded),
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusRounded),
             ),
           ),
           child: const Text(

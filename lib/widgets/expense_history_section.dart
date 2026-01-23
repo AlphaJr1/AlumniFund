@@ -41,7 +41,7 @@ class ExpenseHistorySection extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Transaction list
           expenseAsync.when(
             data: (transactions) {
@@ -56,7 +56,8 @@ class ExpenseHistorySection extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: AppConstants.gray200),
-                      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.borderRadiusSmall),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,7 +95,7 @@ class ExpenseHistorySection extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        
+
                         // Right section
                         Expanded(
                           flex: 4,
@@ -102,7 +103,8 @@ class ExpenseHistorySection extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                DateFormatter.formatDateTime(transaction.createdAt),
+                                DateFormatter.formatDateTime(
+                                    transaction.createdAt),
                                 style: const TextStyle(
                                   fontSize: 12,
                                   color: AppConstants.gray400,
@@ -118,7 +120,8 @@ class ExpenseHistorySection extends ConsumerWidget {
                                     horizontal: 12,
                                     vertical: 4,
                                   ),
-                                  side: const BorderSide(color: AppConstants.gray300),
+                                  side: const BorderSide(
+                                      color: AppConstants.gray300),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(6),
                                   ),
@@ -143,12 +146,13 @@ class ExpenseHistorySection extends ConsumerWidget {
             },
             loading: () => const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppConstants.primaryTeal),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(AppConstants.primaryTeal),
               ),
             ),
             error: (error, stack) => _buildError(),
           ),
-          
+
           // Footer button
           const SizedBox(height: 12),
           Center(

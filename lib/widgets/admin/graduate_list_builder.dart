@@ -74,7 +74,8 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialGraduates != null && widget.initialGraduates!.isNotEmpty) {
+    if (widget.initialGraduates != null &&
+        widget.initialGraduates!.isNotEmpty) {
       _graduates = widget.initialGraduates!
           .map((g) => GraduateFormData.fromGraduate(g))
           .toList();
@@ -107,10 +108,12 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
     }
   }
 
-  void _updateGraduate(int index, {String? name, String? location, DateTime? date}) {
+  void _updateGraduate(int index,
+      {String? name, String? location, DateTime? date}) {
     setState(() {
       if (name != null) _graduates[index].nameController.text = name;
-      if (location != null) _graduates[index].locationController.text = location;
+      if (location != null)
+        _graduates[index].locationController.text = location;
       if (date != null) _graduates[index].date = date;
     });
     _notifyParent();
@@ -150,7 +153,7 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
 
   void _notifyParent() {
     final error = _validate();
-    
+
     if (widget.onValidationError != null) {
       widget.onValidationError!(error);
     }
@@ -168,8 +171,18 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
 
   String _getMonthName(int month) {
     const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
     ];
     return months[month - 1];
   }
@@ -188,17 +201,17 @@ class _GraduateListBuilderState extends State<GraduateListBuilder> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Graduate rows
         ..._graduates.asMap().entries.map((entry) {
           final index = entry.key;
           final graduate = entry.value;
-          
+
           return _buildGraduateRow(index, graduate);
         }),
-        
+
         const SizedBox(height: 16),
-        
+
         // Add button
         OutlinedButton.icon(
           icon: const Icon(Icons.add, size: 20),

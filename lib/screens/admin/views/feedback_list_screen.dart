@@ -117,24 +117,27 @@ class _FeedbackListScreenState extends ConsumerState<FeedbackListScreen> {
                   'Semua',
                   feedbacks.length,
                   filter == FeedbackFilter.all,
-                  () => ref.read(feedbackFilterProvider.notifier).setFilter(
-                      FeedbackFilter.all),
+                  () => ref
+                      .read(feedbackFilterProvider.notifier)
+                      .setFilter(FeedbackFilter.all),
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
                   'Belum Dibaca',
                   unreadCount.value ?? 0,
                   filter == FeedbackFilter.unread,
-                  () => ref.read(feedbackFilterProvider.notifier).setFilter(
-                      FeedbackFilter.unread),
+                  () => ref
+                      .read(feedbackFilterProvider.notifier)
+                      .setFilter(FeedbackFilter.unread),
                 ),
                 const SizedBox(width: 8),
                 _buildFilterChip(
                   'Sudah Dibaca',
                   feedbacks.where((f) => f.isRead).length,
                   filter == FeedbackFilter.read,
-                  () => ref.read(feedbackFilterProvider.notifier).setFilter(
-                      FeedbackFilter.read),
+                  () => ref
+                      .read(feedbackFilterProvider.notifier)
+                      .setFilter(FeedbackFilter.read),
                 ),
               ],
             ),

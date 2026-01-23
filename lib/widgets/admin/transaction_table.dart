@@ -85,15 +85,28 @@ class TransactionTable extends StatelessWidget {
         child: DataTable(
           headingRowColor: WidgetStateProperty.all(const Color(0xFFF9FAFB)),
           columns: const [
-            DataColumn(label: Text('Type', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Amount', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Target/Category', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Description', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Time', style: TextStyle(fontWeight: FontWeight.bold))),
-            DataColumn(label: Text('Action', style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Type',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Amount',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Target/Category',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Description',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Time',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
+            DataColumn(
+                label: Text('Action',
+                    style: TextStyle(fontWeight: FontWeight.bold))),
           ],
           rows: transactions.map((transaction) {
-            final isIncome = transaction.isIncome; // Use getter from model (fixes enum vs string bug)
+            final isIncome = transaction
+                .isIncome; // Use getter from model (fixes enum vs string bug)
             final canEdit = _canEdit(transaction);
 
             return DataRow(
@@ -101,7 +114,8 @@ class TransactionTable extends StatelessWidget {
                 // Type
                 DataCell(
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isIncome
                           ? const Color(0xFF10B981).withOpacity(0.1)
@@ -113,7 +127,9 @@ class TransactionTable extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        color: isIncome
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFEF4444),
                       ),
                     ),
                   ),
@@ -125,7 +141,9 @@ class TransactionTable extends StatelessWidget {
                     CurrencyFormatter.formatCurrency(transaction.amount),
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                      color: isIncome
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFFEF4444),
                     ),
                   ),
                 ),
@@ -144,7 +162,8 @@ class TransactionTable extends StatelessWidget {
                     width: 200,
                     child: Text(
                       transaction.description ?? '-',
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                      style: const TextStyle(
+                          fontSize: 14, color: Color(0xFF6B7280)),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -154,8 +173,10 @@ class TransactionTable extends StatelessWidget {
                 // Timestamp
                 DataCell(
                   Text(
-                    DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(transaction.createdAt),
-                    style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                    DateFormat('dd MMM yyyy, HH:mm', 'id_ID')
+                        .format(transaction.createdAt),
+                    style:
+                        const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                   ),
                 ),
 
@@ -180,17 +201,23 @@ class TransactionTable extends StatelessWidget {
                       // Edit (only within 24h)
                       IconButton(
                         icon: const Icon(Icons.edit_outlined, size: 18),
-                        onPressed: canEdit ? () => onEdit?.call(transaction) : null,
+                        onPressed:
+                            canEdit ? () => onEdit?.call(transaction) : null,
                         tooltip: canEdit ? 'Edit' : 'Tidak bisa edit (>24 jam)',
-                        color: canEdit ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
+                        color: canEdit
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF9CA3AF),
                       ),
 
                       // Delete (only within 24h)
                       IconButton(
                         icon: const Icon(Icons.delete_outlined, size: 18),
-                        onPressed: canEdit ? () => onDelete?.call(transaction) : null,
+                        onPressed:
+                            canEdit ? () => onDelete?.call(transaction) : null,
                         tooltip: canEdit ? 'Delete' : 'Cannot delete (>24h)',
-                        color: canEdit ? const Color(0xFFEF4444) : const Color(0xFF9CA3AF),
+                        color: canEdit
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFF9CA3AF),
                       ),
                     ],
                   ),
@@ -206,7 +233,8 @@ class TransactionTable extends StatelessWidget {
   Widget _buildMobileList(BuildContext context) {
     return Column(
       children: transactions.map((transaction) {
-        final isIncome = transaction.isIncome; // Use getter from model (fixes enum vs string bug)
+        final isIncome = transaction
+            .isIncome; // Use getter from model (fixes enum vs string bug)
         final canEdit = _canEdit(transaction);
 
         return Container(
@@ -225,7 +253,8 @@ class TransactionTable extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: isIncome
                           ? const Color(0xFF10B981).withOpacity(0.1)
@@ -237,7 +266,9 @@ class TransactionTable extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        color: isIncome
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFFEF4444),
                       ),
                     ),
                   ),
@@ -246,7 +277,9 @@ class TransactionTable extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                      color: isIncome
+                          ? const Color(0xFF10B981)
+                          : const Color(0xFFEF4444),
                     ),
                   ),
                 ],
@@ -254,7 +287,8 @@ class TransactionTable extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Target/Category
-              if (transaction.targetMonth != null || transaction.category != null)
+              if (transaction.targetMonth != null ||
+                  transaction.category != null)
                 Text(
                   transaction.targetMonth ?? transaction.category ?? '',
                   style: const TextStyle(
@@ -269,7 +303,8 @@ class TransactionTable extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   transaction.description!,
-                  style: const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
+                  style:
+                      const TextStyle(fontSize: 14, color: Color(0xFF6B7280)),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -279,7 +314,8 @@ class TransactionTable extends StatelessWidget {
 
               // Timestamp
               Text(
-                DateFormat('dd MMM yyyy, HH:mm', 'id_ID').format(transaction.createdAt),
+                DateFormat('dd MMM yyyy, HH:mm', 'id_ID')
+                    .format(transaction.createdAt),
                 style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
               ),
 
@@ -311,13 +347,18 @@ class TransactionTable extends StatelessWidget {
                   // Edit
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: canEdit ? () => onEdit?.call(transaction) : null,
+                      onPressed:
+                          canEdit ? () => onEdit?.call(transaction) : null,
                       icon: const Icon(Icons.edit_outlined, size: 16),
                       label: const Text('Edit'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: canEdit ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
+                        foregroundColor: canEdit
+                            ? const Color(0xFF10B981)
+                            : const Color(0xFF9CA3AF),
                         side: BorderSide(
-                          color: canEdit ? const Color(0xFF10B981) : const Color(0xFF9CA3AF),
+                          color: canEdit
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF9CA3AF),
                         ),
                       ),
                     ),
@@ -328,13 +369,18 @@ class TransactionTable extends StatelessWidget {
                   // Delete
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: canEdit ? () => onDelete?.call(transaction) : null,
+                      onPressed:
+                          canEdit ? () => onDelete?.call(transaction) : null,
                       icon: const Icon(Icons.delete_outlined, size: 16),
                       label: const Text('Delete'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: canEdit ? const Color(0xFFEF4444) : const Color(0xFF9CA3AF),
+                        foregroundColor: canEdit
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFF9CA3AF),
                         side: BorderSide(
-                          color: canEdit ? const Color(0xFFEF4444) : const Color(0xFF9CA3AF),
+                          color: canEdit
+                              ? const Color(0xFFEF4444)
+                              : const Color(0xFF9CA3AF),
                         ),
                       ),
                     ),

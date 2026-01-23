@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// Enum untuk tipe transaksi
 enum TransactionType {
-  income,  // Pemasukan
+  income, // Pemasukan
   expense, // Pengeluaran
 }
 
@@ -46,16 +46,18 @@ class TransactionModel {
   final double amount;
   final String? targetId; // "mei_2026" | "general_fund" | null
   final String? targetMonth; // "mei 2026" (for display)
-  final String? category; // Hanya untuk expense: "wisuda" | "community" | "operational" | "others"
+  final String?
+      category; // Hanya untuk expense: "wisuda" | "community" | "operational" | "others"
   final String description;
   final String? proofUrl; // URL bukti transaksi dari Firebase Storage
   final bool validated; // true for approved income, always true for expense
-  final String? validationStatus; // "pending" | "approved" | "rejected" (income only)
+  final String?
+      validationStatus; // "pending" | "approved" | "rejected" (income only)
   final DateTime createdAt; // Actual transaction time
   final DateTime inputAt; // When admin input to system
   final String createdBy; // Email admin yang input
   final TransactionMetadata? metadata;
-  
+
   TransactionModel({
     required this.id,
     required this.type,
@@ -72,15 +74,15 @@ class TransactionModel {
     required this.createdBy,
     this.metadata,
   });
-  
+
   /// Convert dari Firestore DocumentSnapshot ke TransactionModel
   factory TransactionModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return TransactionModel(
       id: doc.id,
-      type: data['type'] == 'income' 
-          ? TransactionType.income 
+      type: data['type'] == 'income'
+          ? TransactionType.income
           : TransactionType.expense,
       amount: (data['amount'] as num).toDouble(),
       targetId: data['target_id'] as String?,
@@ -96,11 +98,12 @@ class TransactionModel {
           : (data['created_at'] as Timestamp).toDate(),
       createdBy: data['created_by'] as String? ?? '',
       metadata: data['metadata'] != null
-          ? TransactionMetadata.fromMap(data['metadata'] as Map<String, dynamic>)
+          ? TransactionMetadata.fromMap(
+              data['metadata'] as Map<String, dynamic>)
           : null,
     );
   }
-  
+
   /// Convert TransactionModel ke Map untuk Firestore
   Map<String, dynamic> toFirestore() {
     return {
@@ -148,7 +151,7 @@ class TransactionModel {
   /// Get category icon for expense
   String get categoryIcon {
     if (type == TransactionType.income) return '💰';
-    
+
     switch (category) {
       case 'wisuda':
         return '🎓';
@@ -166,7 +169,7 @@ class TransactionModel {
 
   /// Check if transaction is expense
   bool get isExpense => type == TransactionType.expense;
-  
+
   /// Copy with method untuk immutable updates
   TransactionModel copyWith({
     String? id,
@@ -203,5 +206,6 @@ class TransactionModel {
   }
 
   @override
-  String toString() => 'TransactionModel(id: $id, type: $type, amount: $amount)';
+  String toString() =>
+      'TransactionModel(id: $id, type: $type, amount: $amount)';
 }

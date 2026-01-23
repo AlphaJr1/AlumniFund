@@ -123,19 +123,20 @@ class _ConfettiPainter extends CustomPainter {
         ..style = PaintingStyle.fill;
 
       final x = confetti.x * size.width;
-      final y = confetti.y * size.height + (progress * size.height * confetti.velocity);
+      final y = confetti.y * size.height +
+          (progress * size.height * confetti.velocity);
       final rotation = confetti.rotation + (progress * 4 * math.pi);
 
       canvas.save();
       canvas.translate(x, y);
       canvas.rotate(rotation);
-      
+
       // Draw confetti piece (rectangle)
       canvas.drawRect(
         const Rect.fromLTWH(-5, -10, 10, 20),
         paint,
       );
-      
+
       canvas.restore();
     }
   }

@@ -22,12 +22,10 @@ class DistributionDetailModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final numGraduates = target.graduates.length;
-    final allocatedPerGraduate = numGraduates > 0 
-        ? target.allocatedFromFund / numGraduates 
-        : 0.0;
-    final targetPerGraduate = numGraduates > 0
-        ? target.targetAmount / numGraduates
-        : 0.0;
+    final allocatedPerGraduate =
+        numGraduates > 0 ? target.allocatedFromFund / numGraduates : 0.0;
+    final targetPerGraduate =
+        numGraduates > 0 ? target.targetAmount / numGraduates : 0.0;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -75,9 +73,9 @@ class DistributionDetailModal extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Scrollable content
             Expanded(
               child: SingleChildScrollView(
@@ -88,9 +86,13 @@ class DistributionDetailModal extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.08),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.08),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Theme.of(context).colorScheme.primary),
+                        border: Border.all(
+                            color: Theme.of(context).colorScheme.primary),
                       ),
                       child: Column(
                         children: [
@@ -105,7 +107,8 @@ class DistributionDetailModal extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                CurrencyFormatter.formatCurrency(target.targetAmount),
+                                CurrencyFormatter.formatCurrency(
+                                    target.targetAmount),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -126,7 +129,8 @@ class DistributionDetailModal extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                CurrencyFormatter.formatCurrency(target.allocatedFromFund),
+                                CurrencyFormatter.formatCurrency(
+                                    target.allocatedFromFund),
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -159,9 +163,9 @@ class DistributionDetailModal extends StatelessWidget {
                         ],
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // Per-Graduate Breakdown
                     const Text(
                       'Recipients:',
@@ -171,9 +175,9 @@ class DistributionDetailModal extends StatelessWidget {
                         color: Color(0xFF111827),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 12),
-                    
+
                     // Graduate List
                     ...target.graduates.asMap().entries.map((entry) {
                       final index = entry.key;
@@ -197,7 +201,10 @@ class DistributionDetailModal extends StatelessWidget {
                                     width: 32,
                                     height: 32,
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.1),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
@@ -206,7 +213,9 @@ class DistributionDetailModal extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.primary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                         ),
                                       ),
                                     ),
@@ -214,7 +223,8 @@ class DistributionDetailModal extends StatelessWidget {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           graduate.name,
@@ -236,12 +246,13 @@ class DistributionDetailModal extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              
+
                               const SizedBox(height: 12),
-                              
+
                               // Allocation
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Allocation:',
@@ -255,23 +266,27 @@ class DistributionDetailModal extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                 ],
                               ),
-                              
+
                               const SizedBox(height: 8),
-                              
+
                               // Progress bar per graduate
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: targetPerGraduate > 0 
-                                      ? (allocatedPerGraduate / targetPerGraduate).clamp(0.0, 1.0)
+                                  value: targetPerGraduate > 0
+                                      ? (allocatedPerGraduate /
+                                              targetPerGraduate)
+                                          .clamp(0.0, 1.0)
                                       : 0.0,
                                   backgroundColor: const Color(0xFFE5E7EB),
-                                  valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.primary),
                                   minHeight: 8,
                                 ),
                               ),
@@ -284,9 +299,9 @@ class DistributionDetailModal extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Drop Your Prop button
             SizedBox(
               width: double.infinity,

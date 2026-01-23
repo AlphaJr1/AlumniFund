@@ -4,14 +4,14 @@ class AdminUserModel {
   final String role;
   final DateTime? lastLogin;
   final List<String> permissions;
-  
+
   AdminUserModel({
     required this.email,
     required this.role,
     this.lastLogin,
     this.permissions = const ['read', 'write', 'delete'],
   });
-  
+
   /// Convert dari Map ke AdminUserModel
   factory AdminUserModel.fromMap(Map<String, dynamic> map) {
     return AdminUserModel(
@@ -25,7 +25,7 @@ class AdminUserModel {
           : ['read', 'write', 'delete'],
     );
   }
-  
+
   /// Convert AdminUserModel ke Map
   Map<String, dynamic> toMap() {
     return {

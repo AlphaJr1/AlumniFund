@@ -6,15 +6,15 @@ class OnboardingFeedback {
   final String feedback;
   final DateTime submittedAt;
   final bool isRead;
-  
+
   // Hybrid anonymous user tracking
-  final String anonymousUserId;       // UUID from localStorage
-  final String? browserFingerprint;   // Browser fingerprint hash
-  
+  final String anonymousUserId; // UUID from localStorage
+  final String? browserFingerprint; // Browser fingerprint hash
+
   // Device info for admin insight
-  final String? userAgent;            // Browser/OS info
-  final String? screenResolution;     // Screen dimensions
-  final String? timezone;             // User timezone
+  final String? userAgent; // Browser/OS info
+  final String? screenResolution; // Screen dimensions
+  final String? timezone; // User timezone
 
   const OnboardingFeedback({
     required this.id,

@@ -17,11 +17,11 @@ class _SubmitProofViewState extends State<SubmitProofView> {
   final _submissionService = SubmissionService();
   final _amountController = TextEditingController();
   final _usernameController = TextEditingController();
-  
+
   // Confetti controllers for side shooting
   late ConfettiController _confettiControllerLeft;
   late ConfettiController _confettiControllerRight;
-  
+
   Uint8List? _selectedFileBytes;
   String? _selectedFileName;
   bool _isUploading = false;
@@ -59,7 +59,7 @@ class _SubmitProofViewState extends State<SubmitProofView> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         // Validate file size
         if (!_submissionService.validateFileSize(file.size)) {
           setState(() {
@@ -104,7 +104,8 @@ class _SubmitProofViewState extends State<SubmitProofView> {
 
     try {
       // Upload image
-      final proofUrl = await _submissionService.uploadProofImage(_selectedFileBytes!);
+      final proofUrl =
+          await _submissionService.uploadProofImage(_selectedFileBytes!);
 
       // Parse amount
       double? amount;
@@ -116,7 +117,9 @@ class _SubmitProofViewState extends State<SubmitProofView> {
       await _submissionService.createSubmission(
         proofUrl: proofUrl,
         amount: amount,
-        username: _usernameController.text.isNotEmpty ? _usernameController.text : null,
+        username: _usernameController.text.isNotEmpty
+            ? _usernameController.text
+            : null,
       );
 
       setState(() {
@@ -178,7 +181,8 @@ class _SubmitProofViewState extends State<SubmitProofView> {
               maxBlastForce: 50,
               minBlastForce: 20,
               gravity: 0.2,
-              canvas: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+              canvas: Size(MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height),
               colors: const [
                 Color(0xFF14B8A6), // Teal
                 Color(0xFFEC4899), // Pink
@@ -200,7 +204,8 @@ class _SubmitProofViewState extends State<SubmitProofView> {
               maxBlastForce: 50,
               minBlastForce: 20,
               gravity: 0.2,
-              canvas: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+              canvas: Size(MediaQuery.of(context).size.width,
+                  MediaQuery.of(context).size.height),
               colors: const [
                 Color(0xFF14B8A6), // Teal
                 Color(0xFFEC4899), // Pink
@@ -380,7 +385,9 @@ class _SubmitProofViewState extends State<SubmitProofView> {
 
             // Submit Button
             ElevatedButton(
-              onPressed: _isUploading || _selectedFileBytes == null ? null : _submitProof,
+              onPressed: _isUploading || _selectedFileBytes == null
+                  ? null
+                  : _submitProof,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF3B82F6),
                 foregroundColor: Colors.white,

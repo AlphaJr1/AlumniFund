@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/admin/pending_submissions_provider.dart';
@@ -14,7 +14,7 @@ import 'hint_provider.dart';
 class IncomeCard extends ConsumerStatefulWidget {
   final VoidCallback? onModalOpen; // Callback saat modal open
   final VoidCallback? onModalClose; // Callback saat modal close
-  
+
   const IncomeCard({
     super.key,
     this.onModalOpen,
@@ -26,7 +26,6 @@ class IncomeCard extends ConsumerStatefulWidget {
 }
 
 class _IncomeCardState extends ConsumerState<IncomeCard> {
-
   @override
   Widget build(BuildContext context) {
     final incomeAsync = ref.watch(recentIncomeProvider);
@@ -40,7 +39,7 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
           // Notify onboarding
           widget.onModalOpen?.call();
           // debugPrint('[IncomeCard] Card tapped - opening modal');
-          
+
           // Open detail modal
           showDialog(
             context: context,
@@ -113,7 +112,7 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Total Income
             Text(
               'Total Props:',
@@ -132,14 +131,14 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
                 color: Color(0xFF10B981),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Pending badge (if any)
             _buildPendingBadge(),
             if (ref.watch(pendingSubmissionsCountProvider) > 0)
               const SizedBox(height: 12),
-            
+
             // Transaction Count
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -196,11 +195,11 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
   // Pending badge indicator - positioned above transaction count
   Widget _buildPendingBadge() {
     final pendingCount = ref.watch(pendingSubmissionsCountProvider);
-    
+
     if (pendingCount == 0) return const SizedBox.shrink();
-    
+
     final primaryColor = Theme.of(context).colorScheme.primary;
-    
+
     return GestureDetector(
       onTap: () {
         // Show pending modal
@@ -299,7 +298,7 @@ class _IncomeDetailModal extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               // Scrollable list
               Expanded(
                 child: incomeAsync.when(
@@ -315,11 +314,12 @@ class _IncomeDetailModal extends ConsumerWidget {
                         ),
                       );
                     }
-                    
+
                     return ListView.separated(
                       padding: const EdgeInsets.all(20),
                       itemCount: transactions.length,
-                      separatorBuilder: (context, index) => const Divider(height: 24),
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 24),
                       itemBuilder: (context, index) {
                         final transaction = transactions[index];
                         return _buildTransactionItem(transaction);
@@ -328,7 +328,8 @@ class _IncomeDetailModal extends ConsumerWidget {
                   },
                   loading: () => const Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
                     ),
                   ),
                   error: (error, stack) => const Center(
@@ -348,7 +349,7 @@ class _IncomeDetailModal extends ConsumerWidget {
 
   Widget _buildTransactionItem(TransactionModel transaction) {
     final dateFormat = DateFormat('dd MMM yyyy, HH:mm', 'en_US');
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -482,7 +483,7 @@ class _PendingSubmissionsModal extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               // Info banner
               Container(
                 padding: const EdgeInsets.all(16),
@@ -507,7 +508,7 @@ class _PendingSubmissionsModal extends ConsumerWidget {
                   ],
                 ),
               ),
-              
+
               // Scrollable list
               Expanded(
                 child: pendingAsync.when(
@@ -534,11 +535,12 @@ class _PendingSubmissionsModal extends ConsumerWidget {
                         ),
                       );
                     }
-                    
+
                     return ListView.separated(
                       padding: const EdgeInsets.all(20),
                       itemCount: submissions.length,
-                      separatorBuilder: (context, index) => const SizedBox(height: 16),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
                       itemBuilder: (context, index) {
                         final submission = submissions[index];
                         return _buildSubmissionItem(submission);
@@ -567,7 +569,7 @@ class _PendingSubmissionsModal extends ConsumerWidget {
 
   Widget _buildSubmissionItem(PendingSubmission submission) {
     final dateFormat = DateFormat('dd MMM, h:mm a', 'en_US');
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

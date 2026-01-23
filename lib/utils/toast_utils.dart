@@ -26,10 +26,10 @@ class ToastUtils {
   ) {
     // Get overlay state from root context
     final overlay = Overlay.of(context, rootOverlay: true);
-    
+
     // Create overlay entry
     late OverlayEntry overlayEntry;
-    
+
     overlayEntry = OverlayEntry(
       builder: (context) => _ToastWidget(
         message: message,
@@ -75,7 +75,7 @@ class _ToastWidgetState extends State<_ToastWidget>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,

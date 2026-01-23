@@ -38,7 +38,7 @@ class GeneralFund {
     }
 
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return GeneralFund(
       balance: (data['balance'] as num?)?.toDouble() ?? 0,
       lastUpdated: data['last_updated'] != null
@@ -89,7 +89,8 @@ class GeneralFund {
   }
 
   @override
-  String toString() => 'GeneralFund(balance: $balance, transactionCount: $transactionCount)';
+  String toString() =>
+      'GeneralFund(balance: $balance, transactionCount: $transactionCount)';
 
   @override
   bool operator ==(Object other) {

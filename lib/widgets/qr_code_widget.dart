@@ -6,12 +6,12 @@ import '../theme/app_theme.dart';
 /// QR Code widget dengan payment information
 class QRCodeWidget extends StatelessWidget {
   final PaymentMethod paymentInfo;
-  
+
   const QRCodeWidget({
     super.key,
     required this.paymentInfo,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -25,9 +25,9 @@ class QRCodeWidget extends StatelessWidget {
               'Informasi Transfer',
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            
+
             const SizedBox(height: AppTheme.spacingM),
-            
+
             // Payment info
             _buildInfoRow(
               context,
@@ -35,31 +35,30 @@ class QRCodeWidget extends StatelessWidget {
               label: paymentInfo.isBank ? 'Bank' : 'E-Wallet',
               value: paymentInfo.provider,
             ),
-            
+
             const SizedBox(height: AppTheme.spacingS),
-            
+
             _buildInfoRow(
               context,
               icon: Icons.credit_card,
               label: 'No. Rekening',
               value: paymentInfo.accountNumber,
             ),
-            
+
             const SizedBox(height: AppTheme.spacingS),
-            
+
             _buildInfoRow(
               context,
               icon: Icons.person,
               label: 'Atas Nama',
               value: paymentInfo.accountName,
             ),
-            
+
             // QR Code (jika ada)
             if (paymentInfo.qrCodeUrl != null) ...[
               const SizedBox(height: AppTheme.spacingL),
               const Divider(),
               const SizedBox(height: AppTheme.spacingM),
-              
               Center(
                 child: Column(
                   children: [
@@ -68,7 +67,7 @@ class QRCodeWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppTheme.spacingM),
-                    
+
                     // QR Code image dari URL
                     Container(
                       padding: const EdgeInsets.all(AppTheme.spacingM),
@@ -103,7 +102,7 @@ class QRCodeWidget extends StatelessWidget {
               const SizedBox(height: AppTheme.spacingL),
               const Divider(),
               const SizedBox(height: AppTheme.spacingM),
-              
+
               Center(
                 child: Column(
                   children: [
@@ -112,7 +111,6 @@ class QRCodeWidget extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: AppTheme.spacingM),
-                    
                     Container(
                       padding: const EdgeInsets.all(AppTheme.spacingM),
                       decoration: BoxDecoration(
@@ -138,7 +136,7 @@ class QRCodeWidget extends StatelessWidget {
       ),
     );
   }
-  
+
   /// Build info row
   Widget _buildInfoRow(
     BuildContext context, {
@@ -166,8 +164,8 @@ class QRCodeWidget extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
             ],
           ),

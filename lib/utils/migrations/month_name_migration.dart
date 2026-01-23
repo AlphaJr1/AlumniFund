@@ -10,7 +10,7 @@ class MonthNameMigration {
     'januari': 'january',
     'februari': 'february',
     'maret': 'march',
-    'april': 'april', 
+    'april': 'april',
     'mei': 'may',
     'juni': 'june',
     'juli': 'july',
@@ -24,12 +24,10 @@ class MonthNameMigration {
   /// Migrate graduation targets month names
   Future<void> migrateGraduationTargets() async {
     print('🔄 Starting graduation targets migration...');
-    
+
     try {
       // Get all graduation targets
-      final snapshot = await _firestore
-          .collection('graduation_targets')
-          .get();
+      final snapshot = await _firestore.collection('graduation_targets').get();
 
       int updated = 0;
       final batch = _firestore.batch();
@@ -40,13 +38,13 @@ class MonthNameMigration {
 
         if (currentMonth != null && monthMapping.containsKey(currentMonth)) {
           final englishMonth = monthMapping[currentMonth]!;
-          
+
           print('  Updating ${doc.id}: $currentMonth → $englishMonth');
-          
+
           batch.update(doc.reference, {
             'month': englishMonth,
           });
-          
+
           updated++;
         }
       }
@@ -66,12 +64,13 @@ class MonthNameMigration {
   /// Migrate transaction descriptions (if needed)
   Future<void> migrateTransactionDescriptions() async {
     print('🔄 Starting transaction descriptions migration...');
-    
+
     try {
       // Get transactions with Indonesian descriptions
       final snapshot = await _firestore
           .collection('transactions')
-          .where('description', isEqualTo: 'Pemasukkan dari validasi submission')
+          .where('description',
+              isEqualTo: 'Pemasukkan dari validasi submission')
           .get();
 
       if (snapshot.docs.isEmpty) {
@@ -83,7 +82,7 @@ class MonthNameMigration {
 
       for (var doc in snapshot.docs) {
         print('  Updating transaction ${doc.id}');
-        
+
         batch.update(doc.reference, {
           'description': 'Income from validated submission',
         });
@@ -100,11 +99,11 @@ class MonthNameMigration {
   /// Run all migrations
   Future<void> runAll() async {
     print('🚀 Starting full migration...\n');
-    
+
     await migrateGraduationTargets();
     print('');
     await migrateTransactionDescriptions();
-    
+
     print('\n✅ All migrations completed!');
   }
 }

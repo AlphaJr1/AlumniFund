@@ -41,7 +41,7 @@ class IncomeHistorySection extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Transaction list
           incomeAsync.when(
             data: (transactions) {
@@ -56,7 +56,8 @@ class IncomeHistorySection extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(color: AppConstants.gray200),
-                      borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+                      borderRadius:
+                          BorderRadius.circular(AppConstants.borderRadiusSmall),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,7 +86,7 @@ class IncomeHistorySection extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                transaction.targetMonth != null 
+                                transaction.targetMonth != null
                                     ? 'Target: ${transaction.targetMonth}'
                                     : 'Dompet Bersama',
                                 style: const TextStyle(
@@ -96,7 +97,7 @@ class IncomeHistorySection extends ConsumerWidget {
                             ],
                           ),
                         ),
-                        
+
                         // Right section
                         Expanded(
                           flex: 3,
@@ -117,12 +118,13 @@ class IncomeHistorySection extends ConsumerWidget {
             },
             loading: () => const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(AppConstants.primaryTeal),
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(AppConstants.primaryTeal),
               ),
             ),
             error: (error, stack) => _buildError(),
           ),
-          
+
           // Footer button
           const SizedBox(height: 12),
           Center(

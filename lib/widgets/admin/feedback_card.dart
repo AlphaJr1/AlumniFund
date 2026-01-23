@@ -31,8 +31,8 @@ class FeedbackCard extends StatelessWidget {
           padding: EdgeInsets.all(isMobile ? 14 : 16),
           decoration: BoxDecoration(
             border: Border.all(
-              color: feedback.isRead 
-                  ? Colors.grey[200]! 
+              color: feedback.isRead
+                  ? Colors.grey[200]!
                   : Theme.of(context).colorScheme.primary.withOpacity(0.3),
               width: feedback.isRead ? 1 : 2,
             ),
@@ -65,7 +65,7 @@ class FeedbackCard extends StatelessWidget {
                       ),
                     ),
                   if (!feedback.isRead) const SizedBox(width: 8),
-                  
+
                   // Timestamp
                   Expanded(
                     child: Text(
@@ -73,13 +73,13 @@ class FeedbackCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey[600],
-                        fontWeight: feedback.isRead 
-                            ? FontWeight.normal 
+                        fontWeight: feedback.isRead
+                            ? FontWeight.normal
                             : FontWeight.w600,
                       ),
                     ),
                   ),
-                  
+
                   // Arrow icon
                   Icon(
                     Icons.arrow_forward_ios,
@@ -88,9 +88,9 @@ class FeedbackCard extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Feedback preview
               Text(
                 preview,
@@ -102,9 +102,9 @@ class FeedbackCard extends StatelessWidget {
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Footer: User info
               Row(
                 children: [
@@ -124,7 +124,7 @@ class FeedbackCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  
+
                   // Fingerprint match indicator
                   if (feedback.browserFingerprint != null)
                     Container(

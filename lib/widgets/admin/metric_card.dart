@@ -23,7 +23,7 @@ class MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
-    
+
     final card = Container(
       padding: EdgeInsets.all(isMobile ? 16 : 20), // Reduced padding for mobile
       decoration: BoxDecoration(

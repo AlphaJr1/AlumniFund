@@ -26,7 +26,8 @@ class DeleteTransactionDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final isIncome = transaction.isIncome;
     final typeLabel = isIncome ? 'Income' : 'Expense';
-    final typeColor = isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final typeColor =
+        isIncome ? const Color(0xFF10B981) : const Color(0xFFEF4444);
 
     return AlertDialog(
       title: const Row(
@@ -48,7 +49,7 @@ class DeleteTransactionDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          
+
           // Transaction details
           Container(
             padding: const EdgeInsets.all(12),
@@ -94,9 +95,9 @@ class DeleteTransactionDialog extends StatelessWidget {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Warning
           Container(
             padding: const EdgeInsets.all(12),

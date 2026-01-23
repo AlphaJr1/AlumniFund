@@ -5,13 +5,13 @@ import '../theme/app_theme.dart';
 class ErrorDisplay extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
-  
+
   const ErrorDisplay({
     super.key,
     required this.message,
     this.onRetry,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -35,8 +35,8 @@ class ErrorDisplay extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondaryColor,
-              ),
+                    color: AppTheme.textSecondaryColor,
+                  ),
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppTheme.spacingL),
@@ -57,13 +57,13 @@ class ErrorDisplay extends StatelessWidget {
 class EmptyState extends StatelessWidget {
   final String message;
   final IconData icon;
-  
+
   const EmptyState({
     super.key,
     required this.message,
     this.icon = Icons.inbox_outlined,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -82,8 +82,8 @@ class EmptyState extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.textSecondaryColor,
-              ),
+                    color: AppTheme.textSecondaryColor,
+                  ),
             ),
           ],
         ),

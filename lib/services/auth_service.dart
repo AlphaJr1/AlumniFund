@@ -3,14 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 /// Service untuk handle Firebase Authentication
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   /// Get current user
   User? get currentUser => _auth.currentUser;
-  
+
   /// Stream auth state changes
   /// Digunakan untuk reactive UI updates ketika user login/logout
   Stream<User?> get authStateChanges => _auth.authStateChanges();
-  
+
   /// Login dengan email dan password
   /// Returns User jika berhasil, throw Exception jika gagal
   Future<User?> signInWithEmailPassword({
@@ -41,7 +41,7 @@ class AuthService {
       throw Exception('Terjadi kesalahan: $e');
     }
   }
-  
+
   /// Logout
   Future<void> signOut() async {
     try {
@@ -50,14 +50,14 @@ class AuthService {
       throw Exception('Logout gagal: $e');
     }
   }
-  
+
   /// Check if user is admin
   /// Untuk MVP, semua authenticated users dianggap admin
   /// Di production, bisa ditambahkan custom claims atau check ke Firestore
   bool isAdmin() {
     return currentUser != null;
   }
-  
+
   /// Change password
   /// Requires re-authentication dengan current password
   Future<void> changePassword({

@@ -16,20 +16,20 @@ const bool kUseFirebase = true; // Firebase is configured and ready!
 void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Use path URL strategy (remove # from URLs)
   usePathUrlStrategy();
-  
+
   // Initialize English locale untuk date formatting
   await initializeDateFormatting('en_US', null);
-  
+
   // Initialize Firebase ONLY if configured
   if (kUseFirebase) {
     try {
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
-      
+
       // Initialize default settings
       try {
         final firestoreService = FirestoreService();
@@ -40,9 +40,8 @@ void main() async {
     } catch (e) {
       // Continue without Firebase for development
     }
-  } else {
-  }
-  
+  } else {}
+
   // Run app dengan ProviderScope untuk Riverpod
   runApp(
     const ProviderScope(
@@ -54,27 +53,28 @@ void main() async {
 /// Main app widget
 class DompetAlumniApp extends ConsumerWidget {
   const DompetAlumniApp({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    
+
     // Watch theme provider untuk dynamic colors
     final currentTheme = ref.watch(themeProvider);
     final themeColors = currentTheme.colors;
-    
+
     return MaterialApp.router(
-      key: ValueKey('theme_${currentTheme.name}'), // Force rebuild on theme change
+      key: ValueKey(
+          'theme_${currentTheme.name}'), // Force rebuild on theme change
       title: 'UNAME',
       debugShowCheckedModeBanner: false,
-      
+
       // Theme - dynamic based on user selection
       theme: AppTheme.getLightTheme(themeColors),
-      
+
       // Theme animation configuration
       themeAnimationDuration: const Duration(milliseconds: 500),
       themeAnimationCurve: Curves.easeInOut,
-      
+
       // Builder to ensure router rebuilds with theme changes
       builder: (context, child) {
         return AppColors(
@@ -82,7 +82,7 @@ class DompetAlumniApp extends ConsumerWidget {
           child: child ?? const SizedBox(),
         );
       },
-      
+
       // Routing
       routerConfig: router,
     );

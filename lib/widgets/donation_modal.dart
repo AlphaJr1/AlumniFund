@@ -54,7 +54,7 @@ class _DonationModalState extends ConsumerState<DonationModal> {
           children: [
             // Header
             _buildHeader(context),
-            
+
             // Scrollable content
             Expanded(
               child: SingleChildScrollView(
@@ -65,20 +65,21 @@ class _DonationModalState extends ConsumerState<DonationModal> {
                     // Target info summary
                     _buildTargetSummary(),
                     const SizedBox(height: 24),
-                    
+
                     // Payment method tabs
                     _buildPaymentTabs(paymentMethods),
                     const SizedBox(height: 16),
-                    
+
                     // Payment method content
                     if (paymentMethods.isNotEmpty)
-                      _buildPaymentMethodCard(paymentMethods[_selectedTabIndex]),
+                      _buildPaymentMethodCard(
+                          paymentMethods[_selectedTabIndex]),
                     const SizedBox(height: 24),
-                    
+
                     // Proof upload section
                     _buildProofUploadSection(),
                     const SizedBox(height: 24),
-                    
+
                     // WhatsApp alternative
                     _buildWhatsAppButton(adminConfig),
                   ],
@@ -183,7 +184,7 @@ class _DonationModalState extends ConsumerState<DonationModal> {
             final index = entry.key;
             final method = entry.value;
             final isSelected = _selectedTabIndex == index;
-            
+
             return InkWell(
               onTap: () {
                 setState(() {
@@ -191,11 +192,14 @@ class _DonationModalState extends ConsumerState<DonationModal> {
                 });
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? AppConstants.primaryTeal : Colors.white,
                   border: Border.all(
-                    color: isSelected ? AppConstants.primaryTeal : AppConstants.gray300,
+                    color: isSelected
+                        ? AppConstants.primaryTeal
+                        : AppConstants.gray300,
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -237,7 +241,7 @@ class _DonationModalState extends ConsumerState<DonationModal> {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Account number
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,7 +264,7 @@ class _DonationModalState extends ConsumerState<DonationModal> {
             ],
           ),
           const SizedBox(height: 8),
-          
+
           // Account name
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -282,7 +286,7 @@ class _DonationModalState extends ConsumerState<DonationModal> {
               ),
             ],
           ),
-          
+
           // QR Code (if available)
           if (method.qrCodeUrl != null) ...[
             const SizedBox(height: 16),
@@ -324,42 +328,45 @@ class _DonationModalState extends ConsumerState<DonationModal> {
           ),
         ),
         const SizedBox(height: 12),
-        
+
         // File picker button
         InkWell(
           onTap: _isUploading ? null : _pickFile,
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: _selectedFileBytes != null 
-                  ? AppConstants.successBg 
+              color: _selectedFileBytes != null
+                  ? AppConstants.successBg
                   : AppConstants.gray50,
               border: Border.all(
-                color: _selectedFileBytes != null 
-                    ? AppConstants.successBorder 
+                color: _selectedFileBytes != null
+                    ? AppConstants.successBorder
                     : AppConstants.gray300,
                 style: BorderStyle.solid,
               ),
-              borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+              borderRadius:
+                  BorderRadius.circular(AppConstants.borderRadiusSmall),
             ),
             child: Column(
               children: [
                 Icon(
-                  _selectedFileBytes != null ? Icons.check_circle : Icons.upload_file,
+                  _selectedFileBytes != null
+                      ? Icons.check_circle
+                      : Icons.upload_file,
                   size: 48,
-                  color: _selectedFileBytes != null 
-                      ? AppConstants.successGreen 
+                  color: _selectedFileBytes != null
+                      ? AppConstants.successGreen
                       : AppConstants.gray400,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _selectedFileBytes != null 
+                  _selectedFileBytes != null
                       ? '✓ File terpilih: $_selectedFileName'
                       : 'Klik untuk pilih file (JPG/PNG, max 5MB)',
                   style: TextStyle(
                     fontSize: 14,
-                    color: _selectedFileBytes != null 
-                        ? AppConstants.successGreen 
+                    color: _selectedFileBytes != null
+                        ? AppConstants.successGreen
                         : AppConstants.gray600,
                   ),
                   textAlign: TextAlign.center,
@@ -369,20 +376,21 @@ class _DonationModalState extends ConsumerState<DonationModal> {
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Upload button
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _selectedFileBytes != null && !_isUploading 
-                ? _uploadProof 
+            onPressed: _selectedFileBytes != null && !_isUploading
+                ? _uploadProof
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.primaryTeal,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+                borderRadius:
+                    BorderRadius.circular(AppConstants.borderRadiusSmall),
               ),
             ),
             child: _isUploading
@@ -435,10 +443,12 @@ class _DonationModalState extends ConsumerState<DonationModal> {
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: AppConstants.whatsappGreen,
-              side: const BorderSide(color: AppConstants.whatsappGreen, width: 2),
+              side:
+                  const BorderSide(color: AppConstants.whatsappGreen, width: 2),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppConstants.borderRadiusSmall),
+                borderRadius:
+                    BorderRadius.circular(AppConstants.borderRadiusSmall),
               ),
             ),
           ),
@@ -457,16 +467,17 @@ class _DonationModalState extends ConsumerState<DonationModal> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         // Validate file size
         if (file.size > AppConstants.maxFileSize) {
           _showError('Ukuran file terlalu besar (Max: 5MB)');
           return;
         }
-        
+
         // Validate file type
-        if (file.extension != null && 
-            !AppConstants.allowedImageExtensions.contains(file.extension!.toLowerCase())) {
+        if (file.extension != null &&
+            !AppConstants.allowedImageExtensions
+                .contains(file.extension!.toLowerCase())) {
           _showError('Format file tidak didukung. Gunakan JPG atau PNG');
           return;
         }
@@ -491,11 +502,12 @@ class _DonationModalState extends ConsumerState<DonationModal> {
     try {
       final storageService = StorageService();
       final firestoreService = FirestoreService();
-      
+
       // Upload to Firebase Storage
       final downloadUrl = await storageService.uploadTransactionProof(
         imageBytes: _selectedFileBytes!,
-        fileName: _selectedFileName ?? 'proof_${DateTime.now().millisecondsSinceEpoch}.jpg',
+        fileName: _selectedFileName ??
+            'proof_${DateTime.now().millisecondsSinceEpoch}.jpg',
       );
 
       // Create pending submission in Firestore
@@ -508,12 +520,13 @@ class _DonationModalState extends ConsumerState<DonationModal> {
         submittedAt: DateTime.now(),
         status: 'pending',
       );
-      
+
       await firestoreService.createPendingSubmission(submission);
-      
+
       if (mounted) {
         Navigator.of(context).pop();
-        _showSuccess('Bukti transfer berhasil dikirim! Admin akan memvalidasi segera.');
+        _showSuccess(
+            'Bukti transfer berhasil dikirim! Admin akan memvalidasi segera.');
       }
     } catch (e) {
       _showError('Gagal upload bukti: $e');

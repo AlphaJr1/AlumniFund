@@ -17,9 +17,10 @@ class HeaderWidget extends StatelessWidget {
     final primaryColor = colorScheme.primary;
     // Create darker shade for gradient
     final darkColor = HSLColor.fromColor(primaryColor)
-        .withLightness((HSLColor.fromColor(primaryColor).lightness - 0.1).clamp(0.0, 1.0))
+        .withLightness(
+            (HSLColor.fromColor(primaryColor).lightness - 0.1).clamp(0.0, 1.0))
         .toColor();
-    
+
     return Container(
       height: headerHeight,
       decoration: BoxDecoration(
@@ -54,7 +55,7 @@ class HeaderWidget extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             // Right side: Admin button
             IconButton(
               icon: const Icon(

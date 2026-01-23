@@ -17,16 +17,15 @@ class ExpenseService {
   }) async {
     try {
       // 1. Get current balance
-      final fundDoc = await _firestore
-          .collection('general_fund')
-          .doc('current')
-          .get();
-      
+      final fundDoc =
+          await _firestore.collection('general_fund').doc('current').get();
+
       final currentBalance = (fundDoc.data()?['balance'] ?? 0.0).toDouble();
 
       // 2. Validate balance
       if (amount > currentBalance) {
-        throw Exception('Saldo tidak cukup (tersedia: Rp ${currentBalance.toStringAsFixed(0)})');
+        throw Exception(
+            'Saldo tidak cukup (tersedia: Rp ${currentBalance.toStringAsFixed(0)})');
       }
 
       // 3. Use batch write for atomic operation

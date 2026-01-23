@@ -41,8 +41,7 @@ class _AdminLayoutState extends State<AdminLayout> {
             child: Row(
               children: [
                 // Sidebar (desktop only)
-                if (!isMobile)
-                  AdminSidebar(currentRoute: currentRoute),
+                if (!isMobile) AdminSidebar(currentRoute: currentRoute),
 
                 // Content area (scrollable)
                 Expanded(

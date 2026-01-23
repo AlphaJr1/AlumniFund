@@ -6,7 +6,7 @@ import 'user_identifier_service.dart';
 class FeedbackService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final UserIdentifierService _userIdentifier = UserIdentifierService();
-  
+
   static const String _collectionName = 'onboarding_feedbacks';
 
   /// Submit feedback ke Firestore
@@ -38,9 +38,8 @@ class FeedbackService {
     );
 
     // Save to Firestore
-    final docRef = await _firestore
-        .collection(_collectionName)
-        .add(feedback.toJson());
+    final docRef =
+        await _firestore.collection(_collectionName).add(feedback.toJson());
 
     return docRef.id;
   }
@@ -88,18 +87,12 @@ class FeedbackService {
 
   /// Delete feedback
   Future<void> deleteFeedback(String feedbackId) async {
-    await _firestore
-        .collection(_collectionName)
-        .doc(feedbackId)
-        .delete();
+    await _firestore.collection(_collectionName).doc(feedbackId).delete();
   }
 
   /// Get feedback by ID
   Future<OnboardingFeedback?> getFeedbackById(String id) async {
-    final doc = await _firestore
-        .collection(_collectionName)
-        .doc(id)
-        .get();
+    final doc = await _firestore.collection(_collectionName).doc(id).get();
 
     if (!doc.exists) return null;
 

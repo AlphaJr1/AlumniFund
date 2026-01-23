@@ -4,7 +4,7 @@ import '../models/general_fund_model.dart';
 import '../utils/constants.dart';
 
 /// Provider untuk general fund (Dompet Bersama)
-/// 
+///
 /// Returns real-time data dari general_fund/current document
 final generalFundProvider = StreamProvider<GeneralFund>((ref) {
   return FirebaseFirestore.instance
