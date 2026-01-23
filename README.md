@@ -2,7 +2,7 @@
 
 Transparent alumni community fund management dashboard built with Flutter Web and Firebase.
 
-[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://aluname.web.app) [![Flutter](https://img.shields.io/badge/Flutter-3.38.5-blue)](https://flutter.dev) [![Firebase](https://img.shields.io/badge/Firebase-Hosting-orange)](https://firebase.google.com)
+[![CI/CD Pipeline](https://github.com/AlphaJr1/AlumniFund/actions/workflows/ci.yml/badge.svg)](https://github.com/AlphaJr1/AlumniFund/actions/workflows/ci.yml) [![Live Demo](https://img.shields.io/badge/demo-live-success)](https://unamed.web.app) [![Flutter](https://img.shields.io/badge/Flutter-3.38.5-blue)](https://flutter.dev) [![Firebase](https://img.shields.io/badge/Firebase-Hosting-orange)](https://firebase.google.com)
 
 ---
 
@@ -131,7 +131,7 @@ DateFormatter.formatDate(DateTime(2026, 4, 28));  // "28 April 2026"
 
 ## Deployment
 
-**Live:** https://aluname.web.app
+**Live:** https://unamed.web.app
 
 ```bash
 flutter build web --release
