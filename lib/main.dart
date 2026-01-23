@@ -30,22 +30,17 @@ void main() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       
-      debugPrint('✅ Firebase initialized successfully');
-      
-      // Initialize default settings jika berhasil
+      // Initialize default settings
       try {
         final firestoreService = FirestoreService();
         await firestoreService.initializeDefaultSettings();
       } catch (e) {
-        debugPrint('Error initializing settings: $e');
+        // Silent fail for settings initialization
       }
     } catch (e) {
-      debugPrint('❌ Firebase initialization error: $e');
       // Continue without Firebase for development
     }
   } else {
-    debugPrint('🔧 Running in DEVELOPMENT MODE without Firebase');
-    debugPrint('   Set kUseFirebase = true in main.dart after configuring Firebase');
   }
   
   // Run app dengan ProviderScope untuk Riverpod

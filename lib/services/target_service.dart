@@ -592,7 +592,6 @@ class TargetService {
           allTargets.add(GraduationTarget.fromFirestore(doc));
         } catch (e) {
           // Skip corrupt targets (e.g., null timestamps)
-          print('Skipping corrupt target ${doc.id}: $e');
         }
       }
 
@@ -639,7 +638,6 @@ class TargetService {
       }
     } catch (e) {
       // Silent fail - don't block app startup
-      print('Error checking targets: $e');
     }
   }
 
@@ -709,7 +707,6 @@ class TargetService {
           // If parsing fails, it's corrupt - delete it
           corruptIds.add(doc.id);
           await doc.reference.delete();
-          print('Deleted corrupt target ${doc.id}: $e');
         }
       }
 

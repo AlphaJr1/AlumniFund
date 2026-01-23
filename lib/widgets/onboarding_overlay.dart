@@ -61,26 +61,20 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
   }
   
   void _showFeedbackModal() {
-    debugPrint('[OnboardingOverlay] _showFeedbackModal() called');
-    
     // Reset flag first
     ref.read(onboardingProvider.notifier).resetFeedbackModalFlag();
-    debugPrint('[OnboardingOverlay] Flag reset');
     
     // Show modal
-    debugPrint('[OnboardingOverlay] Showing dialog...');
     showDialog(
       context: context,
       barrierDismissible: false, // Harus click Selesai
       builder: (context) => OnboardingFeedbackModal(
         onComplete: () {
-          debugPrint('[OnboardingOverlay] Feedback modal onComplete called');
           // Complete onboarding after feedback
           ref.read(onboardingProvider.notifier).completeOnboarding();
         },
       ),
     );
-    debugPrint('[OnboardingOverlay] Dialog shown');
   }
   
   @override
@@ -102,8 +96,6 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
       
       // Show feedback modal when triggered
       if (next.shouldShowFeedbackModal && (previous == null || !previous.shouldShowFeedbackModal)) {
-        debugPrint('[OnboardingOverlay] shouldShowFeedbackModal flag detected!');
-        debugPrint('[OnboardingOverlay] Calling _showFeedbackModal()');
         _showFeedbackModal();
       }
     });
@@ -240,23 +232,11 @@ class _OnboardingOverlayState extends ConsumerState<OnboardingOverlay>
           if (!isLastStep)
             TextButton(
               onPressed: () {
-                // Lewati → langsung ke feedback modal
-                // Complete all remaining steps first
-                final notifier = ref.read(onboardingProvider.notifier);
-                // Complete current step first
-                notifier.completeCurrentStep();
-                // If not last step yet, jump to last step
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  final currentState = ref.read(onboardingProvider);
-                  if (!currentState.isLastStep) {
-                    // Calculate last step index
-                    final lastStepIndex = currentState.steps.length - 1;
-                    // Complete remaining steps to reach last
-                    for (int i = currentState.currentStepIndex + 1; i <= lastStepIndex; i++) {
-                      notifier.completeCurrentStep();
-                    }
-                  }
-                });
+                // Lewati → langsung trigger feedback modal
+                ref.read(onboardingProvider.notifier).state = 
+                  ref.read(onboardingProvider).copyWith(
+                    shouldShowFeedbackModal: true,
+                  );
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

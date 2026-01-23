@@ -41,7 +41,6 @@ class _OnboardingFeedbackModalState
         await _feedbackService.submitFeedback(feedbackText);
       } catch (e) {
         // Silent fail - user tidak perlu tahu jika submit gagal
-        debugPrint('[FeedbackModal] Failed to submit: $e');
       } finally {
         setState(() => _isSubmitting = false);
       }
@@ -56,17 +55,33 @@ class _OnboardingFeedbackModalState
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isMobile = screenWidth < 600;
     final remainingChars = _maxCharacters - _feedbackController.text.length;
 
+    // Hitung tinggi yang tersedia (dengan mempertimbangkan keyboard)
+    final availableHeight = screenHeight - keyboardHeight - 100;
+    final modalHeight = isMobile 
+        ? availableHeight.clamp(300.0, 550.0) 
+        : 520.0;
+
     return Dialog(
       backgroundColor: Colors.transparent,
+      insetPadding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 40,
+        bottom: keyboardHeight + 16, // Tambahkan padding bottom saat keyboard muncul
+      ),
       child: Container(
         width: screenWidth * 0.9,
         constraints: BoxConstraints(
-          maxWidth: isMobile ? 400 : 500,
-          maxHeight: isMobile ? 400 : 500,
+          maxWidth: isMobile ? 420 : 520,
+          minHeight: 300,
+          maxHeight: modalHeight,
         ),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -82,18 +97,15 @@ class _OnboardingFeedbackModalState
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
+            // Header (Simplified)
             Container(
-              padding: const EdgeInsets.all(24),
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: isMobile ? 20 : 24,
+              ),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    HSLColor.fromColor(Theme.of(context).colorScheme.primary)
-                        .withLightness(0.3)
-                        .toColor(),
-                  ],
-                ),
+                color: Theme.of(context).colorScheme.primary,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(24),
                   topRight: Radius.circular(24),
@@ -101,71 +113,40 @@ class _OnboardingFeedbackModalState
               ),
               child: Column(
                 children: [
-                  // Success icon + message
-                  const Text(
-                    '✅',
-                    style: TextStyle(fontSize: 32),
-                  ),
-                  const SizedBox(height: 8),
+                  // Simple title
                   Text(
-                    'Tutorial Selesai!',
+                    'Tutorial Selesai! ✓',
                     style: TextStyle(
-                      fontSize: isMobile ? 19 : 21,
+                      fontSize: isMobile ? 18 : 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
                   Text(
-                    'Terima kasih sudah mengikuti tutorial',
+                    'Ada saran untuk perbaikan app?',
                     style: TextStyle(
-                      fontSize: isMobile ? 12 : 13,
+                      fontSize: isMobile ? 13 : 14,
                       color: Colors.white.withOpacity(0.9),
                     ),
                     textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  // Divider
-                  Container(
-                    height: 1,
-                    color: Colors.white.withOpacity(0.2),
-                  ),
-                  const SizedBox(height: 12),
-                  // Feedback prompt
-                  Row(
-                    children: [
-                      const Text(
-                        '💭',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Ada saran? Bantu improve app ini bareng!',
-                          style: TextStyle(
-                            fontSize: isMobile ? 13 : 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
             ),
 
-            // Content
-            Expanded(
-              child: Padding(
+            // Content Area (Scrollable)
+            Flexible(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(24),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Info text
+                    // Simple info
                     Text(
-                      'Opsional - sharing aja pengalaman atau ide kamu',
+                      'Opsional - tulis saran atau feedback kamu',
                       style: TextStyle(
                         fontSize: isMobile ? 12 : 13,
                         color: const Color(0xFF6B7280),
@@ -173,50 +154,54 @@ class _OnboardingFeedbackModalState
                     ),
                     const SizedBox(height: 16),
 
-                    // TextField
-                    Expanded(
-                      child: TextField(
-                        controller: _feedbackController,
-                        maxLength: _maxCharacters,
-                        maxLines: null,
-                        expands: true,
-                        textAlignVertical: TextAlignVertical.top,
-                        enabled: !_isSubmitting,
-                        decoration: InputDecoration(
-                          hintText: 'Tulis di sini...',
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: isMobile ? 13 : 14,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Colors.grey[300]!,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Colors.grey[300]!,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(
-                              color: Theme.of(context).colorScheme.primary,
-                              width: 2,
-                            ),
-                          ),
-                          counterText: '',
-                          contentPadding: const EdgeInsets.all(16),
-                        ),
-                        style: TextStyle(
+                    // TextField - TANPA Expanded, gunakan minLines/maxLines
+                    TextField(
+                      controller: _feedbackController,
+                      autofocus: true, // Auto-focus saat modal dibuka
+                      maxLength: _maxCharacters,
+                      minLines: isMobile ? 4 : 6,
+                      maxLines: isMobile ? 8 : 10,
+                      textAlignVertical: TextAlignVertical.top,
+                      enabled: !_isSubmitting,
+                      keyboardType: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                      decoration: InputDecoration(
+                        hintText: 'Tulis di sini...',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[400],
                           fontSize: isMobile ? 13 : 14,
                         ),
-                        onChanged: (value) {
-                          setState(() {}); // Update char counter
-                        },
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey[300]!,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.grey[300]!,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        counterText: '',
+                        contentPadding: const EdgeInsets.all(16),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
+                      style: TextStyle(
+                        fontSize: isMobile ? 14 : 15,
+                        height: 1.5,
+                      ),
+                      onChanged: (value) {
+                        setState(() {}); // Update char counter
+                      },
                     ),
 
                     const SizedBox(height: 8),

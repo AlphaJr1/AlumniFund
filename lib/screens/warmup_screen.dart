@@ -29,7 +29,6 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
     // Add timeout fallback - if data doesn't load within 5 seconds, proceed anyway
     Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
-        debugPrint('[Warmup] Timeout reached - proceeding to dashboard');
         context.go('/');
       }
     });
@@ -51,7 +50,6 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
 
     // Navigate to dashboard when all data is ready (or errored)
     if (allLoaded) {
-      debugPrint('[Warmup] All providers ready - navigating to dashboard');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           context.go('/');

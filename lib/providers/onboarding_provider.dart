@@ -147,10 +147,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     
     // Jika ini adalah step terakhir, trigger feedback modal
     if (state.isLastStep) {
-      debugPrint('[OnboardingProvider] Last step completed - triggering feedback modal');
-      debugPrint('[OnboardingProvider] Current shouldShowFeedbackModal: ${state.shouldShowFeedbackModal}');
       state = state.copyWith(shouldShowFeedbackModal: true);
-      debugPrint('[OnboardingProvider] Set shouldShowFeedbackModal = true');
       return;
     }
     

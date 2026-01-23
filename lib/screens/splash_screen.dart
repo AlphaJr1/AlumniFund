@@ -88,8 +88,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
         }
       }
     } catch (e) {
-      // Handle errors - still navigate but log error
-      debugPrint('Error preloading data: $e');
+      // Handle errors - still navigate
       
       if (mounted) {
         setState(() {

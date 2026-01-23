@@ -32,11 +32,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
   void initState() {
     super.initState();
     // Cleanup corrupt targets first
-    _targetService.deleteCorruptTargets().then((result) {
-      print('Cleanup result: ${result['message']}');
-    }).catchError((e) {
-      print('Cleanup error: $e');
-    });
+    _targetService.deleteCorruptTargets();
     // Check and activate targets on load
     _targetService.checkAndActivateTargets();
   }

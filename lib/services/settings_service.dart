@@ -108,15 +108,11 @@ class SettingsService {
     required bool recalculateAmount,
   }) async {
     try {
-      print('🔄 Starting recalculation: deadline=$recalculateDeadline, amount=$recalculateAmount');
-      
       // Get all upcoming and active targets
       final targetsSnapshot = await _firestore
           .collection(FirestoreCollections.graduationTargets)
           .where('status', whereIn: ['upcoming', 'active'])
           .get();
-
-      print('📊 Found ${targetsSnapshot.docs.length} targets to recalculate');
 
       final batch = _firestore.batch();
       int updatedCount = 0;
@@ -147,16 +143,13 @@ class SettingsService {
               Duration(days: newOffsetDays),
             );
             updates['deadline'] = Timestamp.fromDate(newDeadline);
-            print('  ⏰ Target ${doc.id}: Updated deadline to $newDeadline');
           }
         }
 
         // Recalculate target amount if allocation changed
         if (recalculateAmount) {
-          final oldAmount = data['target_amount'];
           final newTargetAmount = graduates.length * newPerPersonAllocation;
           updates['target_amount'] = newTargetAmount;
-          print('  💰 Target ${doc.id}: ${graduates.length} grads × $newPerPersonAllocation = $newTargetAmount (was $oldAmount)');
         }
 
         // Update target
@@ -166,12 +159,8 @@ class SettingsService {
 
       if (updatedCount > 0) {
         await batch.commit();
-        print('✅ Successfully updated $updatedCount targets');
-      } else {
-        print('⚠️ No targets to update');
       }
     } catch (e) {
-      print('❌ Error recalculating targets: $e');
       throw Exception('Gagal recalculate targets: $e');
     }
   }
@@ -337,7 +326,6 @@ class SettingsService {
         await _storageService.deleteAllQRCodes();
       } catch (storageError) {
         // Continue even if storage deletion fails
-        print('Warning: Some storage files may not be deleted: $storageError');
       }
     } catch (e) {
       throw Exception('Gagal reset data: $e');

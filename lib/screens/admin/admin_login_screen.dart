@@ -36,36 +36,22 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
       _errorMessage = null;
     });
 
-    debugPrint('🔐 Login attempt started');
-    debugPrint('   Email: ${_emailController.text.trim()}');
-    debugPrint('   Password length: ${_passwordController.text.length}');
-
     try {
       // Sign in with Firebase Auth
-      debugPrint('📡 Calling Firebase Auth...');
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
-      debugPrint('✅ Firebase Auth SUCCESS');
-      debugPrint('   User email: ${credential.user?.email}');
-      debugPrint('   User UID: ${credential.user?.uid}');
-
       // Verify user is admin
       final isAdmin = AdminConfig.isAdmin(credential.user?.email);
-      debugPrint('🔍 Admin check: $isAdmin');
-      debugPrint('   Expected: ${AdminConfig.adminEmail}');
-      debugPrint('   Got: ${credential.user?.email}');
 
       if (isAdmin) {
-        debugPrint('✅ Admin verified! Redirecting to dashboard...');
         if (mounted) {
           context.go(AdminConfig.dashboardRoute);
         }
       } else {
         // Not admin - sign out and show error
-        debugPrint('❌ Not admin! Signing out...');
         await FirebaseAuth.instance.signOut();
         setState(() {
           _errorMessage = 'This account does not have admin access';
@@ -73,17 +59,11 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
         });
       }
     } on FirebaseAuthException catch (e) {
-      debugPrint('❌ Firebase Auth ERROR');
-      debugPrint('   Code: ${e.code}');
-      debugPrint('   Message: ${e.message}');
       setState(() {
         _errorMessage = _getErrorMessage(e.code);
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('❌ UNEXPECTED ERROR');
-      debugPrint('   Type: ${e.runtimeType}');
-      debugPrint('   Message: ${e.toString()}');
       setState(() {
         _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
         _isLoading = false;

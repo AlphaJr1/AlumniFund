@@ -128,11 +128,7 @@ class _MenuItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
-          debugPrint('🖱️ Menu item clicked: $label');
-          debugPrint('   Route: $route');
-          debugPrint('   Current route: ${GoRouterState.of(context).matchedLocation}');
           context.go(route);
-          debugPrint('   Navigation called!');
         },
         child: Container(
           height: 48,
