@@ -78,6 +78,22 @@ class FeedbackService {
         .update({'isRead': true});
   }
 
+  /// Mark feedback as unread
+  Future<void> markAsUnread(String feedbackId) async {
+    await _firestore
+        .collection(_collectionName)
+        .doc(feedbackId)
+        .update({'isRead': false});
+  }
+
+  /// Delete feedback
+  Future<void> deleteFeedback(String feedbackId) async {
+    await _firestore
+        .collection(_collectionName)
+        .doc(feedbackId)
+        .delete();
+  }
+
   /// Get feedback by ID
   Future<OnboardingFeedback?> getFeedbackById(String id) async {
     final doc = await _firestore

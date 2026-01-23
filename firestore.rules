@@ -60,8 +60,7 @@ service cloud.firestore {
     // Onboarding Feedbacks (public can create)
     match /onboarding_feedbacks/{feedbackId} {
       allow create: if true; // Anyone can submit feedback
-      allow read, update: if isAdmin(); // Only admin can read/update
-      allow delete: if false; // No delete allowed
+      allow read, update, delete: if isAdmin(); // Only admin can read/update/delete
     }
     
     // ========================================

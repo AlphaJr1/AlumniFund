@@ -6,12 +6,16 @@ import '../../models/onboarding_feedback_model.dart';
 /// Detail modal untuk view full feedback content
 class FeedbackDetailModal extends StatelessWidget {
   final OnboardingFeedback feedback;
-  final VoidCallback onMarkAsRead;
+  final VoidCallback? onMarkAsRead;
+  final VoidCallback? onMarkAsUnread;
+  final VoidCallback? onDelete;
 
   const FeedbackDetailModal({
     super.key,
     required this.feedback,
-    required this.onMarkAsRead,
+    this.onMarkAsRead,
+    this.onMarkAsUnread,
+    this.onDelete,
   });
 
   @override
@@ -306,12 +310,32 @@ class FeedbackDetailModal extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (!feedback.isRead)
+          // Delete button (left side)
+          if (onDelete != null)
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                onDelete!();
+              },
+              icon: const Icon(Icons.delete_outline, size: 18),
+              label: const Text('Hapus'),
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFFEF4444),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 12 : 16,
+                  vertical: isMobile ? 12 : 14,
+                ),
+              ),
+            ),
+          
+          const Spacer(),
+          
+          // Toggle read/unread button
+          if (!feedback.isRead && onMarkAsRead != null)
             ElevatedButton.icon(
               onPressed: () {
-                onMarkAsRead();
+                onMarkAsRead!();
                 Navigator.pop(context);
               },
               icon: const Icon(Icons.check, size: 18),
@@ -324,8 +348,29 @@ class FeedbackDetailModal extends StatelessWidget {
                   vertical: isMobile ? 12 : 14,
                 ),
               ),
+            )
+          else if (feedback.isRead && onMarkAsUnread != null)
+            OutlinedButton.icon(
+              onPressed: () {
+                onMarkAsUnread!();
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.mark_email_unread_outlined, size: 18),
+              label: const Text('Tandai Belum Dibaca'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.primary,
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 16 : 20,
+                  vertical: isMobile ? 12 : 14,
+                ),
+              ),
             ),
-          if (!feedback.isRead) const SizedBox(width: 12),
+          
+          const SizedBox(width: 12),
+          
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Tutup'),

@@ -22,13 +22,69 @@ class _FeedbackListScreenState extends ConsumerState<FeedbackListScreen> {
       context: context,
       builder: (context) => FeedbackDetailModal(
         feedback: feedback,
-        onMarkAsRead: () async {
-          if (!feedback.isRead) {
-            await _feedbackService.markAsRead(feedback.id);
-          }
-        },
+        onMarkAsRead: !feedback.isRead
+            ? () async {
+                await _feedbackService.markAsRead(feedback.id);
+              }
+            : null,
+        onMarkAsUnread: feedback.isRead
+            ? () async {
+                await _feedbackService.markAsUnread(feedback.id);
+              }
+            : null,
+        onDelete: () => _deleteFeedback(feedback.id, feedback.feedback),
       ),
     );
+  }
+
+  Future<void> _deleteFeedback(String feedbackId, String feedbackText) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Feedback'),
+        content: Text(
+          'Apakah Anda yakin ingin menghapus feedback ini?\n\n'
+          '"${feedbackText.length > 100 ? feedbackText.substring(0, 100) + '...' : feedbackText}"\n\n'
+          'Tindakan ini tidak dapat dibatalkan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await _feedbackService.deleteFeedback(feedbackId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('✅ Feedback berhasil dihapus'),
+              backgroundColor: Color(0xFF10B981),
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❌ Error: ${e.toString()}'),
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+          );
+        }
+      }
+    }
   }
 
   @override
