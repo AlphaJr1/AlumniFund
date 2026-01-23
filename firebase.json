@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "aluname",
+    "site": "unamed",
     "public": "build/web",
     "ignore": [
       "firebase.json",
