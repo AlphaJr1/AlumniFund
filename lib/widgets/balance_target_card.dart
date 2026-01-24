@@ -79,13 +79,23 @@ class BalanceTargetCard extends ConsumerWidget {
   // Format deadline dengan format Indonesia
   String _formatDeadline(DateTime deadline) {
     final monthNames = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agu',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des'
     ];
-    
+
     final daysUntil = deadline.difference(DateTime.now()).inDays;
     final emoji = daysUntil <= 7 ? '⏰ ' : '📅 ';
-    
+
     return '$emoji${deadline.day} ${monthNames[deadline.month - 1]} ${deadline.year}';
   }
 
@@ -93,8 +103,6 @@ class BalanceTargetCard extends ConsumerWidget {
   String _formatDeadlineWithMonth(DateTime deadline, String month, int year) {
     return '${deadline.day} ${month.toUpperCase()} $year';
   }
-
-
 
   Widget _buildContent(
     BuildContext context,
@@ -204,7 +212,8 @@ class BalanceTargetCard extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _formatDeadlineWithMonth(activeTarget.deadline, activeTarget.month, activeTarget.year),
+                        _formatDeadlineWithMonth(activeTarget.deadline,
+                            activeTarget.month, activeTarget.year),
                         style: TextStyle(
                           fontSize: isMobile ? 20 : 24,
                           fontWeight: FontWeight.w900,

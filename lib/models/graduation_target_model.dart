@@ -150,7 +150,6 @@ class GraduationTarget {
     return '${deadline.day} $monthCapitalized $year';
   }
 
-
   /// Get earliest graduation date
   DateTime? get earliestGraduationDate {
     if (graduates.isEmpty) return null;
