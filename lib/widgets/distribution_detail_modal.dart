@@ -58,7 +58,7 @@ class DistributionDetailModal extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        target.monthYearDisplay,
+                        target.monthYearWithDeadlineDisplay,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF6B7280),

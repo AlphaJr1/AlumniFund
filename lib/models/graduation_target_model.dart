@@ -144,6 +144,13 @@ class GraduationTarget {
     return '$monthCapitalized $year';
   }
 
+  /// Get formatted deadline with month-year (e.g., "8 February 2026")
+  String get monthYearWithDeadlineDisplay {
+    final monthCapitalized = month[0].toUpperCase() + month.substring(1);
+    return '${deadline.day} $monthCapitalized $year';
+  }
+
+
   /// Get earliest graduation date
   DateTime? get earliestGraduationDate {
     if (graduates.isEmpty) return null;
