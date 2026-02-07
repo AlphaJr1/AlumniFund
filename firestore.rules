@@ -2,6 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // ========================================
+    // TESTING COLLECTION (Brand Identity)
+    // ========================================
+    
+    // Brand Identity Users Test Collection - OPEN for testing
+    match /brand_identity_users_test/{userId} {
+      allow read, write: if true; // Open access untuk testing
+    }
+    
+    // ========================================
+    // PRODUCTION COLLECTIONS
+    // ========================================
+    
     // Helper function untuk check admin
     function isAdmin() {
       return request.auth != null && 

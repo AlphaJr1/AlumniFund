@@ -22,7 +22,7 @@ class TargetDetailModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isUpcoming = target.status == 'upcoming';
-    final isActive = target.status == 'active';
+    final isActive = target.status == 'active' || target.status == 'closing_soon';
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

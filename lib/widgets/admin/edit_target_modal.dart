@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../models/graduation_target_model.dart';
 import '../../models/graduate_model.dart';
 import '../../services/target_service.dart';
@@ -24,20 +25,30 @@ class _EditTargetModalState extends State<EditTargetModal> {
   final _formKey = GlobalKey<FormState>();
 
   List<Graduate> _graduates = [];
+  DateTime? _deadline;
+  bool _deadlineManuallyChanged = false;
   String? _validationError;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize with existing graduates
+    // Initialize with existing graduates and deadline
     _graduates = List.from(widget.target.graduates);
+    _deadline = widget.target.deadline;
   }
 
   Future<void> _saveChanges() async {
     if (_graduates.isEmpty) {
       setState(() {
         _validationError = 'Minimal harus ada 1 wisudawan';
+      });
+      return;
+    }
+
+    if (_deadline == null) {
+      setState(() {
+        _validationError = 'Deadline harus diisi';
       });
       return;
     }
@@ -51,6 +62,7 @@ class _EditTargetModalState extends State<EditTargetModal> {
       await _targetService.replaceGraduates(
         targetId: widget.target.id,
         graduates: _graduates,
+        deadline: _deadlineManuallyChanged ? _deadline : null,
       );
 
       if (mounted) {
@@ -129,6 +141,80 @@ class _EditTargetModalState extends State<EditTargetModal> {
                   color: const Color(0xFF6B7280),
                 ),
               ],
+            ),
+            const SizedBox(height: 24),
+            const Divider(height: 1),
+            const SizedBox(height: 24),
+
+            // Deadline Picker
+            const Text(
+              'Target Deadline',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF111827),
+              ),
+            ),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: _isSubmitting
+                  ? null
+                  : () async {
+                      final now = DateTime.now();
+                      final date = await showDatePicker(
+                        context: context,
+                        initialDate: _deadline ?? now,
+                        firstDate: now,
+                        lastDate: DateTime(now.year + 5),
+                      );
+
+                      if (date != null) {
+                        setState(() {
+                          _deadline = date;
+                          _deadlineManuallyChanged = true;
+                          _validationError = null;
+                        });
+                      }
+                    },
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.calendar_today,
+                      color: Color(0xFF3B82F6),
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _deadline != null
+                            ? DateFormat('dd MMMM yyyy', 'id_ID')
+                                .format(_deadline!)
+                            : 'Pilih tanggal deadline',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _deadline != null
+                              ? const Color(0xFF111827)
+                              : const Color(0xFF9CA3AF),
+                          fontWeight: _deadline != null
+                              ? FontWeight.w500
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_drop_down,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 24),
             const Divider(height: 1),

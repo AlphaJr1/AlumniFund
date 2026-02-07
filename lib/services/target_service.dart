@@ -340,13 +340,14 @@ class TargetService {
   Future<void> replaceGraduates({
     required String targetId,
     required List<Graduate> graduates,
+    DateTime? deadline,
   }) async {
     try {
       // 1. Get current target
       final target = await _getTarget(targetId);
 
       // 2. Validate can edit
-      if (target.status != 'upcoming' && target.status != 'active') {
+      if (target.status != 'upcoming' && target.status != 'active' && target.status != 'closing_soon') {
         throw Exception('Hanya target upcoming atau aktif yang bisa diedit');
       }
 
@@ -363,7 +364,7 @@ class TargetService {
 
         if (month == target.month.toLowerCase() && year == target.year) {
           // Scenario 1: No month change - simple update
-          await _simpleUpdateGraduates(targetId, graduates);
+          await _simpleUpdateGraduates(targetId, graduates, deadline: deadline);
         } else {
           // Scenario 2: All moved to new month
           // Check if destination month already has a target
@@ -371,15 +372,15 @@ class TargetService {
 
           if (destTarget != null) {
             // Merge to existing target, then delete current
-            await _mergeToTargetAndDelete(targetId, destTarget.id, graduates);
+            await _mergeToTargetAndDelete(targetId, destTarget.id, graduates, deadline: deadline);
           } else {
             // No existing target - just update month/year
-            await _updateTargetMonth(targetId, month, year, graduates);
+            await _updateTargetMonth(targetId, month, year, graduates, deadline: deadline);
           }
         }
       } else {
         // Scenario 3: Split across months - complex movement
-        await _splitAndMoveGraduates(targetId, target, groupedGrads);
+        await _splitAndMoveGraduates(targetId, target, groupedGrads, deadline: deadline);
       }
     } catch (e) {
       throw Exception('Gagal update target: ${e.toString()}');
@@ -404,20 +405,22 @@ class TargetService {
   /// Simple update (no month change)
   Future<void> _simpleUpdateGraduates(
     String targetId,
-    List<Graduate> graduates,
-  ) async {
+    List<Graduate> graduates, {
+    DateTime? deadline,
+  }) async {
     final settings = await _getSettings();
     final targetAmount = graduates.length * settings.perPersonAllocation;
 
     graduates.sort((a, b) => a.date.compareTo(b.date));
-    final deadline = graduates.first.date.subtract(
-      Duration(days: settings.deadlineOffsetDays),
-    );
+    final calculatedDeadline = deadline ??
+        graduates.first.date.subtract(
+          Duration(days: settings.deadlineOffsetDays),
+        );
 
     await _firestore.collection('graduation_targets').doc(targetId).update({
       'graduates': graduates.map((g) => g.toMap()).toList(),
       'target_amount': targetAmount,
-      'deadline': Timestamp.fromDate(deadline),
+      'deadline': Timestamp.fromDate(calculatedDeadline),
       'updated_at': FieldValue.serverTimestamp(),
     });
   }
@@ -427,22 +430,24 @@ class TargetService {
     String targetId,
     String newMonth,
     int newYear,
-    List<Graduate> graduates,
-  ) async {
+    List<Graduate> graduates, {
+    DateTime? deadline,
+  }) async {
     final settings = await _getSettings();
     final targetAmount = graduates.length * settings.perPersonAllocation;
 
     graduates.sort((a, b) => a.date.compareTo(b.date));
-    final deadline = graduates.first.date.subtract(
-      Duration(days: settings.deadlineOffsetDays),
-    );
+    final calculatedDeadline = deadline ??
+        graduates.first.date.subtract(
+          Duration(days: settings.deadlineOffsetDays),
+        );
 
     await _firestore.collection('graduation_targets').doc(targetId).update({
       'month': newMonth, // ✅ UPDATE MONTH
       'year': newYear, // ✅ UPDATE YEAR
       'graduates': graduates.map((g) => g.toMap()).toList(),
       'target_amount': targetAmount,
-      'deadline': Timestamp.fromDate(deadline),
+      'deadline': Timestamp.fromDate(calculatedDeadline),
       'updated_at': FieldValue.serverTimestamp(),
     });
   }
@@ -451,8 +456,9 @@ class TargetService {
   Future<void> _mergeToTargetAndDelete(
     String sourceTargetId,
     String destTargetId,
-    List<Graduate> graduatesToMerge,
-  ) async {
+    List<Graduate> graduatesToMerge, {
+    DateTime? deadline,
+  }) async {
     // 1. Get destination target
     final destTarget = await _getTarget(destTargetId);
 
@@ -463,9 +469,10 @@ class TargetService {
     // 3. Recalculate target amount and deadline
     final settings = await _getSettings();
     final targetAmount = updatedGrads.length * settings.perPersonAllocation;
-    final deadline = updatedGrads.first.date.subtract(
-      Duration(days: settings.deadlineOffsetDays),
-    );
+    final calculatedDeadline = deadline ??
+        updatedGrads.first.date.subtract(
+          Duration(days: settings.deadlineOffsetDays),
+        );
 
     // 4. Use batch for atomic operation
     final batch = _firestore.batch();
@@ -476,7 +483,7 @@ class TargetService {
       {
         'graduates': updatedGrads.map((g) => g.toMap()).toList(),
         'target_amount': targetAmount,
-        'deadline': Timestamp.fromDate(deadline),
+        'deadline': Timestamp.fromDate(calculatedDeadline),
         'updated_at': FieldValue.serverTimestamp(),
       },
     );
@@ -493,8 +500,9 @@ class TargetService {
   Future<void> _splitAndMoveGraduates(
     String currentTargetId,
     GraduationTarget currentTarget,
-    Map<String, List<Graduate>> groupedGrads,
-  ) async {
+    Map<String, List<Graduate>> groupedGrads, {
+    DateTime? deadline,
+  }) async {
     final settings = await _getSettings();
 
     for (var entry in groupedGrads.entries) {
@@ -507,7 +515,7 @@ class TargetService {
       if (month == currentTarget.month.toLowerCase() &&
           year == currentTarget.year) {
         // Update current target with these graduates
-        await _simpleUpdateGraduates(currentTargetId, grads);
+        await _simpleUpdateGraduates(currentTargetId, grads, deadline: deadline);
         continue;
       }
 
@@ -520,9 +528,10 @@ class TargetService {
         updatedGrads.sort((a, b) => a.date.compareTo(b.date));
 
         final targetAmount = updatedGrads.length * settings.perPersonAllocation;
-        final deadline = updatedGrads.first.date.subtract(
-          Duration(days: settings.deadlineOffsetDays),
-        );
+        final calculatedDeadline = deadline ??
+            updatedGrads.first.date.subtract(
+              Duration(days: settings.deadlineOffsetDays),
+            );
 
         await _firestore
             .collection('graduation_targets')
@@ -530,7 +539,7 @@ class TargetService {
             .update({
           'graduates': updatedGrads.map((g) => g.toMap()).toList(),
           'target_amount': targetAmount,
-          'deadline': Timestamp.fromDate(deadline),
+          'deadline': Timestamp.fromDate(calculatedDeadline),
           'updated_at': FieldValue.serverTimestamp(),
         });
       } else {

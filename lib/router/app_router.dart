@@ -4,14 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../screens/warmup_screen.dart';
 import '../screens/public_dashboard_screen.dart';
+import '../screens/authenticated_dashboard_screen.dart';
 import '../screens/admin/admin_login_screen.dart';
 import '../screens/admin/admin_layout.dart';
 import '../screens/admin/views/dashboard_overview.dart';
 import '../screens/admin/views/validate_income_view.dart';
 import '../screens/admin/views/input_expense_view.dart';
 import '../screens/admin/views/manage_targets_view.dart';
+import '../screens/admin/views/manage_users_view.dart';
 import '../screens/admin/views/settings_view.dart';
 import '../screens/admin/views/feedback_list_screen.dart';
+import '../screens/user_identification_test_page.dart';
+import '../screens/registered_users_page.dart';
 import '../utils/admin_config.dart';
 
 /// GoRouter configuration - Public + Admin (Phase 1 + Phase 2A)
@@ -26,11 +30,25 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WarmupScreen(),
       ),
 
-      // Public dashboard (ROOT PATH)
+      // Public dashboard (ROOT PATH) - With user identification
       GoRoute(
         path: '/',
         name: 'dashboard',
-        builder: (context, state) => const PublicDashboardScreen(),
+        builder: (context, state) => const AuthenticatedDashboardScreen(),
+      ),
+
+      // User Identification Test Page (untuk development)
+      GoRoute(
+        path: '/test-user-id',
+        name: 'test-user-id',
+        builder: (context, state) => const UserIdentificationTestPage(),
+      ),
+
+      // Registered Users Page (untuk development)
+      GoRoute(
+        path: '/registered-users',
+        name: 'registered-users',
+        builder: (context, state) => const RegisteredUsersPage(),
       ),
 
       // Admin login route (public)
@@ -124,6 +142,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'admin-settings',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: SettingsView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Manage Users
+          GoRoute(
+            path: '/admin/manage-users',
+            name: 'admin-manage-users',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ManageUsersView(),
             ),
             redirect: (context, state) {
               final user = FirebaseAuth.instance.currentUser;
