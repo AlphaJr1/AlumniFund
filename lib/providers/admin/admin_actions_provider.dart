@@ -282,10 +282,19 @@ class AdminActionsService {
           (fundDoc.data()?['balance'] as num?)?.toDouble() ?? 0.0;
 
       // 3. Calculate NEW allocation (recalculate from scratch)
+      // stillNeeded = target - current (IGNORE old allocated_from_fund)
       final stillNeeded = requiredBudget - currentAmount;
+      
+      // Allocate min(fundBalance, stillNeeded)
       final newAllocation =
           fundBalance < stillNeeded ? fundBalance : stillNeeded;
       final clampedAllocation = newAllocation > 0 ? newAllocation : 0.0;
+
+      print('🔄 Auto-allocation:');
+      print('   Target: $requiredBudget, Current: $currentAmount');
+      print('   Still needed: $stillNeeded');
+      print('   Fund balance: $fundBalance');
+      print('   New allocation: $clampedAllocation');
 
       // 4. Update allocated_from_fund with NEW value (not increment!)
       await activeTargetDoc.reference.update({
@@ -298,6 +307,45 @@ class AdminActionsService {
     } catch (e) {
       // Log error but don't throw - allocation is not critical
       print('Auto-allocation error: $e');
+    }
+  }
+
+  /// Force recalculate allocation for active target
+  /// Public method that can be called from UI
+  Future<Map<String, dynamic>> forceRecalculateAllocation() async {
+    try {
+      await autoAllocateToTarget();
+      
+      // Get updated target info
+      final activeTargetSnapshot = await _firestore
+          .collection(FirestoreCollections.graduationTargets)
+          .where('status', whereIn: ['active', 'closing_soon'])
+          .limit(1)
+          .get();
+
+      if (activeTargetSnapshot.docs.isEmpty) {
+        return {
+          'success': false,
+          'message': 'No active target found',
+        };
+      }
+
+      final targetData = activeTargetSnapshot.docs.first.data();
+      final allocated = (targetData['allocated_from_fund'] as num?)?.toDouble() ?? 0.0;
+      final current = (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
+      
+      return {
+        'success': true,
+        'message': 'Allocation recalculated successfully',
+        'allocated': allocated,
+        'current': current,
+        'total': allocated + current,
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': e.toString(),
+      };
     }
   }
 

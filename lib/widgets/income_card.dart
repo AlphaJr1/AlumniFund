@@ -91,77 +91,71 @@ class _IncomeCardState extends ConsumerState<IncomeCard> {
     final count = transactions.length;
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              '💚',
-              style: TextStyle(fontSize: 56),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'RECENT PROPS',
-              style: TextStyle(
-                fontSize: isMobile ? 17 : 19,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // Total Income
-            Text(
-              'Total Props:',
-              style: TextStyle(
-                fontSize: isMobile ? 15 : 17,
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF6B7280),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              CurrencyFormatter.formatCurrency(totalIncome),
-              style: const TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
-                color: Color(0xFF10B981),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Pending badge (if any)
-            _buildPendingBadge(),
-            if (ref.watch(pendingSubmissionsCountProvider) > 0)
-              const SizedBox(height: 12),
-
-            // Transaction Count
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0FDF4),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: const Color(0xFF10B981).withOpacity(0.2),
-                  width: 2,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('💚', style: TextStyle(fontSize: 48)),
+                const SizedBox(height: 12),
+                Text(
+                  'RECENT PROPS',
+                  style: TextStyle(
+                    fontSize: isMobile ? 16 : 18,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF111827),
+                  ),
                 ),
-              ),
-              child: Text(
-                'Total: $count transactions',
-                style: TextStyle(
-                  fontSize: isMobile ? 14 : 16,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF10B981),
+                const SizedBox(height: 8),
+                Text(
+                  'Total Props:',
+                  style: TextStyle(
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF6B7280),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  CurrencyFormatter.formatCurrency(totalIncome),
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF10B981),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildPendingBadge(),
+                if (ref.watch(pendingSubmissionsCountProvider) > 0)
+                  const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: const Color(0xFF10B981).withOpacity(0.2),
+                      width: 2,
+                    ),
+                  ),
+                  child: Text(
+                    'Total: $count transactions',
+                    style: TextStyle(
+                      fontSize: isMobile ? 13 : 15,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:confetti/confetti.dart';
 import '../widgets/card_stack_widget.dart';
+import '../widgets/brand_identity_card.dart';
 import '../widgets/balance_target_card.dart';
 import '../widgets/income_card.dart';
 import '../widgets/expense_card.dart';
 import '../widgets/onboarding_overlay.dart';
 import '../providers/theme_provider.dart';
 import '../providers/onboarding_provider.dart';
+import '../providers/user_identification_provider.dart';
 import '../models/theme_colors.dart';
 import '../models/onboarding_step.dart'; // For OnboardingActionType
 
@@ -283,8 +285,18 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
           CardStackWidget(
             key: _cardStackKey,
             cards: [
-              BalanceTargetCard(
+              Consumer(
                 key: const ValueKey(0),
+                builder: (context, ref, _) {
+                  final userState = ref.watch(userIdentificationProvider);
+                  final userId = userState.userData?.userId;
+                  return BrandIdentityCard(
+                    userId: userId,
+                  );
+                },
+              ),
+              BalanceTargetCard(
+                key: const ValueKey(1),
                 onProofSubmitted: triggerConfetti,
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
@@ -304,7 +316,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 },
               ),
               IncomeCard(
-                key: const ValueKey(1),
+                key: const ValueKey(2),
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
                   if (state.isActive &&
@@ -323,7 +335,7 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                 },
               ),
               ExpenseCard(
-                key: const ValueKey(2),
+                key: const ValueKey(3),
                 onModalOpen: () {
                   final state = ref.read(onboardingProvider);
                   if (state.isActive &&

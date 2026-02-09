@@ -12,6 +12,7 @@ import '../screens/admin/views/validate_income_view.dart';
 import '../screens/admin/views/input_expense_view.dart';
 import '../screens/admin/views/manage_targets_view.dart';
 import '../screens/admin/views/manage_users_view.dart';
+import '../screens/admin/views/manage_brand_identity_view.dart';
 import '../screens/admin/views/settings_view.dart';
 import '../screens/admin/views/feedback_list_screen.dart';
 import '../screens/user_identification_test_page.dart';
@@ -158,6 +159,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'admin-manage-users',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: ManageUsersView(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Brand Identity
+          GoRoute(
+            path: '/admin/brand-identity',
+            name: 'admin-brand-identity',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: ManageBrandIdentityView(),
             ),
             redirect: (context, state) {
               final user = FirebaseAuth.instance.currentUser;

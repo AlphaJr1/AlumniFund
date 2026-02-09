@@ -66,6 +66,12 @@ class AdminSidebar extends ConsumerWidget {
                   isActive: currentRoute == '/admin/manage-users',
                 ),
                 _MenuItem(
+                  icon: '🎨',
+                  label: 'Brand Identity',
+                  route: '/admin/brand-identity',
+                  isActive: currentRoute == '/admin/brand-identity',
+                ),
+                _MenuItem(
                   icon: '⚙️',
                   label: 'Settings',
                   route: AdminConfig.settingsRoute,

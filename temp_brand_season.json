@@ -1,0 +1,10 @@
+{
+    "phase": "input",
+    "isActive": true,
+    "inputDeadline": {
+        "_seconds": 1741939200,
+        "_nanoseconds": 0
+    },
+    "votingDeadline": null,
+    "winnerId": null
+}

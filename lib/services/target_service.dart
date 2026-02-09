@@ -607,6 +607,58 @@ class TargetService {
     }
   }
 
+  /// Reopen archived/closed target
+  /// This allows reopening targets that have passed their deadline
+  Future<void> reopenTarget({
+    required String targetId,
+    DateTime? newDeadline,
+  }) async {
+    try {
+      // 1. Get target
+      final target = await _getTarget(targetId);
+
+      // 2. Validate is closed or archived
+      if (target.status != 'closed' && target.status != 'archived') {
+        throw Exception('Hanya target yang sudah ditutup yang bisa dibuka kembali');
+      }
+
+      // 3. Calculate new deadline if not provided
+      DateTime deadline;
+      if (newDeadline != null) {
+        deadline = newDeadline;
+      } else {
+        // Use default: H-3 from earliest graduate date
+        final settings = await _getSettings();
+        final graduates = target.graduates;
+        graduates.sort((a, b) => a.date.compareTo(b.date));
+        deadline = graduates.first.date.subtract(
+          Duration(days: settings.deadlineOffsetDays),
+        );
+      }
+
+      // 4. Move current_amount back to allocated_from_fund
+      // When target was closed, allocated_from_fund was moved to current_amount
+      // Now we reverse it: move current_amount to allocated_from_fund
+      final currentAmount = target.currentAmount;
+
+      // 5. Reopen as upcoming (not active, to avoid conflicts)
+      await _firestore.collection('graduation_targets').doc(targetId).update({
+        'status': 'upcoming',
+        'deadline': Timestamp.fromDate(deadline),
+        'open_date': null,
+        'closed_date': null,
+        'current_amount': 0.0, // Reset to 0
+        'allocated_from_fund': currentAmount, // Move current to allocated
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      // 6. Check if this should become active
+      await checkAndActivateTargets();
+    } catch (e) {
+      throw Exception('Gagal membuka kembali target: ${e.toString()}');
+    }
+  }
+
   /// Check and activate targets (run on app load and after target creation)
   Future<void> checkAndActivateTargets() async {
     try {

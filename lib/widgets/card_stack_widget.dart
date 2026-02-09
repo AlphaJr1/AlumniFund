@@ -31,7 +31,7 @@ class CardStackWidget extends ConsumerStatefulWidget {
 
 class _CardStackWidgetState extends ConsumerState<CardStackWidget>
     with SingleTickerProviderStateMixin {
-  List<int> _cardOrder = [0, 1, 2]; // Front, middle, back
+  late List<int> _cardOrder;
   double _dragPosition = 0.0;
   bool _isAnimating = false;
   late AnimationController _controller;
@@ -48,6 +48,8 @@ class _CardStackWidgetState extends ConsumerState<CardStackWidget>
   @override
   void initState() {
     super.initState();
+    // Initialize card order dynamically based on cards length
+    _cardOrder = List.generate(widget.cards.length, (index) => index);
     _focusNode = FocusNode();
     _controller = AnimationController(
       vsync: this,
@@ -325,9 +327,9 @@ class _CardStackWidgetState extends ConsumerState<CardStackWidget>
                         return Stack(
                           alignment: Alignment.center,
                           children: [
-                            _buildCard(2, currentOffset, cardWidth),
-                            _buildCard(1, currentOffset, cardWidth),
-                            _buildCard(0, currentOffset, cardWidth),
+                            // Render all cards in reverse order (back to front)
+                            for (int i = _cardOrder.length - 1; i >= 0; i--)
+                              _buildCard(i, currentOffset, cardWidth),
                           ],
                         );
                       },
@@ -381,28 +383,21 @@ class _CardStackWidgetState extends ConsumerState<CardStackWidget>
 
   Widget _buildCard(int position, double offset, double cardWidth) {
     final index = _cardOrder[position];
+    final totalCards = _cardOrder.length;
 
-    // Base configuration
+    // Base configuration - dynamic scaling based on position
     double scale = 1.0;
     double yOffset = 0.0;
-    // TESTING: ALL SHADOW DISABLED INCLUDING OVERLAY
-    double shadowOpacity = 0.0; // FORCED TO 0 - NO OVERLAY AT ALL
+    double shadowOpacity = 0.0;
 
-    if (position == 2) {
-      // Back card
-      scale = 0.86;
-      yOffset = 48;
-      shadowOpacity = 0.0; // DISABLED - was 0.2
-    } else if (position == 1) {
-      // Middle card
-      scale = 0.93;
-      yOffset = 24;
-      shadowOpacity = 0.0; // DISABLED
-    } else {
-      // Front card
-      scale = 1.0;
-      yOffset = 0;
-      shadowOpacity = 0.0; // DISABLED
+    // Calculate scale and offset based on position
+    // Front card (position 0) = scale 1.0, offset 0
+    // Each card behind gets smaller and lower
+    if (position > 0) {
+      final scaleStep = 0.07; // Each card 7% smaller
+      final offsetStep = 24.0; // Each card 24px lower
+      scale = 1.0 - (scaleStep * position);
+      yOffset = offsetStep * position;
     }
 
     // Apply drag offset based on direction and position
@@ -434,27 +429,29 @@ class _CardStackWidgetState extends ConsumerState<CardStackWidget>
     // Middle and other cards scale up ONLY during phase 1
     if (position == 1) {
       if (offset < -150) {
-        // Swipe UP - middle scales up to become front
+        // Swipe UP - card at position 1 scales up to become front
         final progress = ((offset.abs() - 150) / 350).clamp(0.0, 1.0);
-        scale = 0.93 + (progress * 0.07);
-        yOffset = 24 - (progress * 24);
-        // NO SHADOW - keep shadowOpacity at 0
-        // shadowOpacity = 0.15 - (progress * 0.15);
+        final targetScale = 1.0;
+        final currentScale = 1.0 - (0.07 * position);
+        scale = currentScale + (progress * (targetScale - currentScale));
+        yOffset = (24.0 * position) - (progress * (24.0 * position));
       } else if (offset > 150) {
-        // Swipe DOWN phase 1 - middle scales up
+        // Swipe DOWN phase 1 - card at position 1 scales up
         final progress = ((offset.abs() - 150) / 350).clamp(0.0, 1.0);
-        scale = 0.93 + (progress * 0.07);
-        yOffset = 24 - (progress * 24);
-        // NO SHADOW - keep shadowOpacity at 0
-        // shadowOpacity = 0.15 - (progress * 0.15);
+        final targetScale = 1.0;
+        final currentScale = 1.0 - (0.07 * position);
+        scale = currentScale + (progress * (targetScale - currentScale));
+        yOffset = (24.0 * position) - (progress * (24.0 * position));
       }
-    } else if (position == 2 && offset < -150) {
-      // Swipe UP - back scales up slightly
+    } else if (position > 1 && offset < -150) {
+      // Swipe UP - cards behind position 1 scale up slightly
       final progress = ((offset.abs() - 150) / 350).clamp(0.0, 1.0);
-      scale = 0.86 + (progress * 0.07);
-      yOffset = 48 - (progress * 24);
-      // NO SHADOW - keep shadowOpacity at 0
-      // shadowOpacity = 0.3 - (progress * 0.15);
+      final currentScale = 1.0 - (0.07 * position);
+      final targetScale = 1.0 - (0.07 * (position - 1));
+      scale = currentScale + (progress * (targetScale - currentScale));
+      final currentOffset = 24.0 * position;
+      final targetOffset = 24.0 * (position - 1);
+      yOffset = currentOffset - (progress * (currentOffset - targetOffset));
     }
 
     // Shadow logic: DISABLED FOR TESTING

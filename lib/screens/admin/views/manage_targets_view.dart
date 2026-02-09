@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../providers/graduation_target_provider.dart';
 import '../../../providers/admin/admin_actions_provider.dart';
 import '../../../services/target_service.dart';
@@ -235,6 +236,216 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
           SnackBar(
             content: Text('❌ Error: ${e.toString()}'),
             backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _reopenTarget(GraduationTarget target) async {
+    // Show dialog to select new deadline
+    DateTime? selectedDeadline;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Buka Kembali Target'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Apakah Anda yakin ingin membuka kembali target "${target.monthYearDisplay}"?',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 16),
+              const Text(
+                'Pilih Deadline Baru:',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 12),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now().add(const Duration(days: 7)),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 365)),
+                  );
+                  if (picked != null) {
+                    setDialogState(() {
+                      selectedDeadline = picked;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.calendar_today, size: 20, color: Color(0xFF3B82F6)),
+                      const SizedBox(width: 12),
+                      Text(
+                        selectedDeadline != null
+                            ? DateFormat('dd MMMM yyyy', 'en_US').format(selectedDeadline!)
+                            : 'Pilih tanggal deadline',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: selectedDeadline != null
+                              ? const Color(0xFF111827)
+                              : const Color(0xFF9CA3AF),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                selectedDeadline == null
+                    ? '⚠️ Jika tidak dipilih, akan menggunakan deadline default (H-3 dari tanggal wisuda)'
+                    : '✓ Deadline baru: ${DateFormat('dd MMMM yyyy', 'en_US').format(selectedDeadline!)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: selectedDeadline == null
+                      ? const Color(0xFFF59E0B)
+                      : const Color(0xFF10B981),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3B82F6),
+              ),
+              child: const Text('Buka Kembali'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await _targetService.reopenTarget(
+        targetId: target.id,
+        newDeadline: selectedDeadline,
+      );
+
+      // Wait for target to be activated
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // Trigger auto-allocation after reopening
+      await ref.read(adminActionsProvider).autoAllocateToTarget();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              selectedDeadline != null
+                  ? '✅ Target berhasil dibuka kembali dengan deadline ${DateFormat('dd MMM yyyy', 'en_US').format(selectedDeadline!)}'
+                  : '✅ Target berhasil dibuka kembali dengan deadline default',
+            ),
+            backgroundColor: const Color(0xFF10B981),
+          ),
+        );
+        
+        // Refresh data
+        ref.invalidate(graduationTargetsProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: const Color(0xFFEF4444),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _recalculateAllocation() async {
+    final firestore = FirebaseFirestore.instance;
+    
+    try {
+      // Get active target
+      final targetSnap = await firestore
+          .collection('graduation_targets')
+          .where('status', whereIn: ['active', 'closing_soon'])
+          .limit(1)
+          .get();
+          
+      if (targetSnap.docs.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('❌ No active target found'),
+              backgroundColor: Color(0xFFEF4444),
+            ),
+          );
+        }
+        return;
+      }
+      
+      final targetData = targetSnap.docs.first.data();
+      final targetId = targetSnap.docs.first.id;
+      
+      // Get general fund
+      final fundSnap = await firestore.collection('general_fund').doc('current').get();
+      final fundData = fundSnap.data();
+      
+      // Calculate
+      final current = (targetData['current_amount'] as num?)?.toDouble() ?? 0.0;
+      final target = (targetData['target_amount'] as num?)?.toDouble() ?? 0.0;
+      final fund = (fundData?['balance'] as num?)?.toDouble() ?? 0.0;
+      final needed = target - current;
+      final shouldAllocate = fund < needed ? fund : needed;
+      
+      // Update
+      await firestore.collection('graduation_targets').doc(targetId).update({
+        'allocated_from_fund': shouldAllocate,
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✅ Allocation recalculated!\n'
+              'Current: Rp ${current.toStringAsFixed(0)}\n'
+              'Allocated: Rp ${shouldAllocate.toStringAsFixed(0)}\n'
+              'Total: Rp ${(current + shouldAllocate).toStringAsFixed(0)}',
+            ),
+            backgroundColor: const Color(0xFF10B981),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        
+        // Refresh data
+        ref.invalidate(graduationTargetsProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Error: ${e.toString()}'),
+            backgroundColor: const Color(0xFFEF4444),
           ),
         );
       }
@@ -679,6 +890,21 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          // Recalculate button
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text('Recalculate Allocation'),
+              onPressed: _recalculateAllocation,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                side: const BorderSide(color: Colors.white),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1038,25 +1264,37 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                         color: Color(0xFF6B7280),
                       ),
                     ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isComplete
-                            ? const Color(0xFF10B981).withOpacity(0.1)
-                            : const Color(0xFF6B7280).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        isComplete ? 'Tercapai' : 'Ditutup',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: isComplete
-                              ? const Color(0xFF10B981)
-                              : const Color(0xFF6B7280),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isComplete
+                                ? const Color(0xFF10B981).withOpacity(0.1)
+                                : const Color(0xFF6B7280).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            isComplete ? 'Tercapai' : 'Ditutup',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isComplete
+                                  ? const Color(0xFF10B981)
+                                  : const Color(0xFF6B7280),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.refresh, size: 20),
+                          color: const Color(0xFF3B82F6),
+                          onPressed: () => _reopenTarget(target),
+                          tooltip: 'Buka Kembali',
+                        ),
+                      ],
                     ),
                   );
                 },
