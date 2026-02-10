@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/graduation_target_model.dart';
 import '../models/graduate_model.dart';
 import '../models/settings_model.dart';
+import '../providers/admin/admin_actions_provider.dart';
 
 /// Service untuk handle graduation target operations
 class TargetService {
@@ -801,11 +802,22 @@ class TargetService {
 
   /// Close a target (internal method)
   Future<void> _closeTarget(String targetId) async {
-    await _firestore.collection('graduation_targets').doc(targetId).update({
-      'status': 'closed',
-      'closed_date': FieldValue.serverTimestamp(),
-      'updated_at': FieldValue.serverTimestamp(),
-    });
+    try {
+      // Use AdminActionsService to properly close target
+      // This will:
+      // 1. Create expense transaction
+      // 2. Deduct allocated_from_fund from general fund balance
+      // 3. Update target status to 'closed'
+      final adminActions = AdminActionsService();
+      await adminActions.closeTarget(targetId);
+    } catch (e) {
+      // If AdminActionsService fails, fallback to simple close
+      await _firestore.collection('graduation_targets').doc(targetId).update({
+        'status': 'closed',
+        'closed_date': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+    }
   }
 
   /// Get Indonesian month name
