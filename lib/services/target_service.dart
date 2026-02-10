@@ -156,8 +156,16 @@ class TargetService {
       graduates.sort((a, b) => a.date.compareTo(b.date));
       final earliestDate = graduates.first.date;
 
-      // Deadline = earliest date - offset days
-      final deadline = earliestDate.subtract(Duration(days: deadlineOffset));
+      // Deadline = earliest date - offset days, set to end of day (23:59:59)
+      final deadlineDate = earliestDate.subtract(Duration(days: deadlineOffset));
+      final deadline = DateTime(
+        deadlineDate.year,
+        deadlineDate.month,
+        deadlineDate.day,
+        23,
+        59,
+        59,
+      );
 
       // 5. Check if there's currently an active target
       // If no active target exists, make this target active immediately
@@ -318,11 +326,18 @@ class TargetService {
       final targetAmount =
           uniqueGraduates.length * settings.perPersonAllocation;
 
-      // Recalculate deadline (H-3 from earliest graduate)
+      // Recalculate deadline (H-3 from earliest graduate), set to end of day
       uniqueGraduates.sort((a, b) => a.date.compareTo(b.date));
       final earliestDate = uniqueGraduates.first.date;
-      final deadline =
-          earliestDate.subtract(Duration(days: settings.deadlineOffsetDays));
+      final deadlineDate = earliestDate.subtract(Duration(days: settings.deadlineOffsetDays));
+      final deadline = DateTime(
+        deadlineDate.year,
+        deadlineDate.month,
+        deadlineDate.day,
+        23,
+        59,
+        59,
+      );
 
       // 5. Update target
       await _firestore.collection('graduation_targets').doc(targetId).update({
@@ -412,10 +427,19 @@ class TargetService {
     final targetAmount = graduates.length * settings.perPersonAllocation;
 
     graduates.sort((a, b) => a.date.compareTo(b.date));
-    final calculatedDeadline = deadline ??
-        graduates.first.date.subtract(
-          Duration(days: settings.deadlineOffsetDays),
-        );
+    final calculatedDeadline = deadline ?? () {
+      final deadlineDate = graduates.first.date.subtract(
+        Duration(days: settings.deadlineOffsetDays),
+      );
+      return DateTime(
+        deadlineDate.year,
+        deadlineDate.month,
+        deadlineDate.day,
+        23,
+        59,
+        59,
+      );
+    }();
 
     await _firestore.collection('graduation_targets').doc(targetId).update({
       'graduates': graduates.map((g) => g.toMap()).toList(),
@@ -437,10 +461,19 @@ class TargetService {
     final targetAmount = graduates.length * settings.perPersonAllocation;
 
     graduates.sort((a, b) => a.date.compareTo(b.date));
-    final calculatedDeadline = deadline ??
-        graduates.first.date.subtract(
-          Duration(days: settings.deadlineOffsetDays),
-        );
+    final calculatedDeadline = deadline ?? () {
+      final deadlineDate = graduates.first.date.subtract(
+        Duration(days: settings.deadlineOffsetDays),
+      );
+      return DateTime(
+        deadlineDate.year,
+        deadlineDate.month,
+        deadlineDate.day,
+        23,
+        59,
+        59,
+      );
+    }();
 
     await _firestore.collection('graduation_targets').doc(targetId).update({
       'month': newMonth, // ✅ UPDATE MONTH
@@ -469,10 +502,19 @@ class TargetService {
     // 3. Recalculate target amount and deadline
     final settings = await _getSettings();
     final targetAmount = updatedGrads.length * settings.perPersonAllocation;
-    final calculatedDeadline = deadline ??
-        updatedGrads.first.date.subtract(
-          Duration(days: settings.deadlineOffsetDays),
-        );
+    final calculatedDeadline = deadline ?? () {
+      final deadlineDate = updatedGrads.first.date.subtract(
+        Duration(days: settings.deadlineOffsetDays),
+      );
+      return DateTime(
+        deadlineDate.year,
+        deadlineDate.month,
+        deadlineDate.day,
+        23,
+        59,
+        59,
+      );
+    }();
 
     // 4. Use batch for atomic operation
     final batch = _firestore.batch();
@@ -528,10 +570,19 @@ class TargetService {
         updatedGrads.sort((a, b) => a.date.compareTo(b.date));
 
         final targetAmount = updatedGrads.length * settings.perPersonAllocation;
-        final calculatedDeadline = deadline ??
-            updatedGrads.first.date.subtract(
-              Duration(days: settings.deadlineOffsetDays),
-            );
+        final calculatedDeadline = deadline ?? () {
+          final deadlineDate = updatedGrads.first.date.subtract(
+            Duration(days: settings.deadlineOffsetDays),
+          );
+          return DateTime(
+            deadlineDate.year,
+            deadlineDate.month,
+            deadlineDate.day,
+            23,
+            59,
+            59,
+          );
+        }();
 
         await _firestore
             .collection('graduation_targets')
@@ -627,12 +678,20 @@ class TargetService {
       if (newDeadline != null) {
         deadline = newDeadline;
       } else {
-        // Use default: H-3 from earliest graduate date
+        // Use default: H-3 from earliest graduate date, set to end of day
         final settings = await _getSettings();
         final graduates = target.graduates;
         graduates.sort((a, b) => a.date.compareTo(b.date));
-        deadline = graduates.first.date.subtract(
+        final deadlineDate = graduates.first.date.subtract(
           Duration(days: settings.deadlineOffsetDays),
+        );
+        deadline = DateTime(
+          deadlineDate.year,
+          deadlineDate.month,
+          deadlineDate.day,
+          23,
+          59,
+          59,
         );
       }
 
@@ -790,6 +849,67 @@ class TargetService {
   static List<int> getYearOptions() {
     final currentYear = DateTime.now().year;
     return [currentYear, currentYear + 1, currentYear + 2];
+  }
+
+  /// Fix existing deadlines from 00:00:00 to 23:59:59
+  /// This is a one-time migration utility
+  Future<Map<String, dynamic>> fixExistingDeadlines() async {
+    try {
+      final snapshot = await _firestore.collection('graduation_targets').get();
+      final updatedIds = <String>[];
+      final skippedIds = <String>[];
+
+      for (var doc in snapshot.docs) {
+        try {
+          final data = doc.data();
+          final deadlineTimestamp = data['deadline'] as Timestamp?;
+
+          if (deadlineTimestamp == null) {
+            skippedIds.add(doc.id);
+            continue;
+          }
+
+          final oldDeadline = deadlineTimestamp.toDate();
+
+          // Check if deadline is at 00:00:00 (needs update)
+          if (oldDeadline.hour == 0 &&
+              oldDeadline.minute == 0 &&
+              oldDeadline.second == 0) {
+            // Update to 23:59:59
+            final newDeadline = DateTime(
+              oldDeadline.year,
+              oldDeadline.month,
+              oldDeadline.day,
+              23,
+              59,
+              59,
+            );
+
+            await doc.reference.update({
+              'deadline': Timestamp.fromDate(newDeadline),
+              'updated_at': FieldValue.serverTimestamp(),
+            });
+
+            updatedIds.add(doc.id);
+          } else {
+            skippedIds.add(doc.id);
+          }
+        } catch (e) {
+          skippedIds.add(doc.id);
+        }
+      }
+
+      return {
+        'updated': updatedIds.length,
+        'skipped': skippedIds.length,
+        'updatedIds': updatedIds,
+        'message': updatedIds.isEmpty
+            ? 'All deadlines are already correct'
+            : '${updatedIds.length} deadline(s) fixed to 23:59:59',
+      };
+    } catch (e) {
+      throw Exception('Failed to fix deadlines: ${e.toString()}');
+    }
   }
 
   /// Delete corrupt targets (targets with null/invalid timestamps)

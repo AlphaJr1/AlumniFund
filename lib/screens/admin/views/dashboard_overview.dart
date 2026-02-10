@@ -305,11 +305,7 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
       );
     }
 
-    final valueStr = days == 0
-        ? 'Today!'
-        : days == 1
-            ? '1 day left'
-            : '$days days left';
+    final valueStr = _formatDeadlineText(target.deadline);
 
     final deadlineStr =
         DateFormat('dd MMM yyyy', 'id_ID').format(target.deadline);
@@ -343,6 +339,34 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
     );
   }
 
+  String _formatDeadlineText(DateTime deadline) {
+    final now = DateTime.now();
+    final difference = deadline.difference(now);
+
+    if (difference.isNegative) {
+      return 'Expired';
+    }
+
+    final totalHours = difference.inHours;
+    final hours = difference.inHours % 24;
+    final minutes = difference.inMinutes % 60;
+
+    // Jika kurang dari 48 jam (2 hari), tampilkan dalam jam
+    if (totalHours < 48) {
+      if (totalHours > 0) {
+        return '$totalHours jam lagi';
+      } else if (minutes > 0) {
+        return '$minutes menit lagi';
+      } else {
+        return 'Kurang dari 1 menit';
+      }
+    }
+
+    // Jika lebih dari 48 jam, tampilkan dalam hari
+    final days = difference.inDays;
+    return days == 1 ? '1 day left' : '$days days left';
+  }
+
   Widget _buildQuickActions(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 600;
@@ -355,7 +379,7 @@ class _DashboardOverviewState extends ConsumerState<DashboardOverview> {
       required VoidCallback onTap,
       bool expanded = false,
     }) {
-      final button = Material(
+    final button = Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,

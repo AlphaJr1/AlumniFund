@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' show FontFeature;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/general_fund_provider.dart';
 import '../providers/graduation_target_provider.dart';
@@ -211,14 +212,11 @@ class BalanceTargetCard extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        _formatDeadlineWithMonth(activeTarget.deadline,
-                            activeTarget.month, activeTarget.year),
-                        style: TextStyle(
-                          fontSize: isMobile ? 20 : 24,
-                          fontWeight: FontWeight.w900,
-                          color: const Color(0xFF111827),
-                        ),
+                      _DeadlineAnimatedText(
+                        deadline: activeTarget.deadline,
+                        month: activeTarget.month,
+                        year: activeTarget.year,
+                        isMobile: isMobile,
                       ),
                       const SizedBox(height: 12),
                       // Animated Progress bar
@@ -408,6 +406,161 @@ class BalanceTargetCard extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Animated deadline text that fades between date and countdown
+class _DeadlineAnimatedText extends StatefulWidget {
+  final DateTime deadline;
+  final String month;
+  final int year;
+  final bool isMobile;
+
+  const _DeadlineAnimatedText({
+    required this.deadline,
+    required this.month,
+    required this.year,
+    required this.isMobile,
+  });
+
+  @override
+  State<_DeadlineAnimatedText> createState() => _DeadlineAnimatedTextState();
+}
+
+class _DeadlineAnimatedTextState extends State<_DeadlineAnimatedText>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  bool _showCountdown = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Slow fade animation: 3 seconds fade duration
+    _controller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    // Check if we should show countdown (less than 24 hours)
+    _checkAndStartAnimation();
+  }
+
+  void _checkAndStartAnimation() {
+    final hoursUntilDeadline = widget.deadline.difference(DateTime.now()).inHours;
+
+    if (hoursUntilDeadline < 24 && hoursUntilDeadline > 0) {
+      // Start the fade loop
+      _startFadeLoop();
+    }
+  }
+
+  void _startFadeLoop() async {
+    while (mounted) {
+      // Show date for 5 seconds
+      await Future.delayed(const Duration(seconds: 5));
+      if (!mounted) break;
+
+      // Fade to countdown (3 seconds)
+      setState(() => _showCountdown = true);
+      _controller.forward();
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) break;
+
+      // Show countdown for 5 seconds
+      await Future.delayed(const Duration(seconds: 5));
+      if (!mounted) break;
+
+      // Fade back to date (3 seconds)
+      setState(() => _showCountdown = false);
+      _controller.reverse();
+      await Future.delayed(const Duration(seconds: 3));
+      if (!mounted) break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  String _formatDeadlineWithMonth() {
+    return '${widget.deadline.day} ${widget.month.toUpperCase()} ${widget.year}';
+  }
+
+  String _formatCountdown() {
+    final now = DateTime.now();
+    final difference = widget.deadline.difference(now);
+
+    if (difference.isNegative) {
+      return 'EXPIRED';
+    }
+
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes % 60;
+    final seconds = difference.inSeconds % 60;
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hoursUntilDeadline = widget.deadline.difference(DateTime.now()).inHours;
+
+    // If more than 24 hours, just show the date
+    if (hoursUntilDeadline >= 24 || hoursUntilDeadline < 0) {
+      return Text(
+        _formatDeadlineWithMonth(),
+        style: TextStyle(
+          fontSize: widget.isMobile ? 20 : 24,
+          fontWeight: FontWeight.w900,
+          color: const Color(0xFF111827),
+        ),
+      );
+    }
+
+    // Less than 24 hours: show animated fade between date and countdown
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            // Date text
+            Opacity(
+              opacity: _showCountdown ? 1.0 - _fadeAnimation.value : 1.0,
+              child: Text(
+                _formatDeadlineWithMonth(),
+                style: TextStyle(
+                  fontSize: widget.isMobile ? 20 : 24,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFF111827),
+                ),
+              ),
+            ),
+            // Countdown text
+            Opacity(
+              opacity: _showCountdown ? _fadeAnimation.value : 0.0,
+              child: Text(
+                _formatCountdown(),
+                style: TextStyle(
+                  fontSize: widget.isMobile ? 20 : 24,
+                  fontWeight: FontWeight.w900,
+                  color: const Color(0xFFEF4444), // Red for urgency
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -32,6 +32,8 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
   @override
   void initState() {
     super.initState();
+    // Fix existing deadlines (one-time migration)
+    _targetService.fixExistingDeadlines();
     // Cleanup corrupt targets first
     _targetService.deleteCorruptTargets();
     // Check and activate targets on load
@@ -620,6 +622,34 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
     );
   }
 
+  String _formatDeadlineText(DateTime deadline) {
+    final now = DateTime.now();
+    final difference = deadline.difference(now);
+    
+    if (difference.isNegative) {
+      return 'Expired';
+    }
+    
+    final totalHours = difference.inHours;
+    final hours = difference.inHours % 24;
+    final minutes = difference.inMinutes % 60;
+    
+    // Jika kurang dari 48 jam (2 hari), tampilkan dalam jam
+    if (totalHours < 48) {
+      if (totalHours > 0) {
+        return '$totalHours jam lagi';
+      } else if (minutes > 0) {
+        return '$minutes menit lagi';
+      } else {
+        return 'Kurang dari 1 menit';
+      }
+    }
+    
+    // Jika lebih dari 48 jam, tampilkan dalam hari
+    final days = difference.inDays;
+    return days == 1 ? '1 day left' : '$days days left';
+  }
+
   Widget _buildActiveTargetCard(activeTarget) {
     if (activeTarget == null) {
       return Container(
@@ -845,7 +875,7 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                 Icon(Icons.access_time, color: deadlineColor, size: 20),
                 const SizedBox(width: 8),
                 Text(
-                  '$daysRemaining days left',
+                  _formatDeadlineText(activeTarget.deadline),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
