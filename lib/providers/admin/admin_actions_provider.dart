@@ -351,11 +351,10 @@ class AdminActionsService {
 
   /// Close graduation target and finalize allocation
   /// This ACTUALLY deducts allocated_from_fund from general fund
+  /// Can be called automatically (no user required) or manually by admin
   Future<void> closeTarget(String targetId) async {
     final currentUser = _auth.currentUser;
-    if (currentUser == null) {
-      throw Exception('User not authenticated');
-    }
+    final createdBy = currentUser?.email ?? 'system'; // Use 'system' for auto-close
 
     final batch = _firestore.batch();
 
@@ -399,7 +398,7 @@ class AdminActionsService {
         description += ' - Recipients: $recipientNames';
       }
 
-      // 2. Create EXPENSE transaction for the allocation (CRITICAL FIX!)
+      // 2. Create EXPENSE transaction for the allocation
       if (allocatedFromFund > 0) {
         final expenseRef =
             _firestore.collection(FirestoreCollections.transactions).doc();
@@ -415,11 +414,11 @@ class AdminActionsService {
           'validation_status': 'approved',
           'created_at': FieldValue.serverTimestamp(),
           'input_at': FieldValue.serverTimestamp(),
-          'created_by': currentUser.email,
+          'created_by': createdBy, // 'system' for auto-close
         });
       }
 
-      // 3. Deduct allocated amount from general fund (NOW - actual deduction)
+      // 3. Deduct allocated amount from general fund
       if (allocatedFromFund > 0) {
         final fundRef = _firestore
             .collection(FirestoreCollections.generalFund)

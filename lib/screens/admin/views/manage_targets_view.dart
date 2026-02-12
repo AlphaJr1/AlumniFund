@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import '../../../providers/graduation_target_provider.dart';
 import '../../../providers/admin/admin_actions_provider.dart';
 import '../../../services/target_service.dart';
@@ -1319,6 +1323,21 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
                         ),
                         const SizedBox(width: 8),
                         IconButton(
+                          icon: Icon(
+                            target.distributionProofUrl != null 
+                                ? Icons.check_circle 
+                                : Icons.upload_file,
+                            size: 20,
+                          ),
+                          color: target.distributionProofUrl != null
+                              ? const Color(0xFF10B981)
+                              : const Color(0xFF6B7280),
+                          onPressed: () => _uploadDistributionProof(target),
+                          tooltip: target.distributionProofUrl != null
+                              ? 'Lihat/Ganti Bukti'
+                              : 'Upload Bukti',
+                        ),
+                        IconButton(
                           icon: const Icon(Icons.refresh, size: 20),
                           color: const Color(0xFF3B82F6),
                           onPressed: () => _reopenTarget(target),
@@ -1351,5 +1370,179 @@ class _ManageTargetsViewState extends ConsumerState<ManageTargetsView> {
       'desember': 12,
     };
     return months[month.toLowerCase()] ?? 1;
+  }
+
+  Future<void> _uploadDistributionProof(GraduationTarget target) async {
+    // Jika sudah ada bukti, tampilkan dialog preview dulu
+    if (target.distributionProofUrl != null) {
+      _showProofPreviewDialog(target);
+      return;
+    }
+    
+    // Jika belum ada, langsung upload
+    await _performUpload(target);
+  }
+
+  void _showProofPreviewDialog(GraduationTarget target) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.check_circle, color: Color(0xFF10B981)),
+            const SizedBox(width: 8),
+            Text('Bukti ${target.monthYearDisplay}'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Bukti distribusi sudah diupload:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 12),
+            InkWell(
+              onTap: () {
+                html.window.open(target.distributionProofUrl!, '_blank');
+              },
+              child: Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFD1D5DB)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      target.distributionProofUrl!.endsWith('.pdf')
+                          ? Icons.picture_as_pdf
+                          : Icons.image,
+                      color: const Color(0xFF3B82F6),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Klik untuk lihat bukti',
+                        style: TextStyle(
+                          color: Color(0xFF3B82F6),
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.open_in_new, size: 16, color: Color(0xFF6B7280)),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pop(context);
+              _performUpload(target);
+            },
+            icon: const Icon(Icons.upload_file),
+            label: const Text('Ganti Bukti'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF3B82F6),
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performUpload(GraduationTarget target) async {
+    try {
+      // Import file_picker
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'jpg', 'jpeg', 'png'],
+        withData: true,
+      );
+
+      if (result == null || result.files.isEmpty) return;
+
+      final file = result.files.first;
+      if (file.bytes == null) {
+        throw Exception('File data tidak tersedia');
+      }
+
+      // Show loading
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // Upload to Firebase Storage
+      final storage = FirebaseStorage.instance;
+      final fileName = '${target.id}_${DateTime.now().millisecondsSinceEpoch}.${file.extension}';
+      final ref = storage.ref().child('distribution_proofs/$fileName');
+      
+      await ref.putData(
+        file.bytes!,
+        SettableMetadata(contentType: _getContentType(file.extension ?? 'pdf')),
+      );
+      
+      final downloadUrl = await ref.getDownloadURL();
+
+      // Update Firestore
+      await FirebaseFirestore.instance
+          .collection('graduation_targets')
+          .doc(target.id)
+          .update({
+        'distribution_proof_url': downloadUrl,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('✅ Bukti distribusi berhasil diupload'),
+          backgroundColor: Color(0xFF10B981),
+        ),
+      );
+
+      // Data akan auto-refresh karena Firestore stream
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Gagal upload: ${e.toString()}'),
+          backgroundColor: const Color(0xFFEF4444),
+        ),
+      );
+    }
+  }
+
+  String _getContentType(String extension) {
+    switch (extension.toLowerCase()) {
+      case 'pdf':
+        return 'application/pdf';
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      default:
+        return 'application/octet-stream';
+    }
   }
 }

@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
 import 'services/firestore_service.dart';
+import 'services/target_service.dart';
 import 'providers/theme_provider.dart'; // Dynamic theme support
 import 'widgets/app_colors.dart'; // Provide theme colors globally
 
@@ -34,6 +35,10 @@ void main() async {
       try {
         final firestoreService = FirestoreService();
         await firestoreService.initializeDefaultSettings();
+        
+        // Check and activate targets on app start
+        final targetService = TargetService();
+        await targetService.checkAndActivateTargets();
       } catch (e) {
         // Silent fail for settings initialization
       }

@@ -29,5 +29,18 @@ service firebase.storage {
         && request.resource.size < 2 * 1024 * 1024  // Max 2MB
         && request.resource.contentType.matches('image/.*');  // Only images
     }
+    
+    // Distribution proofs (bukti distribusi dana ke wisudawan)
+    match /distribution_proofs/{allPaths=**} {
+      // Public read access
+      allow read: if true;
+      
+      // Only admin can upload
+      allow create: if isAdmin()
+        && request.resource.size < 10 * 1024 * 1024;  // Max 10MB (support PDF)
+      
+      // Only admin can delete
+      allow delete: if isAdmin();
+    }
   }
 }

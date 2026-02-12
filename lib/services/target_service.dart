@@ -15,16 +15,15 @@ class TargetService {
       'january': 1,
       'february': 2,
       'march': 3,
-      'april': 4, // Same spelling in both English & Indonesian
+      'april': 4,
       'may': 5,
       'june': 6,
       'july': 7,
       'august': 8,
-      'september': 9, // Same spelling in both English & Indonesian
+      'september': 9,
       'october': 10,
-      'november': 11, // Same spelling in both English & Indonesian
+      'november': 11,
       'december': 12,
-      // Indonesian (backward compatibility - only different spellings)
       'januari': 1,
       'februari': 2,
       'maret': 3,
@@ -734,23 +733,37 @@ class TargetService {
         }
       }
 
-      // 2. Get current active target
+      final now = DateTime.now();
+
+      // 2. Get current active targets
       final currentActive =
           allTargets.where((t) => t.status == 'active').toList();
 
-      // 3. Check if active target deadline passed
+      // 3. Check if active target deadline passed - close them
       if (currentActive.isNotEmpty) {
         for (var activeTarget in currentActive) {
-          if (DateTime.now().isAfter(activeTarget.deadline)) {
+          if (now.isAfter(activeTarget.deadline)) {
             await _closeTarget(activeTarget.id);
           }
         }
       }
+      
+      // 4. Also close upcoming targets with passed deadlines
+      final upcomingWithPassedDeadline = allTargets
+          .where((t) => t.status == 'upcoming' && now.isAfter(t.deadline))
+          .toList();
+      
+      for (var target in upcomingWithPassedDeadline) {
+        await _closeTarget(target.id);
+      }
 
-      // 4. Find target with nearest deadline (upcoming only, future deadline)
-      final now = DateTime.now();
+
+      // 4. Find ALL targets with future deadlines (both upcoming and active)
+      // This includes targets that haven't passed their deadline yet
       final validTargets = allTargets
-          .where((t) => t.status == 'upcoming' && t.deadline.isAfter(now))
+          .where((t) => 
+              (t.status == 'upcoming' || t.status == 'active') && 
+              t.deadline.isAfter(now))
           .toList();
 
       if (validTargets.isEmpty) return;
@@ -759,22 +772,28 @@ class TargetService {
       validTargets.sort((a, b) => a.deadline.compareTo(b.deadline));
       final nearestTarget = validTargets.first;
 
-      // 5. Get current active (after potential close)
+      // 5. Get current active targets (after potential close)
       final activeAfterClose = allTargets
           .where((t) =>
-              t.status == 'active' && !DateTime.now().isAfter(t.deadline))
+              t.status == 'active' && !now.isAfter(t.deadline))
           .toList();
 
       if (activeAfterClose.isEmpty) {
-        // No active target, activate nearest
+        // No active target, activate the nearest one
         await _activateTarget(nearestTarget.id);
       } else {
-        // Check if nearest target has earlier deadline than current active
+        // There's an active target - check if we should switch
         final currentActiveTarget = activeAfterClose.first;
-        if (nearestTarget.deadline.isBefore(currentActiveTarget.deadline)) {
-          // Switch! Deactivate current, activate nearest
-          await _deactivateTarget(currentActiveTarget.id);
-          await _activateTarget(nearestTarget.id);
+        
+        // Switch if:
+        // 1. The nearest target has an earlier deadline, OR
+        // 2. The nearest target is different from current active
+        if (nearestTarget.id != currentActiveTarget.id) {
+          if (nearestTarget.deadline.isBefore(currentActiveTarget.deadline)) {
+            // Switch! Deactivate current, activate nearest
+            await _deactivateTarget(currentActiveTarget.id);
+            await _activateTarget(nearestTarget.id);
+          }
         }
       }
     } catch (e) {
@@ -801,23 +820,16 @@ class TargetService {
   }
 
   /// Close a target (internal method)
+  /// ALWAYS deducts allocated_from_fund from general fund
   Future<void> _closeTarget(String targetId) async {
-    try {
-      // Use AdminActionsService to properly close target
-      // This will:
-      // 1. Create expense transaction
-      // 2. Deduct allocated_from_fund from general fund balance
-      // 3. Update target status to 'closed'
-      final adminActions = AdminActionsService();
-      await adminActions.closeTarget(targetId);
-    } catch (e) {
-      // If AdminActionsService fails, fallback to simple close
-      await _firestore.collection('graduation_targets').doc(targetId).update({
-        'status': 'closed',
-        'closed_date': FieldValue.serverTimestamp(),
-        'updated_at': FieldValue.serverTimestamp(),
-      });
-    }
+    // Use AdminActionsService to properly close target
+    // This will:
+    // 1. Create expense transaction
+    // 2. Deduct allocated_from_fund from general fund balance
+    // 3. Update target status to 'closed'
+    final adminActions = AdminActionsService();
+    await adminActions.closeTarget(targetId);
+    // No fallback - if this fails, we need to know about it
   }
 
   /// Get Indonesian month name

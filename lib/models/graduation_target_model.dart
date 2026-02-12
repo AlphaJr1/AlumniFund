@@ -19,6 +19,7 @@ class GraduationTarget {
   final DateTime? openDate;
   final DateTime? closedDate;
   final Distribution distribution;
+  final String? distributionProofUrl; // URL bukti distribusi (PDF/image)
   final DateTime createdAt;
   final String createdBy;
   final DateTime updatedAt;
@@ -36,6 +37,7 @@ class GraduationTarget {
     this.openDate,
     this.closedDate,
     required this.distribution,
+    this.distributionProofUrl,
     required this.createdAt,
     required this.createdBy,
     required this.updatedAt,
@@ -69,6 +71,7 @@ class GraduationTarget {
           : null,
       distribution:
           Distribution.fromMap(data['distribution'] as Map<String, dynamic>),
+      distributionProofUrl: data['distribution_proof_url'] as String?,
       createdAt: (data['created_at'] as Timestamp).toDate(),
       createdBy: data['created_by'] as String,
       updatedAt: (data['updated_at'] as Timestamp).toDate(),
@@ -90,6 +93,7 @@ class GraduationTarget {
       'closed_date':
           closedDate != null ? Timestamp.fromDate(closedDate!) : null,
       'distribution': distribution.toMap(),
+      'distribution_proof_url': distributionProofUrl,
       'created_at': Timestamp.fromDate(createdAt),
       'created_by': createdBy,
       'updated_at': Timestamp.fromDate(updatedAt),
@@ -172,6 +176,7 @@ class GraduationTarget {
     DateTime? openDate,
     DateTime? closedDate,
     Distribution? distribution,
+    String? distributionProofUrl,
     DateTime? createdAt,
     String? createdBy,
     DateTime? updatedAt,
@@ -189,6 +194,7 @@ class GraduationTarget {
       openDate: openDate ?? this.openDate,
       closedDate: closedDate ?? this.closedDate,
       distribution: distribution ?? this.distribution,
+      distributionProofUrl: distributionProofUrl ?? this.distributionProofUrl,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
       updatedAt: updatedAt ?? this.updatedAt,

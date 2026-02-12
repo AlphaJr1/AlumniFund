@@ -1,7 +1,10 @@
 import 'dart:ui';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/transaction_provider.dart';
 import '../models/transaction_model.dart';
 import '../utils/currency_formatter.dart';
@@ -349,6 +352,51 @@ class _ExpenseDetailModal extends ConsumerWidget {
               ),
             ),
           ],
+          // Tampilkan link bukti distribusi jika ada
+          if (transaction.targetId != null && transaction.targetId != 'general_fund')
+            FutureBuilder<DocumentSnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection('graduation_targets')
+                  .doc(transaction.targetId)
+                  .get(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox();
+                
+                final data = snapshot.data?.data() as Map<String, dynamic>?;
+                final proofUrl = data?['distribution_proof_url'] as String?;
+                
+                if (proofUrl == null) return const SizedBox();
+                
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: InkWell(
+                    onTap: () {
+                      // Open proof URL in new tab
+                      // ignore: avoid_web_libraries_in_flutter
+                      html.window.open(proofUrl, '_blank');
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.attach_file,
+                          size: 16,
+                          color: Color(0xFF3B82F6),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Lihat Bukti Distribusi',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF3B82F6),
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
