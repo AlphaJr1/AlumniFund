@@ -26,7 +26,12 @@ class _ManageBrandIdentityViewState
   }
 
   Future<void> _showSetDeadlineDialog(BrandSeason currentSeason) async {
-    DateTime selectedDate = currentSeason.inputDeadline ?? DateTime.now();
+    final now = DateTime.now();
+    // Jika deadline sudah lewat, gunakan 7 hari ke depan sebagai default
+    DateTime selectedDate = (currentSeason.inputDeadline != null &&
+            currentSeason.inputDeadline!.isAfter(now))
+        ? currentSeason.inputDeadline!
+        : now.add(const Duration(days: 7));
     TimeOfDay selectedTime = TimeOfDay.fromDateTime(selectedDate);
 
     await showDialog(

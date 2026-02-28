@@ -107,7 +107,7 @@ class _OnboardingFeedbackModalState
               child: Column(
                 children: [
                   Text(
-                    'Tutorial Selesai! ✓',
+                    'Berikan Masukan 💭',
                     style: TextStyle(
                       fontSize: hasKeyboard ? 16 : (isMobile ? 18 : 20),
                       fontWeight: FontWeight.bold,
@@ -243,7 +243,7 @@ class _OnboardingFeedbackModalState
                                 ),
                               )
                             : Text(
-                                'Selesai',
+                                'Kirim',
                                 style: TextStyle(
                                   fontSize:
                                       hasKeyboard ? 14 : (isMobile ? 15 : 16),

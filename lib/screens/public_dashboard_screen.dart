@@ -13,6 +13,7 @@ import '../providers/onboarding_provider.dart';
 import '../providers/user_identification_provider.dart';
 import '../models/theme_colors.dart';
 import '../models/onboarding_step.dart'; // For OnboardingActionType
+import '../widgets/onboarding_feedback_modal.dart';
 
 /// Main public dashboard screen - Redesigned dengan card stack
 /// Clean, simple interface tanpa header/footer
@@ -421,23 +422,12 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
           ),
         ],
       ),
-      // FLOATING ACTION BUTTON for starting onboarding
-      floatingActionButton: Consumer(
-        builder: (context, ref, child) {
-          final onboardingState = ref.watch(onboardingProvider);
-
-          // Hide FAB when onboarding is active
-          if (onboardingState.isActive) {
-            return const SizedBox.shrink();
-          }
-
-          return _buildOnboardingFAB(context);
-        },
-      ),
+      // FLOATING ACTION BUTTON for feedback
+      floatingActionButton: _buildFeedbackFAB(context),
     );
   }
 
-  Widget _buildOnboardingFAB(BuildContext context) {
+  Widget _buildFeedbackFAB(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: const Duration(milliseconds: 1500),
@@ -449,10 +439,15 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
           scale: scale,
           child: FloatingActionButton(
             onPressed: () {
-              ref.read(onboardingProvider.notifier).startOnboarding();
+              showDialog(
+                context: context,
+                builder: (context) => OnboardingFeedbackModal(
+                  onComplete: () {},
+                ),
+              );
             },
             backgroundColor: Theme.of(context).colorScheme.primary,
-            child: const Icon(Icons.lightbulb_outline, color: Colors.white),
+            child: const Icon(Icons.chat_bubble_outline, color: Colors.white),
           ),
         );
       },
