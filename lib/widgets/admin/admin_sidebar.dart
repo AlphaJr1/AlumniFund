@@ -72,6 +72,12 @@ class AdminSidebar extends ConsumerWidget {
                   isActive: currentRoute == '/admin/brand-identity',
                 ),
                 _MenuItem(
+                  icon: '🎓',
+                  label: 'Graduation Schedule',
+                  route: '/admin/graduation-schedule',
+                  isActive: currentRoute == '/admin/graduation-schedule',
+                ),
+                _MenuItem(
                   icon: '⚙️',
                   label: 'Settings',
                   route: AdminConfig.settingsRoute,

@@ -15,6 +15,7 @@ import '../screens/admin/views/manage_users_view.dart';
 import '../screens/admin/views/manage_brand_identity_view.dart';
 import '../screens/admin/views/settings_view.dart';
 import '../screens/admin/views/feedback_list_screen.dart';
+import '../screens/admin/views/graduation_schedule_view.dart';
 import '../screens/user_identification_test_page.dart';
 import '../screens/registered_users_page.dart';
 import '../utils/admin_config.dart';
@@ -191,6 +192,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             name: 'admin-feedbacks',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: FeedbackListScreen(),
+            ),
+            redirect: (context, state) {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null || !AdminConfig.isAdmin(user.email)) {
+                return AdminConfig.loginRoute;
+              }
+              return null;
+            },
+          ),
+
+          // Graduation Schedule
+          GoRoute(
+            path: '/admin/graduation-schedule',
+            name: 'admin-graduation-schedule',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: GraduationScheduleView(),
             ),
             redirect: (context, state) {
               final user = FirebaseAuth.instance.currentUser;

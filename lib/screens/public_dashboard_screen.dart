@@ -14,6 +14,7 @@ import '../providers/user_identification_provider.dart';
 import '../models/theme_colors.dart';
 import '../models/onboarding_step.dart'; // For OnboardingActionType
 import '../widgets/onboarding_feedback_modal.dart';
+import '../widgets/graduation_schedule_card.dart';
 
 /// Main public dashboard screen - Redesigned dengan card stack
 /// Clean, simple interface tanpa header/footer
@@ -353,6 +354,9 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
                     ref.read(onboardingProvider.notifier).setModalOpen(false);
                   }
                 },
+              ),
+              const GraduationScheduleCard(
+                key: ValueKey(4),
               ),
             ],
             onCardChange: (index) {

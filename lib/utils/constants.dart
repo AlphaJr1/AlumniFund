@@ -10,6 +10,7 @@ class FirestoreCollections {
   static const String settings = 'settings';
   static const String pendingSubmissions = 'pending_submissions';
   static const String adminUsers = 'admin_users';
+  static const String graduationSchedules = 'graduation_schedules';
 }
 
 // ==================== STORAGE PATHS ====================

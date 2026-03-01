@@ -107,7 +107,7 @@ class _OnboardingFeedbackModalState
               child: Column(
                 children: [
                   Text(
-                    'Berikan Masukan 💭',
+                    'Give Feedback 💭',
                     style: TextStyle(
                       fontSize: hasKeyboard ? 16 : (isMobile ? 18 : 20),
                       fontWeight: FontWeight.bold,
@@ -118,7 +118,7 @@ class _OnboardingFeedbackModalState
                   if (!hasKeyboard) ...[
                     const SizedBox(height: 6),
                     Text(
-                      'Ada saran untuk perbaikan app?',
+                      'Any suggestions to improve the app?',
                       style: TextStyle(
                         fontSize: isMobile ? 13 : 14,
                         color: Colors.white.withOpacity(0.9),
@@ -142,7 +142,7 @@ class _OnboardingFeedbackModalState
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          'Opsional - tulis saran atau feedback kamu',
+                          'Optional - write your suggestions or feedback',
                           style: TextStyle(
                             fontSize: isMobile ? 12 : 13,
                             color: const Color(0xFF6B7280),
@@ -162,7 +162,7 @@ class _OnboardingFeedbackModalState
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
-                        hintText: 'Tulis di sini...',
+                        hintText: 'Write here...',
                         hintStyle: TextStyle(
                           color: Colors.grey[400],
                           fontSize: isMobile ? 13 : 14,
@@ -204,7 +204,7 @@ class _OnboardingFeedbackModalState
 
                     // Character counter
                     Text(
-                      '$remainingChars karakter tersisa',
+                      '$remainingChars characters left',
                       style: TextStyle(
                         fontSize: 11,
                         color: remainingChars < 50
@@ -243,7 +243,7 @@ class _OnboardingFeedbackModalState
                                 ),
                               )
                             : Text(
-                                'Kirim',
+                                'Submit',
                                 style: TextStyle(
                                   fontSize:
                                       hasKeyboard ? 14 : (isMobile ? 15 : 16),
