@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/brand_idea_model.dart';
+import '../models/brand_season_model.dart';
 import '../models/brand_vote_model.dart';
 import '../providers/brand_vote_provider.dart';
 import '../providers/brand_identity_provider.dart';
@@ -60,51 +61,87 @@ class BrandVotingCard extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, bool isMobile) {
-    // Fetch semua ideas yang sudah disubmit
-    return Consumer(builder: (context, ref, _) {
-      final ideasAsync = ref.watch(allIdeasProvider);
+    // Baca season aktif untuk votingDeadline
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('brand_seasons')
+          .where('isActive', isEqualTo: true)
+          .limit(1)
+          .snapshots(),
+      builder: (context, seasonSnap) {
+        BrandSeason? season;
+        if (seasonSnap.hasData && seasonSnap.data!.docs.isNotEmpty) {
+          try {
+            season = BrandSeason.fromFirestore(seasonSnap.data!.docs.first);
+          } catch (_) {}
+        }
 
-      return ideasAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => const SizedBox.shrink(),
-        data: (ideas) {
-          if (ideas.isEmpty) return const SizedBox.shrink();
+        final now = DateTime.now();
+        final votingClosed = season?.votingDeadline != null &&
+            now.isAfter(season!.votingDeadline!);
 
-          // Jika ada userId, cek apakah sudah vote
-          if (userId != null) {
-            final userVoteAsync = ref.watch(userVoteProvider(userId!));
-            return userVoteAsync.when(
+        return Consumer(builder: (context, ref, _) {
+          // Voting sudah tutup → tampilkan pemenang
+          if (votingClosed) {
+            final allVotesAsync = ref.watch(allVotesProvider);
+            return allVotesAsync.when(
               loading: () =>
                   const Center(child: CircularProgressIndicator()),
-              error: (e, _) =>
-                  _buildVotePromptContent(context, ideas, isMobile),
-              data: (userVote) {
-                if (userVote != null) {
-                  // Sudah vote: tampilkan pie chart realtime
-                  final allVotesAsync = ref.watch(allVotesProvider);
-                  return allVotesAsync.when(
-                    loading: () =>
-                        const Center(child: CircularProgressIndicator()),
-                    error: (e, _) => const SizedBox.shrink(),
-                    data: (allVotes) => _buildResultContent(
-                        context, allVotes, userVote, isMobile),
-                  );
-                } else {
-                  return _buildVotePromptContent(context, ideas, isMobile);
-                }
-              },
+              error: (e, _) => const SizedBox.shrink(),
+              data: (votes) =>
+                  _buildWinnerCard(context, votes, isMobile),
             );
-          } else {
-            return _buildVotePromptContent(context, ideas, isMobile);
           }
-        },
-      );
-    });
+
+          // Voting masih terbuka
+          final ideasAsync = ref.watch(allIdeasProvider);
+          return ideasAsync.when(
+            loading: () =>
+                const Center(child: CircularProgressIndicator()),
+            error: (e, _) => const SizedBox.shrink(),
+            data: (ideas) {
+              if (ideas.isEmpty) return const SizedBox.shrink();
+
+              if (userId != null) {
+                final userVoteAsync =
+                    ref.watch(userVoteProvider(userId!));
+                return userVoteAsync.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => _buildVotePromptContent(
+                      context, ideas, season, isMobile),
+                  data: (userVote) {
+                    if (userVote != null) {
+                      final allVotesAsync = ref.watch(allVotesProvider);
+                      return allVotesAsync.when(
+                        loading: () => const Center(
+                            child: CircularProgressIndicator()),
+                        error: (e, _) => const SizedBox.shrink(),
+                        data: (allVotes) => _buildResultContent(
+                            context, allVotes, userVote, season,
+                            isMobile),
+                      );
+                    } else {
+                      return _buildVotePromptContent(
+                          context, ideas, season, isMobile);
+                    }
+                  },
+                );
+              } else {
+                return _buildVotePromptContent(
+                    context, ideas, season, isMobile);
+              }
+            },
+          );
+        });
+      },
+    );
   }
 
   // ---- BELUM VOTE: tampilan tanda tanya + CTA ----
   Widget _buildVotePromptContent(
-      BuildContext context, List<BrandIdea> ideas, bool isMobile) {
+      BuildContext context, List<BrandIdea> ideas,
+      BrandSeason? season, bool isMobile) {
     return GestureDetector(
       onTap: () {
         if (userId == null) {
@@ -126,7 +163,6 @@ class BrandVotingCard extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Big question mark
               _AnimatedQuestionMark(isMobile: isMobile),
               SizedBox(height: isMobile ? 20 : 28),
 
@@ -150,12 +186,20 @@ class BrandVotingCard extends StatelessWidget {
                   height: 1.6,
                 ),
               ),
-              SizedBox(height: isMobile ? 28 : 36),
+              SizedBox(height: isMobile ? 16 : 20),
+
+              // Countdown deadline
+              if (season?.votingDeadline != null)
+                _CountdownBadge(
+                    deadline: season!.votingDeadline!,
+                    isMobile: isMobile),
+
+              SizedBox(height: isMobile ? 20 : 28),
 
               // CTA Button
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
@@ -163,7 +207,8 @@ class BrandVotingCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF7C3AED).withOpacity(0.35),
+                      color:
+                          const Color(0xFF7C3AED).withOpacity(0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -204,6 +249,7 @@ class BrandVotingCard extends StatelessWidget {
     BuildContext context,
     List<BrandVote> allVotes,
     BrandVote userVote,
+    BrandSeason? season,
     bool isMobile,
   ) {
     final results = computeVoteResults(allVotes);
@@ -240,7 +286,14 @@ class BrandVotingCard extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: isMobile ? 16 : 20),
+          // Countdown
+          if (season?.votingDeadline != null) ...[
+            const SizedBox(height: 8),
+            _CountdownBadge(
+                deadline: season!.votingDeadline!, isMobile: isMobile),
+          ],
+
+          SizedBox(height: isMobile ? 12 : 16),
 
           // Pie chart
           SizedBox(
@@ -675,6 +728,278 @@ class _VoteIdeaItemState extends State<_VoteIdeaItem> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ===========================================================
+// WINNER CARD (setelah voting deadline)
+// ===========================================================
+
+extension on BrandVotingCard {
+  Widget _buildWinnerCard(
+      BuildContext context, List<BrandVote> votes, bool isMobile) {
+    final results = computeVoteResults(votes);
+
+    if (results.isEmpty) {
+      return Center(
+        child: Text(
+          'Voting has ended.\nNo votes were cast.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: isMobile ? 16 : 18, color: const Color(0xFF64748B)),
+        ),
+      );
+    }
+
+    final winner = results.first;
+    final total = votes.length;
+
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(isMobile ? 24 : 36),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Trophy icon
+            _PulsingTrophyIcon(isMobile: isMobile),
+            SizedBox(height: isMobile ? 16 : 20),
+
+            Text(
+              '🎉 Voting Has Ended!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: isMobile ? 20 : 24,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'The community has spoken.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: isMobile ? 13 : 15,
+                color: const Color(0xFF64748B),
+              ),
+            ),
+            SizedBox(height: isMobile ? 20 : 24),
+
+            // Winner name
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                  vertical: isMobile ? 16 : 20, horizontal: 20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF7C3AED).withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'CONGRATULATIONS',
+                    style: TextStyle(
+                      fontSize: isMobile ? 10 : 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white60,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    winner.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: isMobile ? 30 : 38,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 3,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    '${winner.percentage.toStringAsFixed(1)}% of votes  •  ${winner.count} out of $total',
+                    style: TextStyle(
+                      fontSize: isMobile ? 12 : 13,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(height: isMobile ? 16 : 20),
+
+            // Runner-ups
+            if (results.length > 1) ...[
+              Text(
+                'Other Results',
+                style: TextStyle(
+                  fontSize: isMobile ? 11 : 12,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF94A3B8),
+                  letterSpacing: 0.5,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...results.skip(1).take(3).toList().asMap().entries.map((e) {
+                final r = e.value;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Text(
+                        '#${e.key + 2}',
+                        style: TextStyle(
+                          fontSize: isMobile ? 12 : 13,
+                          color: Colors.grey.shade400,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          r.title,
+                          style: TextStyle(
+                              fontSize: isMobile ? 13 : 14,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Text(
+                        '${r.percentage.toStringAsFixed(1)}%',
+                        style: TextStyle(
+                          fontSize: isMobile ? 12 : 13,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ===========================================================
+// PULSING TROPHY
+// ===========================================================
+
+class _PulsingTrophyIcon extends StatefulWidget {
+  final bool isMobile;
+  const _PulsingTrophyIcon({required this.isMobile});
+
+  @override
+  State<_PulsingTrophyIcon> createState() => _PulsingTrophyIconState();
+}
+
+class _PulsingTrophyIconState extends State<_PulsingTrophyIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+  late Animation<double> _anim;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+        duration: const Duration(milliseconds: 1600), vsync: this)
+      ..repeat(reverse: true);
+    _anim = Tween<double>(begin: 0.9, end: 1.05)
+        .chain(CurveTween(curve: Curves.easeInOut))
+        .animate(_ctrl);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (_, __) => Transform.scale(
+        scale: _anim.value,
+        child: Icon(
+          Icons.emoji_events_rounded,
+          size: widget.isMobile ? 72 : 90,
+          color: const Color(0xFFF59E0B),
+        ),
+      ),
+    );
+  }
+}
+
+// ===========================================================
+// COUNTDOWN BADGE
+// ===========================================================
+
+class _CountdownBadge extends StatelessWidget {
+  final DateTime deadline;
+  final bool isMobile;
+
+  const _CountdownBadge(
+      {required this.deadline, required this.isMobile});
+
+  String _fmt() {
+    final diff = deadline.difference(DateTime.now());
+    if (diff.isNegative) return 'Voting closed';
+    final d = diff.inDays;
+    final h = diff.inHours % 24;
+    final m = diff.inMinutes % 60;
+    final s = diff.inSeconds % 60;
+    if (d > 0) return '${d}d ${h}h ${m}m left';
+    if (h > 0) return '${h}h ${m}m ${s}s left';
+    return '${m}m ${s}s left';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Stream.periodic(const Duration(seconds: 1)),
+      builder: (_, __) {
+        final text = _fmt();
+        final isUrgent =
+            deadline.difference(DateTime.now()).inHours < 1;
+        final color =
+            isUrgent ? const Color(0xFFEF4444) : const Color(0xFF7C3AED);
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.08),
+            borderRadius: BorderRadius.circular(50),
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.timer_outlined, size: 14, color: color),
+              const SizedBox(width: 6),
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

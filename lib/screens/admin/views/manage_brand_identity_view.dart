@@ -328,6 +328,52 @@ class _ManageBrandIdentityViewState
     }
   }
 
+  Future<void> _showSetVotingDeadlineDialog() async {
+    DateTime picked = DateTime.now().add(const Duration(days: 1));
+
+    final date = await showDatePicker(
+      context: context,
+      initialDate: picked,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      helpText: 'Select Voting Deadline',
+    );
+    if (date == null || !mounted) return;
+
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(picked),
+      helpText: 'Select Deadline Time',
+    );
+    if (time == null || !mounted) return;
+
+    picked = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+
+    try {
+      final service = ref.read(brandIdentityServiceProvider);
+      await service.setVotingDeadline(picked);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Voting deadline set to ${DateFormat('d MMM yyyy, HH:mm').format(picked)}',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _deleteVote(BrandVote vote) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -716,8 +762,11 @@ class _ManageBrandIdentityViewState
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Total Votes',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Total Votes',
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -730,6 +779,22 @@ class _ManageBrandIdentityViewState
                   color: Colors.white,
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
+                ),
+              ),
+                ],
+              ),
+              // Set Voting Deadline button
+              OutlinedButton.icon(
+                onPressed: _showSetVotingDeadlineDialog,
+                icon: const Icon(Icons.timer, size: 16, color: Colors.white),
+                label: const Text(
+                  'Set Deadline',
+                  style: TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.white60),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 6),
                 ),
               ),
             ],

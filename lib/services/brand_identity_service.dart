@@ -184,6 +184,24 @@ class BrandIdentityService {
     }
   }
 
+  /// Set voting deadline (admin only)
+  Future<void> setVotingDeadline(DateTime deadline) async {
+    try {
+      final seasonsSnapshot = await _firestore
+          .collection('brand_seasons')
+          .where('isActive', isEqualTo: true)
+          .get();
+      for (var doc in seasonsSnapshot.docs) {
+        await doc.reference.update({
+          'votingDeadline': Timestamp.fromDate(deadline),
+          'phase': 'voting',
+        });
+      }
+    } catch (e) {
+      throw Exception('Failed to set voting deadline: $e');
+    }
+  }
+
   /// Create new brand season (admin only)
   Future<void> createNewSeason(DateTime inputDeadline) async {
     try {
