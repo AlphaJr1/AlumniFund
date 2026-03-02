@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../models/brand_idea_model.dart';
 import '../../../models/brand_season_model.dart';
+import '../../../models/brand_vote_model.dart';
 import '../../../providers/brand_identity_provider.dart';
+import '../../../providers/brand_vote_provider.dart';
 import '../../../services/brand_identity_service.dart';
+import '../../../services/brand_vote_service.dart';
 
 class ManageBrandIdentityView extends ConsumerStatefulWidget {
   const ManageBrandIdentityView({super.key});
@@ -15,13 +18,22 @@ class ManageBrandIdentityView extends ConsumerStatefulWidget {
 }
 
 class _ManageBrandIdentityViewState
-    extends ConsumerState<ManageBrandIdentityView> {
+    extends ConsumerState<ManageBrandIdentityView>
+    with SingleTickerProviderStateMixin {
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -316,6 +328,50 @@ class _ManageBrandIdentityViewState
     }
   }
 
+  Future<void> _deleteVote(BrandVote vote) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Vote'),
+        content: Text(
+          'Remove vote from "${vote.voterName}"?\nThey will be able to vote again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        final service = ref.read(brandVoteServiceProvider);
+        await service.deleteVote(vote.userId);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Vote from ${vote.voterName} removed'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    }
+  }
+
   void _showIdeaDetail(BrandIdea idea) {
     showDialog(
       context: context,
@@ -365,6 +421,7 @@ class _ManageBrandIdentityViewState
   Widget build(BuildContext context) {
     final seasonAsync = ref.watch(currentSeasonProvider);
     final ideasAsync = ref.watch(allIdeasProvider);
+    final allVotesAsync = ref.watch(allVotesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -375,9 +432,17 @@ class _ManageBrandIdentityViewState
             onPressed: () {
               ref.invalidate(currentSeasonProvider);
               ref.invalidate(allIdeasProvider);
+              ref.invalidate(allVotesProvider);
             },
           ),
         ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.lightbulb_outline), text: 'Submissions'),
+            Tab(icon: Icon(Icons.how_to_vote), text: 'Voting Results'),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -395,18 +460,11 @@ class _ManageBrandIdentityViewState
               ),
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 48,
-                    color: Colors.orange,
-                  ),
+                  const Icon(Icons.info_outline, size: 48, color: Colors.orange),
                   const SizedBox(height: 16),
                   const Text(
                     'No Active Brand Season',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   const Text(
@@ -421,10 +479,7 @@ class _ManageBrandIdentityViewState
                     label: const Text('Create New Season'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                   ),
                 ],
@@ -432,57 +487,64 @@ class _ManageBrandIdentityViewState
             ),
           ),
 
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search by name or title...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
-            ),
-          ),
-
-          // Ideas List
+          // Tab content
           Expanded(
-            child: ideasAsync.when(
-              data: (ideas) {
-                final filteredIdeas = ideas.where((idea) {
-                  if (_searchQuery.isEmpty) return true;
-                  return idea.title.toLowerCase().contains(_searchQuery) ||
-                      idea.submittedByName.toLowerCase().contains(_searchQuery);
-                }).toList();
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                // ---- TAB 1: Submissions ----
+                Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search by name or title...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                        ),
+                        onChanged: (value) =>
+                            setState(() => _searchQuery = value.toLowerCase()),
+                      ),
+                    ),
+                    Expanded(
+                      child: ideasAsync.when(
+                        data: (ideas) {
+                          final filtered = ideas.where((idea) {
+                            if (_searchQuery.isEmpty) return true;
+                            return idea.title.toLowerCase().contains(_searchQuery) ||
+                                idea.submittedByName.toLowerCase().contains(_searchQuery);
+                          }).toList();
+                          if (filtered.isEmpty) {
+                            return const Center(child: Text('No ideas submitted yet'));
+                          }
+                          return ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: filtered.length,
+                            itemBuilder: (context, index) =>
+                                _buildIdeaCard(filtered[index]),
+                          );
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (e, _) => Center(child: Text('Error: $e')),
+                      ),
+                    ),
+                  ],
+                ),
 
-                if (filteredIdeas.isEmpty) {
-                  return const Center(
-                    child: Text('No ideas submitted yet'),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: filteredIdeas.length,
-                  itemBuilder: (context, index) {
-                    final idea = filteredIdeas[index];
-                    return _buildIdeaCard(idea);
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, _) => Center(
-                child: Text('Error: $error'),
-              ),
+                // ---- TAB 2: Voting Results ----
+                allVotesAsync.when(
+                  data: (votes) => _buildVotingResultsTab(votes),
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (e, _) => Center(child: Text('Error: $e')),
+                ),
+              ],
             ),
           ),
         ],
@@ -615,6 +677,187 @@ class _ManageBrandIdentityViewState
         ),
         isThreeLine: true,
       ),
+    );
+  }
+
+  Widget _buildVotingResultsTab(List<BrandVote> votes) {
+    final results = computeVoteResults(votes);
+    final total = votes.length;
+
+    if (votes.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.how_to_vote_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No votes yet',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        // Summary header
+        Container(
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
+            ),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Votes',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '$total',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Per-kandidat card
+        ...results.asMap().entries.map((entry) {
+          final idx = entry.key;
+          final result = entry.value;
+          final colors = [
+            const Color(0xFF7C3AED),
+            const Color(0xFF06B6D4),
+            const Color(0xFF10B981),
+            const Color(0xFFF59E0B),
+            const Color(0xFFEC4899),
+            const Color(0xFFEF4444),
+          ];
+          final color = colors[idx % colors.length];
+
+          // voter list: pisah per votes yang memilih ini
+          final votersForThis = votes
+              .where((v) => v.votedForIdeaId == result.ideaId)
+              .toList();
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(color: color.withOpacity(0.3), width: 1.5),
+            ),
+            child: ExpansionTile(
+              leading: CircleAvatar(
+                backgroundColor: color,
+                child: Text(
+                  '#${idx + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              title: Text(
+                result.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 6),
+                  LinearProgressIndicator(
+                    value: result.percentage / 100,
+                    backgroundColor: Colors.grey.shade200,
+                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${result.percentage.toStringAsFixed(1)}% — ${result.count} vote${result.count != 1 ? 's' : ''}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: color,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              childrenPadding: const EdgeInsets.symmetric(
+                  horizontal: 16, vertical: 8),
+              children: [
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Voters:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                ...votersForThis.map(
+                  (v) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person_outline,
+                            size: 16, color: Colors.grey),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            v.voterName,
+                            style: const TextStyle(fontSize: 13),
+                          ),
+                        ),
+                        Text(
+                          DateFormat('d MMM yyyy').format(v.votedAt),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline,
+                              size: 16, color: Colors.red),
+                          tooltip: 'Remove vote (user can re-vote)',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () => _deleteVote(v),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 4),
+              ],
+            ),
+          );
+        }),
+      ],
     );
   }
 }

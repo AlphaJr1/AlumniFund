@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:confetti/confetti.dart';
 import '../widgets/card_stack_widget.dart';
-import '../widgets/brand_identity_card.dart';
+import '../widgets/brand_voting_card.dart';
 import '../widgets/balance_target_card.dart';
 import '../widgets/income_card.dart';
 import '../widgets/expense_card.dart';
@@ -288,12 +288,14 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
             key: _cardStackKey,
             cards: [
               Consumer(
-                key: const ValueKey(0),
+                key: const ValueKey('vote'),
                 builder: (context, ref, _) {
                   final userState = ref.watch(userIdentificationProvider);
                   final userId = userState.userData?.userId;
-                  return BrandIdentityCard(
+                  final userName = userState.userData?.displayName;
+                  return BrandVotingCard(
                     userId: userId,
+                    userName: userName,
                   );
                 },
               ),
