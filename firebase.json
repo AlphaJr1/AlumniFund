@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "unamed",
     "public": "build/web",
     "ignore": [
       "firebase.json",
