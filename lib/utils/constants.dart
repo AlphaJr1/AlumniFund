@@ -186,7 +186,7 @@ class AppConstants {
   // ==================== DEFAULT VALUES ====================
 
   /// App name
-  static const String appName = 'UNAME';
+  static const String appName = 'MATEON';
 
   /// Community name
   static const String communityName = 'Alumni Community';

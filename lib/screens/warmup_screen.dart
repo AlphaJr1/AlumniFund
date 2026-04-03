@@ -67,7 +67,7 @@ class _WarmupScreenState extends ConsumerState<WarmupScreen> {
           children: [
             // Brand name
             Text(
-              'UNAME',
+              'MATEON',
               style: TextStyle(
                 color: Color(0xFF1F2937),
                 fontSize: 42,

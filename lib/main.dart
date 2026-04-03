@@ -35,7 +35,7 @@ void main() async {
       try {
         final firestoreService = FirestoreService();
         await firestoreService.initializeDefaultSettings();
-        
+
         // Check and activate targets on app start
         final targetService = TargetService();
         await targetService.checkAndActivateTargets();
@@ -70,7 +70,7 @@ class DompetAlumniApp extends ConsumerWidget {
     return MaterialApp.router(
       key: ValueKey(
           'theme_${currentTheme.name}'), // Force rebuild on theme change
-      title: 'UNAME',
+      title: 'MATEON',
       debugShowCheckedModeBanner: false,
 
       // Theme - dynamic based on user selection

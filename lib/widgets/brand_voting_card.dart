@@ -77,70 +77,30 @@ class BrandVotingCard extends StatelessWidget {
         }
 
         final now = DateTime.now();
-        final votingClosed = season?.votingDeadline != null &&
-            now.isAfter(season!.votingDeadline!);
+        // TODO: Set to true to show "Voting Has Ended" card
+        final votingClosed =
+            false; // season?.votingDeadline != null && now.isAfter(season!.votingDeadline!);
 
         return Consumer(builder: (context, ref, _) {
           // Voting sudah tutup → tampilkan pemenang
           if (votingClosed) {
             final allVotesAsync = ref.watch(allVotesProvider);
             return allVotesAsync.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => const SizedBox.shrink(),
-              data: (votes) =>
-                  _buildWinnerCard(context, votes, isMobile),
+              data: (votes) => _buildWinnerCard(context, votes, isMobile),
             );
           }
 
-          // Voting masih terbuka
-          final ideasAsync = ref.watch(allIdeasProvider);
-          return ideasAsync.when(
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
-            error: (e, _) => const SizedBox.shrink(),
-            data: (ideas) {
-              if (ideas.isEmpty) return const SizedBox.shrink();
-
-              if (userId != null) {
-                final userVoteAsync =
-                    ref.watch(userVoteProvider(userId!));
-                return userVoteAsync.when(
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => _buildVotePromptContent(
-                      context, ideas, season, isMobile),
-                  data: (userVote) {
-                    if (userVote != null) {
-                      final allVotesAsync = ref.watch(allVotesProvider);
-                      return allVotesAsync.when(
-                        loading: () => const Center(
-                            child: CircularProgressIndicator()),
-                        error: (e, _) => const SizedBox.shrink(),
-                        data: (allVotes) => _buildResultContent(
-                            context, allVotes, userVote, season,
-                            isMobile),
-                      );
-                    } else {
-                      return _buildVotePromptContent(
-                          context, ideas, season, isMobile);
-                    }
-                  },
-                );
-              } else {
-                return _buildVotePromptContent(
-                    context, ideas, season, isMobile);
-              }
-            },
-          );
+          // Voting masih terbuka - hide voting card
+          return const SizedBox.shrink();
         });
       },
     );
   }
 
   // ---- BELUM VOTE: tampilan tanda tanya + CTA ----
-  Widget _buildVotePromptContent(
-      BuildContext context, List<BrandIdea> ideas,
+  Widget _buildVotePromptContent(BuildContext context, List<BrandIdea> ideas,
       BrandSeason? season, bool isMobile) {
     return GestureDetector(
       onTap: () {
@@ -191,15 +151,14 @@ class BrandVotingCard extends StatelessWidget {
               // Countdown deadline
               if (season?.votingDeadline != null)
                 _CountdownBadge(
-                    deadline: season!.votingDeadline!,
-                    isMobile: isMobile),
+                    deadline: season!.votingDeadline!, isMobile: isMobile),
 
               SizedBox(height: isMobile ? 20 : 28),
 
               // CTA Button
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 28, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFF7C3AED), Color(0xFF06B6D4)],
@@ -207,8 +166,7 @@ class BrandVotingCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(50),
                   boxShadow: [
                     BoxShadow(
-                      color:
-                          const Color(0xFF7C3AED).withOpacity(0.35),
+                      color: const Color(0xFF7C3AED).withOpacity(0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -264,8 +222,7 @@ class BrandVotingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.check_circle_rounded,
-                  color: Colors.green.shade500,
-                  size: isMobile ? 22 : 26),
+                  color: Colors.green.shade500, size: isMobile ? 22 : 26),
               const SizedBox(width: 8),
               Text(
                 'Your vote has been recorded!',
@@ -328,12 +285,9 @@ class BrandVotingCard extends StatelessWidget {
 
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: isMyVote
-                    ? color.withOpacity(0.1)
-                    : Colors.grey.shade50,
+                color: isMyVote ? color.withOpacity(0.1) : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(10),
                 border: isMyVote
                     ? Border.all(color: color, width: 1.5)
@@ -352,9 +306,8 @@ class BrandVotingCard extends StatelessWidget {
                     child: Text(
                       r.title,
                       style: TextStyle(
-                        fontWeight: isMyVote
-                            ? FontWeight.w700
-                            : FontWeight.w500,
+                        fontWeight:
+                            isMyVote ? FontWeight.w700 : FontWeight.w500,
                         fontSize: isMobile ? 13 : 14,
                         color: const Color(0xFF1E293B),
                       ),
@@ -378,8 +331,7 @@ class BrandVotingCard extends StatelessWidget {
                   ),
                   if (isMyVote) ...[
                     const SizedBox(width: 6),
-                    Icon(Icons.how_to_vote_rounded,
-                        size: 14, color: color),
+                    Icon(Icons.how_to_vote_rounded, size: 14, color: color),
                   ],
                 ],
               ),
@@ -540,8 +492,8 @@ class _BrandVoteModalState extends ConsumerState<BrandVoteModal> {
             // List pilihan
             Flexible(
               child: ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 shrinkWrap: true,
                 itemCount: widget.ideas.length,
                 itemBuilder: (context, index) {
@@ -584,10 +536,9 @@ class _BrandVoteModalState extends ConsumerState<BrandVoteModal> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(
-                      onPressed:
-                          (_selectedIdeaId == null || _isSubmitting)
-                              ? null
-                              : _handleVote,
+                      onPressed: (_selectedIdeaId == null || _isSubmitting)
+                          ? null
+                          : _handleVote,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         backgroundColor: const Color(0xFF7C3AED),
@@ -951,8 +902,7 @@ class _CountdownBadge extends StatelessWidget {
   final DateTime deadline;
   final bool isMobile;
 
-  const _CountdownBadge(
-      {required this.deadline, required this.isMobile});
+  const _CountdownBadge({required this.deadline, required this.isMobile});
 
   String _fmt() {
     final diff = deadline.difference(DateTime.now());
@@ -972,8 +922,7 @@ class _CountdownBadge extends StatelessWidget {
       stream: Stream.periodic(const Duration(seconds: 1)),
       builder: (_, __) {
         final text = _fmt();
-        final isUrgent =
-            deadline.difference(DateTime.now()).inHours < 1;
+        final isUrgent = deadline.difference(DateTime.now()).inHours < 1;
         final color =
             isUrgent ? const Color(0xFFEF4444) : const Color(0xFF7C3AED);
         return Container(

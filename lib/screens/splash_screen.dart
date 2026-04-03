@@ -116,7 +116,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           children: [
             // App Name
             const Text(
-              'UNAME',
+              'MATEON',
               style: TextStyle(
                 color: Color(0xFF1F2937),
                 fontSize: 48,

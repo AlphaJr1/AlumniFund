@@ -287,18 +287,6 @@ class _PublicDashboardScreenState extends ConsumerState<PublicDashboardScreen>
           CardStackWidget(
             key: _cardStackKey,
             cards: [
-              Consumer(
-                key: const ValueKey('vote'),
-                builder: (context, ref, _) {
-                  final userState = ref.watch(userIdentificationProvider);
-                  final userId = userState.userData?.userId;
-                  final userName = userState.userData?.displayName;
-                  return BrandVotingCard(
-                    userId: userId,
-                    userName: userName,
-                  );
-                },
-              ),
               BalanceTargetCard(
                 key: const ValueKey(1),
                 onProofSubmitted: triggerConfetti,

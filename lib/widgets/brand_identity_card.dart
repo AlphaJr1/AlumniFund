@@ -7,7 +7,7 @@ import 'brand_idea_submit_modal.dart';
 
 class BrandIdentityCard extends StatelessWidget {
   final String? userId;
-  
+
   // Static service instance to prevent stream recreation
   static final _service = BrandIdentityService();
 
@@ -58,7 +58,8 @@ class BrandIdentityCard extends StatelessWidget {
                 child: Container(
                   color: Colors.white,
                   child: RepaintBoundary(
-                    child: _buildContent(context, screenWidth, screenHeight, isMobile),
+                    child: _buildContent(
+                        context, screenWidth, screenHeight, isMobile),
                   ),
                 ),
               ),
@@ -70,7 +71,8 @@ class BrandIdentityCard extends StatelessWidget {
   }
 
   // Content yang di-stream (hanya isi, bukan border/bg)
-  Widget _buildContent(BuildContext context, double screenWidth, double screenHeight, bool isMobile) {
+  Widget _buildContent(BuildContext context, double screenWidth,
+      double screenHeight, bool isMobile) {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('brand_seasons')
@@ -82,10 +84,11 @@ class BrandIdentityCard extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            !snapshot.hasData) {
           return _buildSimpleLoadingCard();
         }
-        
+
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const SizedBox.shrink();
         }
@@ -93,7 +96,8 @@ class BrandIdentityCard extends StatelessWidget {
         try {
           final seasonDoc = snapshot.data!.docs.first;
           final season = BrandSeason.fromFirestore(seasonDoc);
-          return _buildSubmitCardContent(context, season, userId, screenWidth, screenHeight, isMobile);
+          return _buildSubmitCardContent(
+              context, season, userId, screenWidth, screenHeight, isMobile);
         } catch (e, stackTrace) {
           return const SizedBox.shrink();
         }
@@ -102,13 +106,12 @@ class BrandIdentityCard extends StatelessWidget {
   }
 
   // Renamed dari _buildSubmitCard
-  Widget _buildSubmitCardContent(
-      BuildContext context, BrandSeason season, String? userId, 
-      double screenWidth, double screenHeight, bool isMobile) {
-    
+  Widget _buildSubmitCardContent(BuildContext context, BrandSeason season,
+      String? userId, double screenWidth, double screenHeight, bool isMobile) {
     // Jika tidak ada userId, tampilkan input card
     if (userId == null) {
-      return _buildInputCardContent(context, season, screenWidth, screenHeight, isMobile);
+      return _buildInputCardContent(
+          context, season, screenWidth, screenHeight, isMobile);
     }
 
     // Use static service instance - no recreation
@@ -116,23 +119,19 @@ class BrandIdentityCard extends StatelessWidget {
       child: StreamBuilder<BrandIdea?>(
         stream: _service.watchUserIdea(userId),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
             return _buildSimpleLoadingCard();
           }
 
           final userIdea = snapshot.data;
-          
+
           if (userIdea != null) {
             return _buildThankYouCardContent(
-              context, 
-              season, 
-              userIdea, 
-              screenWidth, 
-              screenHeight, 
-              isMobile
-            );
+                context, season, userIdea, screenWidth, screenHeight, isMobile);
           } else {
-            return _buildInputCardContent(context, season, screenWidth, screenHeight, isMobile);
+            return _buildInputCardContent(
+                context, season, screenWidth, screenHeight, isMobile);
           }
         },
       ),
@@ -189,7 +188,8 @@ class BrandIdentityCard extends StatelessWidget {
                             // TODO: Navigate to login or trigger Google Sign In
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please use the login button in the app bar'),
+                                content: Text(
+                                    'Please use the login button in the app bar'),
                                 backgroundColor: Colors.blue,
                               ),
                             );
@@ -206,14 +206,13 @@ class BrandIdentityCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Center(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(isMobile ? 20 : 32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isMobile ? 20 : 32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           SizedBox(height: isMobile ? 8 : 12),
-                          
                           Text(
                             'Community Naming Event',
                             style: TextStyle(
@@ -223,9 +222,8 @@ class BrandIdentityCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          
                           Text(
-                            '"UNAME" is just a placeholder.\nHelp us find the perfect name\nfor our community!',
+                            '"MATEON" is just a placeholder.\nHelp us find the perfect name\nfor our community!',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: isMobile ? 16 : 18,
@@ -233,9 +231,7 @@ class BrandIdentityCard extends StatelessWidget {
                               height: 1.5,
                             ),
                           ),
-                          
                           SizedBox(height: isMobile ? 24 : 28),
-                          
                           if (season.inputDeadline != null) ...[
                             Text(
                               'We\'re waiting for your contribution!',
@@ -249,7 +245,8 @@ class BrandIdentityCard extends StatelessWidget {
                             const SizedBox(height: 12),
                             SizedBox(height: isMobile ? 16 : 20),
                             StreamBuilder(
-                              stream: Stream.periodic(const Duration(seconds: 1)),
+                              stream:
+                                  Stream.periodic(const Duration(seconds: 1)),
                               builder: (context, snapshot) {
                                 return Container(
                                   padding: const EdgeInsets.symmetric(
@@ -283,9 +280,7 @@ class BrandIdentityCard extends StatelessWidget {
                               },
                             ),
                           ],
-                          
                           SizedBox(height: isMobile ? 24 : 28),
-                          
                           SizedBox(height: isMobile ? 8 : 12),
                         ],
                       ),
@@ -332,7 +327,8 @@ class BrandIdentityCard extends StatelessWidget {
 
     // Jika tidak ada userId (tidak teridentifikasi), tetap tampilkan input card
     if (userId == null) {
-      return _buildInputCardContent(context, season, screenWidth, screenHeight, isMobile);
+      return _buildInputCardContent(
+          context, season, screenWidth, screenHeight, isMobile);
     }
 
     // Use static service instance - no recreation
@@ -341,35 +337,27 @@ class BrandIdentityCard extends StatelessWidget {
         stream: _service.watchUserIdea(userId),
         builder: (context, snapshot) {
           // Show loading only on initial wait, not on active updates
-          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
             return _buildSimpleLoadingCard();
           }
 
           final userIdea = snapshot.data;
-          
+
           if (userIdea != null) {
             return _buildThankYouCardContent(
-              context, 
-              season, 
-              userIdea, 
-              screenWidth, 
-              screenHeight, 
-              isMobile
-            );
+                context, season, userIdea, screenWidth, screenHeight, isMobile);
           } else {
-            return _buildInputCardContent(context, season, screenWidth, screenHeight, isMobile);
+            return _buildInputCardContent(
+                context, season, screenWidth, screenHeight, isMobile);
           }
         },
       ),
     );
   }
 
-  Widget _buildInputCardContent(
-      BuildContext context,
-      BrandSeason season, 
-      double screenWidth,
-      double screenHeight,
-      bool isMobile) {
+  Widget _buildInputCardContent(BuildContext context, BrandSeason season,
+      double screenWidth, double screenHeight, bool isMobile) {
     return GestureDetector(
       onTap: () {
         showDialog(
@@ -385,7 +373,7 @@ class BrandIdentityCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: isMobile ? 8 : 12),
-              
+
               // Title
               Text(
                 'Help Us Choose Our Name!',
@@ -396,10 +384,10 @@ class BrandIdentityCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               // Description
               Text(
-                '"UNAME" is just a placeholder.\nWe\'re waiting for your contribution!\nHelp us find the perfect name for our community.',
+                '"MATEON" is just a placeholder.\nWe\'re waiting for your contribution!\nHelp us find the perfect name for our community.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: isMobile ? 15 : 17,
@@ -407,9 +395,9 @@ class BrandIdentityCard extends StatelessWidget {
                   height: 1.6,
                 ),
               ),
-              
+
               SizedBox(height: isMobile ? 24 : 28),
-              
+
               if (season.inputDeadline != null) ...[
                 SizedBox(height: isMobile ? 16 : 20),
                 StreamBuilder(
@@ -417,7 +405,7 @@ class BrandIdentityCard extends StatelessWidget {
                   builder: (context, snapshot) {
                     final primaryColor = Theme.of(context).primaryColor;
                     final lightColor = primaryColor.withOpacity(0.1);
-                    
+
                     return Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -450,16 +438,16 @@ class BrandIdentityCard extends StatelessWidget {
                   },
                 ),
               ],
-              
+
               SizedBox(height: isMobile ? 24 : 28),
               SizedBox(height: isMobile ? 20 : 24),
-              
+
               // Hint text
               _PulsingHintText(
                 text: 'Tap this card to contribute your idea',
                 isMobile: isMobile,
               ),
-              
+
               SizedBox(height: isMobile ? 8 : 12),
             ],
           ),
@@ -504,179 +492,179 @@ class BrandIdentityCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-                        // Thank you icon
-                        Icon(
-                          Icons.check_circle,
-                          size: isMobile ? 64 : 80,
-                          color: Colors.green.shade500,
-                        ),
-                        SizedBox(height: isMobile ? 16 : 20),
-                        
-                        // Thank you message with name
-                        Text(
-                          'Thank You, ${userIdea.submittedByName}!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isMobile ? 24 : 28,
-                            fontWeight: FontWeight.w800,
-                            color: const Color(0xFF374151),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        
-                        Text(
-                          'Your contribution has been received',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isMobile ? 14 : 16,
-                            color: const Color(0xFF6B7280),
-                          ),
-                        ),
-                        
-                        SizedBox(height: isMobile ? 24 : 32),
-                        
-                        // Divider
-                        Container(
-                          width: double.infinity,
-                          height: 1,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.grey.shade200,
-                                Colors.grey.shade400,
-                                Colors.grey.shade200,
-                              ],
-                            ),
-                          ),
-                        ),
-                        
-                        SizedBox(height: isMobile ? 20 : 24),
-                        
-                        // Submitted Brand Name
-                        Text(
-                          'Your Proposed Name:',
-                          style: TextStyle(
-                            fontSize: isMobile ? 12 : 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF9CA3AF),
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        
-                        Text(
-                          userIdea.title,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isMobile ? 26 : 32,
-                            fontWeight: FontWeight.w900,
-                            color: Theme.of(context).primaryColor,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                        
-                        SizedBox(height: isMobile ? 20 : 24),
-                        
-                        // Philosophy
-                        Text(
-                          'Your Philosophy:',
-                          style: TextStyle(
-                            fontSize: isMobile ? 12 : 13,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF9CA3AF),
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.grey.shade200,
-                              width: 1,
-                            ),
-                          ),
-                          child: Text(
-                            userIdea.philosophy,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: isMobile ? 14 : 15,
-                              color: const Color(0xFF374151),
-                              height: 1.6,
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                        
-                        SizedBox(height: isMobile ? 24 : 28),
-                        
-                        // Info text
-                        Text(
-                          'You can update your submission anytime before the deadline',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: isMobile ? 12 : 13,
-                            color: const Color(0xFF9CA3AF),
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                        
-                        if (season.inputDeadline != null) ...[
-                          const SizedBox(height: 12),
-                          StreamBuilder(
-                            stream: Stream.periodic(const Duration(seconds: 1)),
-                            builder: (context, snapshot) {
-                              final primaryColor = Theme.of(context).primaryColor;
-                              final lightColor = primaryColor.withOpacity(0.1);
-                              
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 10,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: lightColor,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.timer_outlined,
-                                      color: primaryColor,
-                                      size: 16,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      _formatCountdown(season.inputDeadline!),
-                                      style: TextStyle(
-                                        fontSize: isMobile ? 12 : 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                        
-                        SizedBox(height: isMobile ? 16 : 20),
-                        
-                        // Tap to edit hint
-                        _PulsingHintText(
-                          text: 'Tap this card to update your submission',
-                          isMobile: isMobile,
-                        ),
-                      ],
-                    ),
+              // Thank you icon
+              Icon(
+                Icons.check_circle,
+                size: isMobile ? 64 : 80,
+                color: Colors.green.shade500,
+              ),
+              SizedBox(height: isMobile ? 16 : 20),
+
+              // Thank you message with name
+              Text(
+                'Thank You, ${userIdea.submittedByName}!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 24 : 28,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Text(
+                'Your contribution has been received',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+
+              SizedBox(height: isMobile ? 24 : 32),
+
+              // Divider
+              Container(
+                width: double.infinity,
+                height: 1,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.grey.shade200,
+                      Colors.grey.shade400,
+                      Colors.grey.shade200,
+                    ],
                   ),
                 ),
-              );
+              ),
+
+              SizedBox(height: isMobile ? 20 : 24),
+
+              // Submitted Brand Name
+              Text(
+                'Your Proposed Name:',
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF9CA3AF),
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Text(
+                userIdea.title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 26 : 32,
+                  fontWeight: FontWeight.w900,
+                  color: Theme.of(context).primaryColor,
+                  letterSpacing: 2,
+                ),
+              ),
+
+              SizedBox(height: isMobile ? 20 : 24),
+
+              // Philosophy
+              Text(
+                'Your Philosophy:',
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF9CA3AF),
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  userIdea.philosophy,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: isMobile ? 14 : 15,
+                    color: const Color(0xFF374151),
+                    height: 1.6,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: isMobile ? 24 : 28),
+
+              // Info text
+              Text(
+                'You can update your submission anytime before the deadline',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 13,
+                  color: const Color(0xFF9CA3AF),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+
+              if (season.inputDeadline != null) ...[
+                const SizedBox(height: 12),
+                StreamBuilder(
+                  stream: Stream.periodic(const Duration(seconds: 1)),
+                  builder: (context, snapshot) {
+                    final primaryColor = Theme.of(context).primaryColor;
+                    final lightColor = primaryColor.withOpacity(0.1);
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: lightColor,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.timer_outlined,
+                            color: primaryColor,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _formatCountdown(season.inputDeadline!),
+                            style: TextStyle(
+                              fontSize: isMobile ? 12 : 13,
+                              fontWeight: FontWeight.w600,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+
+              SizedBox(height: isMobile ? 16 : 20),
+
+              // Tap to edit hint
+              _PulsingHintText(
+                text: 'Tap this card to update your submission',
+                isMobile: isMobile,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
