@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "mateon",
     "public": "build/web",
     "ignore": [
       "firebase.json",
